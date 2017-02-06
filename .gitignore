@@ -1,0 +1,6 @@
+terraform-provider-keboola
+terraform-provider-keboola.exe
+terraform.tfstate
+*.backup
+*.log
+*.sensitive
