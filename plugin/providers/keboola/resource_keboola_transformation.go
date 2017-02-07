@@ -159,6 +159,7 @@ func resourceKeboolaTransformation() *schema.Resource {
 						"whereColumn": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "",
 						},
 						"whereValues": &schema.Schema{
 							Type:     schema.TypeList,
@@ -170,6 +171,7 @@ func resourceKeboolaTransformation() *schema.Resource {
 						"whereOperator": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "eq",
 						},
 						"columns": &schema.Schema{
 							Type:     schema.TypeList,
