@@ -11,7 +11,7 @@ else
 endif
 
 test:
-	go test -v .
+	go test -v ./plugin/providers/keboola/
 
 plan:
 	@terraform plan
