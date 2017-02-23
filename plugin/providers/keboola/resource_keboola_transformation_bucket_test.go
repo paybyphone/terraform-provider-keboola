@@ -20,16 +20,16 @@ func TestAccTransformationBucket_Basic(t *testing.T) {
 			resource.TestStep{
 				Config: testBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test", &bucket),
-					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "name", "test name"),
-					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "description", "test description"),
+					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "name", "test name"),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "description", "test description"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccMackerelExpressionMonitor_Update(t *testing.T) {
+func TestAccTransformationBucket_Update(t *testing.T) {
 	var bucket TransformationBucket
 
 	resource.Test(t, resource.TestCase{
@@ -40,17 +40,17 @@ func TestAccMackerelExpressionMonitor_Update(t *testing.T) {
 			resource.TestStep{
 				Config: testBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test", &bucket),
-					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "name", "test name"),
-					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "description", "test description"),
+					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "name", "test name"),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "description", "test description"),
 				),
 			},
 			resource.TestStep{
 				Config: testBucketUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test", &bucket),
-					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "name", "new test name"),
-					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "description", "new test description"),
+					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "name", "new test name"),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "description", "new test description"),
 				),
 			},
 		},
@@ -70,7 +70,9 @@ func testAccCheckTransformationBucketExists(n string, bucket *TransformationBuck
 		}
 
 		client := testAccProvider.Meta().(*KbcClient)
-		getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", rs.Primary.ID))
+		bucketURI := fmt.Sprintf("storage/components/transformation/configs/%s", rs.Primary.ID)
+		fmt.Printf("Checking bucket exists at: %s\n", bucketURI)
+		getResp, err := client.GetFromStorage(bucketURI)
 
 		if err != nil {
 			return err
@@ -89,6 +91,8 @@ func testAccCheckTransformationBucketExists(n string, bucket *TransformationBuck
 			return fmt.Errorf("Record not found")
 		}
 
+		fmt.Printf("Bucket ID: %s\n", transBucket.ID)
+
 		*bucket = transBucket
 
 		return nil
@@ -103,7 +107,9 @@ func testAccCheckTransformationBucketDestroy(s *terraform.State) error {
 			continue
 		}
 
-		getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", rs.Primary.ID))
+		bucketURI := fmt.Sprintf("storage/components/transformation/configs/%s", rs.Primary.ID)
+		fmt.Printf("Checking bucket still exists after destroy at: %s\n", bucketURI)
+		getResp, err := client.GetFromStorage(bucketURI)
 
 		if err == nil && getResp.StatusCode == 200 {
 			return fmt.Errorf("Transformation bucket still exists")
@@ -114,13 +120,13 @@ func testAccCheckTransformationBucketDestroy(s *terraform.State) error {
 }
 
 const testBucketBasic = `
-resource "keboola_transformation_bucket" "test" {
+resource "keboola_transformation_bucket" "test_bucket" {
 	name = "test name"
 	description = "test description"
 }`
 
 const testBucketUpdate = `
-resource "keboola_transformation_bucket" "test" {
+resource "keboola_transformation_bucket" "test_bucket" {
 	name = "new test name"
 	description = "new test description"
 }`
