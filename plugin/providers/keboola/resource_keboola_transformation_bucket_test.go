@@ -18,11 +18,39 @@ func TestAccTransformationBucket_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTransformationBucketDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testBucket,
+				Config: testBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test", &bucket),
 					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "name", "test name"),
 					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "description", "test description"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccMackerelExpressionMonitor_Update(t *testing.T) {
+	var bucket TransformationBucket
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckTransformationBucketDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testBucketBasic,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test", &bucket),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "name", "test name"),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "description", "test description"),
+				),
+			},
+			resource.TestStep{
+				Config: testBucketUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test", &bucket),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "name", "new test name"),
+					resource.TestCheckResourceAttr("keboola_transformation_bucket.test", "description", "new test description"),
 				),
 			},
 		},
@@ -85,8 +113,14 @@ func testAccCheckTransformationBucketDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testBucket = `
+const testBucketBasic = `
 resource "keboola_transformation_bucket" "test" {
 	name = "test name"
 	description = "test description"
+}`
+
+const testBucketUpdate = `
+resource "keboola_transformation_bucket" "test" {
+	name = "new test name"
+	description = "new test description"
 }`
