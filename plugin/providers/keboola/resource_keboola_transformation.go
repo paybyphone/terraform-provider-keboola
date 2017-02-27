@@ -40,14 +40,14 @@ type Output struct {
 //Configuration holds the core configuration for each transformation, as
 //it is structured in the Keboola Storage API.
 type Configuration struct {
-	Input       []Input  `json:"input"`
-	Output      []Output `json:"output"`
-	Queries     []string `json:"queries"`
-	ID          string   `json:"id"`
+	Input       []Input  `json:"input,omitempty"`
+	Output      []Output `json:"output,omitempty"`
+	Queries     []string `json:"queries,omitempty"`
+	ID          string   `json:"id,omitempty"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Disabled    bool     `json:"disabled,omitempty"`
-	BackEnd     string   `json:"backend,omitempty"`
+	BackEnd     string   `json:"backend"`
 	Type        string   `json:"type"`
 }
 
@@ -323,7 +323,8 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) error {
 	log.Print("[INFO] Reading Transformations from Keboola.")
 	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
+	readURI := fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id())
+	getResp, err := client.GetFromStorage(readURI)
 
 	if err != nil {
 		return err
