@@ -25,26 +25,29 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaStorageBucketCreate,
 		Read:   resourceKeboolaStorageBucketRead,
-		Update: resourceKeboolaStorageBucketUpdate,
 		Delete: resourceKeboolaStorageBucketDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"stage": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validateStorageBucketStage,
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"backend": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validateStorageBucketBackend,
 			},
 		},
@@ -112,27 +115,6 @@ func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("backend", storageBucket.Backend)
 
 	return nil
-}
-
-func resourceKeboolaStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Storage Bucket in Keboola.")
-
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("stage", d.Get("stage").(string))
-	form.Add("description", d.Get("description").(string))
-	form.Add("backend", d.Get("backend").(string))
-
-	formdataBuffer := bytes.NewBufferString(form.Encode())
-
-	client := meta.(*KbcClient)
-	_, err := client.PutToStorage(fmt.Sprintf("storage/buckets/%s", d.Id()), formdataBuffer)
-
-	if err != nil {
-		return err
-	}
-
-	return resourceKeboolaStorageBucketRead(d, meta)
 }
 
 func resourceKeboolaStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
