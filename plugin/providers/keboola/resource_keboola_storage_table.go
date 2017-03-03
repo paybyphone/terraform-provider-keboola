@@ -237,10 +237,8 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 func resourceKeboolaStorageTableDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Storage Table in Keboola: %s", d.Id())
 
-	bucketID := d.Get("bucket_id").(string)
-
 	client := meta.(*KbcClient)
-	_, err := client.DeleteFromStorage(fmt.Sprintf("storage/buckets/%s/tables/%s", bucketID, d.Id()))
+	_, err := client.DeleteFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("Error deleting Storage Table: %s", err)
