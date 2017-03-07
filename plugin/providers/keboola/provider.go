@@ -19,6 +19,8 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"keboola_storage_table":         resourceKeboolaStorageTable(),
+			"keboola_storage_bucket":        resourceKeboolaStorageBucket(),
 			"keboola_transformation":        resourceKeboolaTransformation(),
 			"keboola_transformation_bucket": resourceKeboolaTransformationBucket(),
 		},

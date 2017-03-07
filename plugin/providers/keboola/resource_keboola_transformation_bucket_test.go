@@ -18,7 +18,7 @@ func TestAccTransformationBucket_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTransformationBucketDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testBucketBasic,
+				Config: testTransformationBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
 					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "name", "test name"),
@@ -38,7 +38,7 @@ func TestAccTransformationBucket_Update(t *testing.T) {
 		CheckDestroy: testAccCheckTransformationBucketDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testBucketBasic,
+				Config: testTransformationBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
 					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "name", "test name"),
@@ -46,7 +46,7 @@ func TestAccTransformationBucket_Update(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testBucketUpdate,
+				Config: testTransformationBucketUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
 					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "name", "new test name"),
@@ -119,13 +119,13 @@ func testAccCheckTransformationBucketDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testBucketBasic = `
+const testTransformationBucketBasic = `
 resource "keboola_transformation_bucket" "test_bucket" {
 	name = "test name"
 	description = "test description"
 }`
 
-const testBucketUpdate = `
+const testTransformationBucketUpdate = `
 resource "keboola_transformation_bucket" "test_bucket" {
 	name = "new test name"
 	description = "new test description"
