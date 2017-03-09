@@ -1,4 +1,4 @@
-default: build plan
+default: build deploy
 
 deps:
 	go install github.com/hashicorp/terraform
@@ -12,6 +12,13 @@ endif
 
 test:
 	go test -v ./plugin/providers/keboola/
+
+deploy:
+ifeq ($(OS),Windows_NT)
+	cp terraform-provider-keboola.exe $(dir $(shell which terraform))
+else
+	cp terraform-provider-keboola $(dir $(shell which terraform))
+endif
 
 plan:
 	@terraform plan

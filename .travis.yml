@@ -1,0 +1,26 @@
+language: go
+
+branches:
+  only:
+    - master
+
+matrix:
+  include:
+    - go: 1.6.3
+    - go: 1.7.4
+      env:
+        - TF_ACC=true
+
+cache:
+  directories:
+    - $GOPATH/src
+    - $GOPATH/pkg
+
+install:
+- go get github.com/hashicorp/terraform
+- cd $GOPATH/github.com/hashicorp/terraform
+- git checkout tags/0-8-stable
+- go install github.com/hashicorp/terraform
+
+script:
+- go test -v ./plugin/providers/keboola/
