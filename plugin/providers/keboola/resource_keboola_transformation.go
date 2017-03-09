@@ -302,8 +302,8 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 	client := meta.(*KbcClient)
 	postResp, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), formdataBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, postResp) {
+		return extractError(err, postResp)
 	}
 
 	var createRes CreateResourceResult
@@ -326,8 +326,8 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 	readURI := fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id())
 	getResp, err := client.GetFromStorage(readURI)
 
-	if err != nil {
-		return err
+	if hasErrors(err, getResp) {
+		return extractError(err, getResp)
 	}
 
 	var trans []Transformation
@@ -431,10 +431,10 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 
 	client := meta.(*KbcClient)
-	_, err = client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), formdataBuffer)
+	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), formdataBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, putResp) {
+		return extractError(err, putResp)
 	}
 
 	return resourceKeboolaTransformRead(d, meta)
@@ -446,10 +446,10 @@ func resourceKeboolaTransformDelete(d *schema.ResourceData, meta interface{}) er
 	bucketID := d.Get("bucket_id").(string)
 
 	client := meta.(*KbcClient)
-	_, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
+	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
 
-	if err != nil {
-		return fmt.Errorf("Error deleting transformation: %s", err)
+	if hasErrors(err, delResp) {
+		return extractError(err, delResp)
 	}
 
 	d.SetId("")

@@ -2,6 +2,7 @@ package keboola
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 )
 
@@ -79,4 +80,19 @@ func (c *KbcClient) DeleteFromStorage(endpoint string) (*http.Response, error) {
 
 	req.Header.Set("X-StorageApi-Token", c.APIKey)
 	return client.Do(req)
+}
+
+func hasErrors(err error, response *http.Response) bool {
+	return err != nil || response.StatusCode < 200 || response.StatusCode > 299
+}
+
+func extractError(err error, response *http.Response) error {
+	if err != nil {
+		return err
+	}
+
+	contentBuffer := new(bytes.Buffer)
+	contentBuffer.ReadFrom(response.Body)
+
+	return fmt.Errorf("%v %s", response.StatusCode, contentBuffer.String())
 }
