@@ -116,8 +116,8 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 	emptyBuffer := bytes.NewBufferString("")
 	postResp, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", queryString.String()), emptyBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, postResp) {
+		return extractError(err, postResp)
 	}
 
 	var createRes CreateResourceResult
@@ -143,8 +143,8 @@ func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	if err != nil {
-		return err
+	if hasErrors(err, getResp) {
+		return extractError(err, getResp)
 	}
 
 	var accessToken AccessToken
@@ -193,10 +193,10 @@ func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*KbcClient)
 
 	emptyBuffer := bytes.NewBufferString("")
-	_, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(queryString.String())), emptyBuffer)
+	putResp, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(queryString.String())), emptyBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, putResp) {
+		return extractError(err, putResp)
 	}
 
 	return resourceKeboolaAccessTokenRead(d, meta)
@@ -206,10 +206,10 @@ func resourceKeboolaAccessTokenDelete(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[INFO] Deleting Access Token in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	_, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
+	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
-	if err != nil {
-		return fmt.Errorf("Error deleting Access Token: %s", err)
+	if hasErrors(err, delResp) {
+		return extractError(err, delResp)
 	}
 
 	d.SetId("")

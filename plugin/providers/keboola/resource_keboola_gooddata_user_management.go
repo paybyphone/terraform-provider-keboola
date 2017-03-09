@@ -192,8 +192,8 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 	client := meta.(*KbcClient)
 	postResp, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), formdataBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, postResp) {
+		return extractError(err, postResp)
 	}
 
 	var createRes CreateResourceResult
@@ -220,8 +220,8 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	if err != nil {
-		return err
+	if hasErrors(err, getResp) {
+		return extractError(err, getResp)
 	}
 
 	var goodDataUserManagement GoodDataUserManagement
@@ -297,10 +297,10 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 
 	client := meta.(*KbcClient)
-	_, err = client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), formdataBuffer)
+	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), formdataBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, putResp) {
+		return extractError(err, putResp)
 	}
 
 	return resourceKeboolaGoodDataUserManagementRead(d, meta)
@@ -310,10 +310,10 @@ func resourceKeboolaGoodDataUserManagementDelete(d *schema.ResourceData, meta in
 	log.Printf("[INFO] Deleting GoodData User Management in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	_, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
+	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
 
-	if err != nil {
-		return fmt.Errorf("Error deleting GoodData User Management: %s", err)
+	if hasErrors(err, delResp) {
+		return extractError(err, delResp)
 	}
 
 	d.SetId("")

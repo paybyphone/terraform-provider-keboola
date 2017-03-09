@@ -117,8 +117,8 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 
 	uploadFileResp, err := client.PostToFileImport("upload-file", uploadFileBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, uploadFileResp) {
+		return extractError(err, uploadFileResp)
 	}
 
 	var uploadFileRes UploadFileResult
@@ -156,8 +156,8 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 
 	loadTableResp, err := client.PostToStorage(fmt.Sprintf("storage/buckets/%s/tables-async", bucketID), formdataBuffer)
 
-	if err != nil {
-		return err
+	if hasErrors(err, loadTableResp) {
+		return extractError(err, loadTableResp)
 	}
 
 	var loadTableRes UploadFileResult
@@ -176,8 +176,8 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 	for tableLoadStatus != "success" && tableLoadStatus != "error" {
 		jobStatusResp, err := client.GetFromStorage(fmt.Sprintf("storage/jobs/%v", loadTableRes.ID))
 
-		if err != nil {
-			return err
+		if hasErrors(err, jobStatusResp) {
+			return extractError(err, jobStatusResp)
 		}
 
 		decoder := json.NewDecoder(jobStatusResp.Body)
@@ -207,8 +207,8 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 	client := meta.(*KbcClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s.%s", bucketID, d.Get("name")))
 
-	if err != nil {
-		return err
+	if hasErrors(err, getResp) {
+		return extractError(err, getResp)
 	}
 
 	var storageTable StorageTable
@@ -238,10 +238,10 @@ func resourceKeboolaStorageTableDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[INFO] Deleting Storage Table in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	_, err := client.DeleteFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
+	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
 
-	if err != nil {
-		return fmt.Errorf("Error deleting Storage Table: %s", err)
+	if hasErrors(err, delResp) {
+		return extractError(err, delResp)
 	}
 
 	d.SetId("")
