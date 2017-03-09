@@ -19,8 +19,9 @@ install:
 - go get -d github.com/hashicorp/terraform
 - ls $GOPATH
 - cd $GOPATH/src/github.com/hashicorp/terraform
-- git checkout tags/0-8-stable
+- git checkout tags/v0.8.8
 - go install github.com/hashicorp/terraform
+- cd $GOPATH/src/github.com/plmwong/terraform-provider-keboola
 
 script:
 - go test -v ./plugin/providers/keboola/
