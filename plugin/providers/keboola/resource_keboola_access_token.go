@@ -7,9 +7,15 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
+
+type KeboolaTime struct {
+	time.Time
+}
 
 type AccessToken struct {
 	ID                    string                 `json:"id,omitempty"`
@@ -17,9 +23,22 @@ type AccessToken struct {
 	CanManageBuckets      bool                   `json:"canManageBuckets"`
 	CanManageTokens       bool                   `json:"canManageTokens"`
 	CanReadAllFileUploads bool                   `json:"canReadAllFileUploads"`
-	ExpiresIn             int                    `json:"expires"`
+	ExpiresIn             KeboolaTime            `json:"expires"`
 	ComponentAccess       []string               `json:"componentAccess"`
 	BucketPermissions     map[string]interface{} `json:"bucketPermissions"`
+}
+
+func (kt *KeboolaTime) UnmarshalJSON(b []byte) (err error) {
+	s := strings.Trim(string(b), "\"")
+
+	if s == "null" {
+		kt.Time = time.Time{}
+		return
+	}
+
+	kt.Time, err = time.Parse("2006-01-02T15:04:05-0700", s)
+
+	return
 }
 
 func resourceKeboolaAccessToken() *schema.Resource {
@@ -137,12 +156,15 @@ func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	expiryTime := accessToken.ExpiresIn
+	remaining := expiryTime.Sub(time.Now())
+
 	d.Set("id", accessToken.ID)
 	d.Set("description", accessToken.Description)
 	d.Set("canManageBuckets", accessToken.CanManageBuckets)
 	d.Set("canManageTokens", accessToken.CanManageTokens)
 	d.Set("canReadAllFileUploads", accessToken.CanReadAllFileUploads)
-	d.Set("expires", accessToken.ExpiresIn)
+	d.Set("expiresIn", remaining/time.Second)
 	d.Set("componentAccess", accessToken.ComponentAccess)
 	d.Set("bucketPermissions", accessToken.BucketPermissions)
 
