@@ -6,8 +6,7 @@ branches:
 
 matrix:
   include:
-    - go: 1.6.3
-    - go: 1.7.4
+    - go: 1.8
       env:
         - TF_ACC=true
 
@@ -17,8 +16,9 @@ cache:
     - $GOPATH/pkg
 
 install:
-- go get github.com/hashicorp/terraform
-- cd $GOPATH/github.com/hashicorp/terraform
+- go get -d github.com/hashicorp/terraform
+- ls $GOPATH
+- cd $GOPATH/src/github.com/hashicorp/terraform
 - git checkout tags/0-8-stable
 - go install github.com/hashicorp/terraform
 
