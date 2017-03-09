@@ -315,7 +315,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	d.SetId(createRes.ID)
+	d.SetId(string(createRes.ID))
 
 	return resourceKeboolaTransformRead(d, meta)
 }

@@ -81,7 +81,7 @@ func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	d.SetId(createRes.ID)
+	d.SetId(string(createRes.ID))
 
 	return resourceKeboolaStorageBucketRead(d, meta)
 }

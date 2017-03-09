@@ -24,3 +24,14 @@ func validateStorageBucketBackend(v interface{}, k string) (ws []string, errors 
 
 	return
 }
+
+func validateOrchestrationNotificationChannel(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "error" && value != "warning" && value != "processing" {
+		errors = append(errors, fmt.Errorf(
+			"%q must be set to one of %s, %s or %s, got %q",
+			k, "error", "warning", "processing", value))
+	}
+
+	return
+}

@@ -2,6 +2,7 @@ package keboola
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -13,10 +14,11 @@ type KbcClient struct {
 
 //CreateResourceResult holds the results from requesting creation of a Keboola resource.
 type CreateResourceResult struct {
-	ID string `json:"id,omitempty"`
+	ID json.Number `json:"id,omitempty"`
 }
 
 const storageURL = "https://connection.keboola.com/v2/"
+const syrupURL = "https://syrup.keboola.com/"
 const fileImportURL = "https://import.keboola.com/"
 
 //GetFromStorage requests an object from the Keboola Storage API.
@@ -74,6 +76,52 @@ func (c *KbcClient) PutToStorage(endpoint string, jsonpayload *bytes.Buffer) (*h
 func (c *KbcClient) DeleteFromStorage(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", storageURL+endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-StorageApi-Token", c.APIKey)
+	return client.Do(req)
+}
+
+func (c *KbcClient) GetFromSyrup(endpoint string) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", syrupURL+endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-StorageApi-Token", c.APIKey)
+	return client.Do(req)
+}
+
+func (c *KbcClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", syrupURL+endpoint, formdata)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-StorageApi-Token", c.APIKey)
+	req.Header.Add("content-type", "application/json")
+	return client.Do(req)
+}
+
+func (c *KbcClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("PUT", syrupURL+endpoint, jsonpayload)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-StorageApi-Token", c.APIKey)
+	req.Header.Add("content-type", "application/json")
+	return client.Do(req)
+}
+
+func (c *KbcClient) DeleteFromSyrup(endpoint string) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", syrupURL+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
