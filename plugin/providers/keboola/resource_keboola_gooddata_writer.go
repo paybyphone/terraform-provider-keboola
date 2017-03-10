@@ -3,6 +3,7 @@ package keboola
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/url"
 	"strings"
@@ -21,7 +22,6 @@ type GoodDataWriter struct {
 	ID          string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	AuthToken   string `json:"authToken"`
 }
 
 func resourceKeboolaGoodDataWriter() *schema.Resource {
@@ -145,6 +145,30 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 
 func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{}) error {
 	log.Print("[INFO] Reading GoodData Writers from Keboola.")
+
+	if d.Id() == "" {
+		return nil
+	}
+
+	client := meta.(*KbcClient)
+	getResp, err := client.GetFromStorage(fmt.Sprintf("v2/storage/components/gooddata-writer/configs/%s", d.Id()))
+
+	if hasErrors(err, getResp) {
+		return extractError(err, getResp)
+	}
+
+	var goodDataWriter GoodDataWriter
+
+	decoder := json.NewDecoder(getResp.Body)
+	err = decoder.Decode(&goodDataWriter)
+
+	if err != nil {
+		return err
+	}
+
+	d.Set("id", goodDataWriter.ID)
+	d.Set("name", goodDataWriter.Name)
+	d.Set("description", goodDataWriter.Description)
 
 	return nil
 }
