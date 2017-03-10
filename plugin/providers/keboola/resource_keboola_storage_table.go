@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -29,17 +30,6 @@ type StorageTable struct {
 //UploadFileResult contains the id of the CSV file uploaded to AWS S3.
 type UploadFileResult struct {
 	ID int `json:"id"`
-}
-
-//JobStatus contains the job status and results for the table load.
-type JobStatus struct {
-	ID      int    `json:"id"`
-	URL     string `json:"url"`
-	Status  string `json:"status"`
-	Results struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	} `json:"results"`
 }
 
 func resourceKeboolaStorageTable() *schema.Resource {
@@ -171,7 +161,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 
 	tableLoadStatus := "waiting"
 
-	var tabeLoadJobStatusRes JobStatus
+	var tabeLoadJobStatusRes StorageJobStatus
 
 	for tableLoadStatus != "success" && tableLoadStatus != "error" {
 		jobStatusResp, err := client.GetFromStorage(fmt.Sprintf("storage/jobs/%v", loadTableRes.ID))
@@ -187,6 +177,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 			return err
 		}
 
+		time.Sleep(250 * time.Millisecond)
 		tableLoadStatus = tabeLoadJobStatusRes.Status
 	}
 
