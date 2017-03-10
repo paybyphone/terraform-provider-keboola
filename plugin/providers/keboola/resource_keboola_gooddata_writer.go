@@ -144,19 +144,19 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Access Tokens from Keboola.")
+	log.Print("[INFO] Reading GoodData Writers from Keboola.")
 
 	return nil
 }
 
 func resourceKeboolaGoodDataWriterUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Access Token in Keboola.")
+	log.Print("[INFO] Updating GoodData Writer in Keboola.")
 
 	return resourceKeboolaGoodDataWriterRead(d, meta)
 }
 
 func resourceKeboolaGoodDataWriterDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[INFO] Deleting Access Token in Keboola: %s", d.Id())
+	log.Printf("[INFO] Deleting GoodData Writer in Keboola: %s", d.Id())
 
 	return nil
 }
