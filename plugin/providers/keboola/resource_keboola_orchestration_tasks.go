@@ -10,7 +10,7 @@ import (
 )
 
 type OrchestrationTask struct {
-	ID                string                 `json:"id"`
+	ID                json.Number            `json:"id"`
 	Component         string                 `json:"component"`
 	Action            string                 `json:"action"`
 	ActionParameters  map[string]interface{} `json:"actionParameters"`

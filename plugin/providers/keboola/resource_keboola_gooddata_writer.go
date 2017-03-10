@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/url"
-	"regexp"
 	"strings"
 	"time"
 
@@ -33,6 +32,10 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 		Delete: resourceKeboolaGoodDataWriterDelete,
 
 		Schema: map[string]*schema.Schema{
+			"writer_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -53,17 +56,10 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Print("[INFO] Creating GoodData Writer in Keboola.")
 
-	name := d.Get("name").(string)
-	reg, err := regexp.Compile("[^A-Za-z0-9]+")
-	if err != nil {
-		return err
-	}
-
-	generatedID := reg.ReplaceAllString(name, "-")
-	generatedID = strings.ToLower(strings.Trim(generatedID, "-"))
+	writerID := d.Get("writer_id").(string)
 
 	createProject := CreateGoodDataProject{
-		WriterID:    generatedID,
+		WriterID:    writerID,
 		Description: d.Get("description").(string),
 		AuthToken:   d.Get("authToken").(string),
 	}
@@ -119,7 +115,7 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))
 	form.Add("description", d.Get("description").(string))
-	form.Add("configurationId", generatedID)
+	form.Add("configurationId", writerID)
 
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 
