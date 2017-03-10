@@ -142,5 +142,5 @@ func extractError(err error, response *http.Response) error {
 	contentBuffer := new(bytes.Buffer)
 	contentBuffer.ReadFrom(response.Body)
 
-	return fmt.Errorf("%v %s", response.StatusCode, contentBuffer.String())
+	return fmt.Errorf("%v %s\n%v", response.StatusCode, contentBuffer.String(), response.Request)
 }
