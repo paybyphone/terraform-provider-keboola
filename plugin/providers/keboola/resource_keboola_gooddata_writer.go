@@ -150,7 +150,7 @@ func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{})
 	}
 
 	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("v2/storage/components/gooddata-writer/configs/%s", d.Id()))
+	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", d.Id()))
 
 	if hasErrors(err, getResp) {
 		return extractError(err, getResp)
