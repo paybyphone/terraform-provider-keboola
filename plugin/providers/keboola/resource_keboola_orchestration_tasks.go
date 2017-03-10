@@ -10,7 +10,7 @@ import (
 )
 
 type OrchestrationTask struct {
-	ID                int                    `json:"id"`
+	ID                string                 `json:"id"`
 	Component         string                 `json:"component"`
 	Action            string                 `json:"action"`
 	ActionParameters  map[string]interface{} `json:"actionParameters"`
@@ -77,7 +77,7 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 	log.Print("[INFO] Creating Orchestration Task in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
-	tasks := d.Get("task").([]interface{})
+	tasks := d.Get("tasks").([]interface{})
 	mappedTasks := make([]OrchestrationTask, 0, len(tasks))
 
 	for _, task := range tasks {
@@ -105,13 +105,22 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 	client := meta.(*KbcClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
+	postResp, err := client.PostToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, postResp) {
+		return extractError(err, postResp)
 	}
 
-	d.SetId(orchestrationID)
+	var createRes CreateResourceResult
+
+	decoder := json.NewDecoder(postResp.Body)
+	err = decoder.Decode(&createRes)
+
+	if err != nil {
+		return err
+	}
+
+	d.SetId(string(createRes.ID))
 
 	return resourceKeboolaOrchestrationTasksRead(d, meta)
 }
@@ -125,7 +134,9 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	client := meta.(*KbcClient)
 
-	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
+	orchestrationID := d.Get("orchestration_id").(string)
+
+	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID))
 
 	if hasErrors(err, getResp) {
 		return extractError(err, getResp)
@@ -156,7 +167,8 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 		tasks = append(tasks, taskDetails)
 	}
 
-	d.Set("orchestration_id", d.Id())
+	d.Set("id", orchestrationID)
+	d.Set("orchestration_id", orchestrationID)
 	d.Set("task", tasks)
 
 	return nil
@@ -166,7 +178,7 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 	log.Print("[INFO] Updating OrchestrationTask in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
-	tasks := d.Get("task").([]interface{})
+	tasks := d.Get("tasks").([]interface{})
 	mappedTasks := make([]OrchestrationTask, 0, len(tasks))
 
 	for _, task := range tasks {
@@ -199,8 +211,6 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 	if hasErrors(err, putResp) {
 		return extractError(err, putResp)
 	}
-
-	d.SetId(orchestrationID)
 
 	return resourceKeboolaOrchestrationTasksRead(d, meta)
 }
