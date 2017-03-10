@@ -8,6 +8,23 @@
 
 This is a custom terraform provider for managing resources within the Keboola Connection (KBC) platform, such as Transformations, Orchestrations, Writers etc.
 
+## Disclaimer
+`terraform-provider-keboola` is early stage software and is provided *"as-is"* under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). Please use proper caution and discretion when using this provider in critical applications.
+
+## Supported Resources
+
+Currently, the following KBC resources are supported (or partially supported) for configuration via Terraform:
+
+* `keboola_access_token`
+* `keboola_gooddata_user_management`
+* `keboola_gooddata_writer`
+* `keboola_orchestration`
+* `keboola_orchestration_tasks`
+* `keboola_storage_bucket`
+* `keboola_storage_table`
+* `keboola_transformation_bucket`
+* `keboola_transformation`
+
 ## Requirement
 
 * [hashicorp/terraform](https://github.com/hashicorp/terraform)

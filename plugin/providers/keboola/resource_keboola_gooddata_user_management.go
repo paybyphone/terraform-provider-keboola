@@ -205,7 +205,7 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 		return err
 	}
 
-	d.SetId(createRes.ID)
+	d.SetId(string(createRes.ID))
 
 	return resourceKeboolaGoodDataUserManagementRead(d, meta)
 }
