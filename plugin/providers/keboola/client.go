@@ -107,18 +107,6 @@ func (c *KbcClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.
 	return client.Do(req)
 }
 
-func (c *KbcClient) PostFormToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", syrupURL+endpoint, formdata)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("X-StorageApi-Token", c.APIKey)
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
-	return client.Do(req)
-}
-
 func (c *KbcClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", syrupURL+endpoint, jsonpayload)

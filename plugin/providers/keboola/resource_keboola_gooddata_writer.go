@@ -123,7 +123,7 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 
-	createWriterConfigResp, err := client.PostFormToSyrup("v2/storage/components/gooddata-writer/configs", formdataBuffer)
+	createWriterConfigResp, err := client.PostToStorage("v2/storage/components/gooddata-writer/configs", formdataBuffer)
 
 	if err != nil {
 		return err
