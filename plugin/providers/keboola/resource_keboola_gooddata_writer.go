@@ -95,10 +95,10 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	}
 
 	for createWriterStatus != "success" && createWriterStatus != "error" {
-		jobStatusResp, err := client.GetFromSyrup(strings.TrimLeft(jobURL.Path, "/"))
+		jobStatusResp, jobErr := client.GetFromSyrup(strings.TrimLeft(jobURL.Path, "/"))
 
-		if hasErrors(err, jobStatusResp) {
-			return extractError(err, jobStatusResp)
+		if hasErrors(jobErr, jobStatusResp) {
+			return extractError(jobErr, jobStatusResp)
 		}
 
 		decoder := json.NewDecoder(jobStatusResp.Body)
