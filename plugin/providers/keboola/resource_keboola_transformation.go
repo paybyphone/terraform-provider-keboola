@@ -31,7 +31,7 @@ type Output struct {
 	Source              string   `json:"source"`
 	Destination         string   `json:"destination"`
 	Incremental         bool     `json:"incremental,omitempty"`
-	PrimaryKey          []string `json:"primarykey,omitempty"`
+	PrimaryKey          []string `json:"primaryKey,omitempty"`
 	DeleteWhereValues   []string `json:"deleteWhereValues,omitempty"`
 	DeleteWhereOperator string   `json:"deleteWhereOperator,omitempty"`
 	DeleteWhereColumn   string   `json:"deleteWhereColumn,omitempty"`
@@ -254,7 +254,7 @@ func mapOutputs(d *schema.ResourceData, meta interface{}) []Output {
 			DeleteWhereColumn:   config["deleteWhereColumn"].(string),
 		}
 
-		if q := config["primarykey"]; q != nil {
+		if q := config["primaryKey"]; q != nil {
 			mappedOutput.PrimaryKey = AsStringArray(q.([]interface{}))
 		}
 
