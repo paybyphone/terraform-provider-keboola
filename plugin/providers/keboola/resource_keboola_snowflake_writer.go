@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"strings"
+	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -46,7 +46,7 @@ type SnowflakeWriterConfiguration struct {
 	Parameters SnowflakeWriterParameters `json:"parameters"`
 }
 
-//SnowflakeWriter is the data model for storage buckets within
+//SnowflakeWriter is the data model for Snowflake Writers within
 //the Keboola Storage API.
 type SnowflakeWriter struct {
 	ID            string                       `json:"id,omitempty"`
@@ -55,40 +55,66 @@ type SnowflakeWriter struct {
 	Configuration SnowflakeWriterConfiguration `json:"configuration"`
 }
 
+type SnowflakeCredentialsParameters struct {
+	Parameters struct {
+		DatabaseConfig struct {
+			HostName string `json:"host"`
+			Port     string `json:"port"`
+			Database string `json:"database"`
+			Schema   string `json:"schema"`
+			Username string `json:"user"`
+			Password string `json:"password"`
+			Driver   string `json:"driver"`
+		} `json:"db"`
+	} `json:"parameters"`
+}
+
+type ProvisionSnowflakeResponse struct {
+	Status      string `json:"status"`
+	Credentials struct {
+		ID          int    `json:"id"`
+		HostName    string `json:"hostname"`
+		Port        int    `json:"port"`
+		Database    string `json:"db"`
+		Schema      string `json:"schema"`
+		Warehouse   string `json:"warehouse"`
+		Username    string `json:"user"`
+		Password    string `json:"password"`
+		WorkspaceID int    `json:"workspaceId"`
+	} `json:"credentials"`
+}
+
 func resourceKeboolaSnowflakeWriter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaSnowflakeWriterCreate,
 		Read:   resourceKeboolaSnowflakeWriterRead,
+		Update: resourceKeboolaSnowflakeWriterUpdate,
 		Delete: resourceKeboolaSnowflakeWriterDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 		},
 	}
 }
 
 func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Storage Bucket in Keboola.")
+	log.Print("[INFO] Creating Snowflake Writer in Keboola.")
 
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))
-	form.Add("stage", d.Get("stage").(string))
 	form.Add("description", d.Get("description").(string))
-	form.Add("backend", d.Get("backend").(string))
 
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 
 	client := meta.(*KbcClient)
-	postResp, err := client.PostToStorage("storage/buckets", formdataBuffer)
+	postResp, err := client.PostToStorage("storage/components/keboola.wr-db-snowflake/configs", formdataBuffer)
 
 	if hasErrors(err, postResp) {
 		return extractError(err, postResp)
@@ -105,13 +131,73 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 
 	d.SetId(string(createRes.ID))
 
+	accessTokenForm := url.Values{}
+	accessTokenForm.Add("description", fmt.Sprintf("wrdbsnowflake_%s", string(createRes.ID)))
+	accessTokenForm.Add("canManageBuckets", "1")
+
+	accessTokenFormBuffer := bytes.NewBufferString(accessTokenForm.Encode())
+
+	_, err = client.PostToStorage("storage/tokens", accessTokenFormBuffer)
+
+	if hasErrors(err, postResp) {
+		return extractError(err, postResp)
+	}
+
+	provisionBuffer := bytes.NewBufferString("{ \"type\": \"writer\" }")
+	provisionResp, err := client.PostToSyrup("provisioning/snowflake", provisionBuffer)
+
+	if hasErrors(err, postResp) {
+		return extractError(err, postResp)
+	}
+
+	var provisionedSnowflake ProvisionSnowflakeResponse
+
+	provisionDecoder := json.NewDecoder(provisionResp.Body)
+	err = provisionDecoder.Decode(&provisionedSnowflake)
+
+	if err != nil {
+		return err
+	}
+
+	if provisionedSnowflake.Status != "ok" {
+		return fmt.Errorf("Unable to provision Snowflake instance")
+	}
+
+	credentials := SnowflakeCredentialsParameters{}
+	credentials.Parameters.DatabaseConfig.HostName = provisionedSnowflake.Credentials.HostName
+	credentials.Parameters.DatabaseConfig.Port = strconv.Itoa(provisionedSnowflake.Credentials.Port)
+	credentials.Parameters.DatabaseConfig.Database = provisionedSnowflake.Credentials.Database
+	credentials.Parameters.DatabaseConfig.Schema = provisionedSnowflake.Credentials.Schema
+	credentials.Parameters.DatabaseConfig.Username = provisionedSnowflake.Credentials.Username
+	credentials.Parameters.DatabaseConfig.Password = provisionedSnowflake.Credentials.Password
+	credentials.Parameters.DatabaseConfig.Driver = "snowflake"
+
+	credsJSON, err := json.Marshal(credentials)
+
+	if err != nil {
+		return err
+	}
+
+	updateCredsForm := url.Values{}
+	updateCredsForm.Add("configuration", string(credsJSON))
+	updateCredsForm.Add("changeDescription", "Update credentials")
+
+	updateCredsBuffer := bytes.NewBufferString(updateCredsForm.Encode())
+
+	putResp, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", string(createRes.ID)), updateCredsBuffer)
+
+	if hasErrors(err, putResp) {
+		return extractError(err, putResp)
+	}
+
 	return resourceKeboolaSnowflakeWriterRead(d, meta)
 }
 
 func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Storage Buckets from Keboola.")
+	log.Print("[INFO] Reading Snowflake Writers from Keboola.")
+
 	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
+	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
@@ -121,29 +207,34 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 		return extractError(err, getResp)
 	}
 
-	var SnowflakeWriter SnowflakeWriter
+	var snowflakeWriter SnowflakeWriter
 
 	decoder := json.NewDecoder(getResp.Body)
-	err = decoder.Decode(&SnowflakeWriter)
+	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {
 		return err
 	}
 
-	d.Set("id", SnowflakeWriter.ID)
-	d.Set("name", strings.TrimPrefix(SnowflakeWriter.Name, "c-"))
-	d.Set("stage", SnowflakeWriter.Stage)
-	d.Set("description", SnowflakeWriter.Description)
-	d.Set("backend", SnowflakeWriter.Backend)
+	d.Set("id", snowflakeWriter.ID)
+	d.Set("name", snowflakeWriter.Name)
+	d.Set("description", snowflakeWriter.Description)
+	//d.Set("configuration", snowflakeWriter.Configuration)
 
 	return nil
 }
 
+func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Print("[INFO] Updating Snowflake Writer in Keboola.")
+
+	return resourceKeboolaSnowflakeWriterRead(d, meta)
+}
+
 func resourceKeboolaSnowflakeWriterDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[INFO] Deleting Storage Bucket in Keboola: %s", d.Id())
+	log.Printf("[INFO] Deleting Snowflake Writer in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
+	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
 	if hasErrors(err, delResp) {
 		return extractError(err, delResp)
