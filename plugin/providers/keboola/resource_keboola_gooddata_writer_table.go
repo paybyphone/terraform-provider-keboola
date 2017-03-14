@@ -153,6 +153,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetId(tableID)
+	resourceKeboolaGoodDataTableUpdate(d, meta)
 
 	return resourceKeboolaGoodDataTableRead(d, meta)
 }
