@@ -11,6 +11,16 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+type SnowflakeWriterDatabaseParameters struct {
+	HostName string `json:"host"`
+	Database string `json:"database"`
+	Password string `json:"password"`
+	Username string `string:"user"`
+	Schema   string `string:"schema"`
+	Port     string `string:"port"`
+	Driver   string `string:"driver"`
+}
+
 type SnowflakeWriterTableItem struct {
 	Name         string `json:"name"`
 	DatabaseName string `json:"dbName"`
@@ -27,16 +37,6 @@ type SnowflakeWriterTable struct {
 	Items        []SnowflakeWriterTableItem `json:"items"`
 }
 
-type SnowflakeWriterDatabaseParameters struct {
-	Host     string `json:"host"`
-	Database string `json:"database"`
-	Password string `json:"password"`
-	User     string `string:"user"`
-	Schema   string `string:"schema"`
-	Port     string `string:"port"`
-	Driver   string `string:"driver"`
-}
-
 type SnowflakeWriterParameters struct {
 	Database SnowflakeWriterDatabaseParameters `json:"db"`
 	Tables   []SnowflakeWriterTable            `json:"tables"`
@@ -44,29 +44,6 @@ type SnowflakeWriterParameters struct {
 
 type SnowflakeWriterConfiguration struct {
 	Parameters SnowflakeWriterParameters `json:"parameters"`
-}
-
-//SnowflakeWriter is the data model for Snowflake Writers within
-//the Keboola Storage API.
-type SnowflakeWriter struct {
-	ID            string                       `json:"id,omitempty"`
-	Name          string                       `json:"name"`
-	Description   string                       `json:"description"`
-	Configuration SnowflakeWriterConfiguration `json:"configuration"`
-}
-
-type SnowflakeCredentialsParameters struct {
-	Parameters struct {
-		DatabaseConfig struct {
-			HostName string `json:"host"`
-			Port     string `json:"port"`
-			Database string `json:"database"`
-			Schema   string `json:"schema"`
-			Username string `json:"user"`
-			Password string `json:"password"`
-			Driver   string `json:"driver"`
-		} `json:"db"`
-	} `json:"parameters"`
 }
 
 type ProvisionSnowflakeResponse struct {
@@ -82,6 +59,15 @@ type ProvisionSnowflakeResponse struct {
 		Password    string `json:"password"`
 		WorkspaceID int    `json:"workspaceId"`
 	} `json:"credentials"`
+}
+
+//SnowflakeWriter is the data model for Snowflake Writers within
+//the Keboola Storage API.
+type SnowflakeWriter struct {
+	ID            string                       `json:"id,omitempty"`
+	Name          string                       `json:"name"`
+	Description   string                       `json:"description"`
+	Configuration SnowflakeWriterConfiguration `json:"configuration"`
 }
 
 func resourceKeboolaSnowflakeWriter() *schema.Resource {
@@ -163,14 +149,14 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Unable to provision Snowflake instance")
 	}
 
-	credentials := SnowflakeCredentialsParameters{}
-	credentials.Parameters.DatabaseConfig.HostName = provisionedSnowflake.Credentials.HostName
-	credentials.Parameters.DatabaseConfig.Port = strconv.Itoa(provisionedSnowflake.Credentials.Port)
-	credentials.Parameters.DatabaseConfig.Database = provisionedSnowflake.Credentials.Database
-	credentials.Parameters.DatabaseConfig.Schema = provisionedSnowflake.Credentials.Schema
-	credentials.Parameters.DatabaseConfig.Username = provisionedSnowflake.Credentials.Username
-	credentials.Parameters.DatabaseConfig.Password = provisionedSnowflake.Credentials.Password
-	credentials.Parameters.DatabaseConfig.Driver = "snowflake"
+	credentials := SnowflakeWriterConfiguration{}
+	credentials.Parameters.Database.HostName = provisionedSnowflake.Credentials.HostName
+	credentials.Parameters.Database.Port = strconv.Itoa(provisionedSnowflake.Credentials.Port)
+	credentials.Parameters.Database.Database = provisionedSnowflake.Credentials.Database
+	credentials.Parameters.Database.Schema = provisionedSnowflake.Credentials.Schema
+	credentials.Parameters.Database.Username = provisionedSnowflake.Credentials.Username
+	credentials.Parameters.Database.Password = provisionedSnowflake.Credentials.Password
+	credentials.Parameters.Database.Driver = "snowflake"
 
 	credsJSON, err := json.Marshal(credentials)
 
