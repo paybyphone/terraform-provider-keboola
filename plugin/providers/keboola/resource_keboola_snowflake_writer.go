@@ -26,13 +26,14 @@ type SnowflakeWriterTableItem struct {
 	DatabaseName string `json:"dbName"`
 	Type         string `json:"type"`
 	Size         string `json:"size"`
-	IsNullable   string `json:"nullable"`
+	IsNullable   bool   `json:"nullable"`
 	DefaultValue string `json:"default"`
 }
 
 type SnowflakeWriterTable struct {
 	DatabaseName string                     `json:"dbName"`
 	Export       bool                       `json:"export"`
+	Incremental  bool                       `json:"incremental"`
 	TableID      string                     `json:"tableId"`
 	Items        []SnowflakeWriterTableItem `json:"items"`
 }
