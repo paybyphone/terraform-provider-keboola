@@ -45,6 +45,13 @@ func resourceKeboolaSnowflakeWriterTables() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
+						"primaryKey": &schema.Schema{
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"column": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
@@ -87,12 +94,13 @@ func resourceKeboolaSnowflakeWriterTables() *schema.Resource {
 }
 
 func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Orchestration Tasks in Keboola.")
+	log.Print("[INFO] Creating Snowflake Writer Tables in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
 
 	tables := d.Get("table").([]interface{})
 	mappedTables := make([]SnowflakeWriterTable, 0, len(tables))
+	storageTables := make([]SnowflakeWriterStorageTable, 0, len(tables))
 
 	for _, table := range tables {
 		config := table.(map[string]interface{})
@@ -104,8 +112,18 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 			Incremental:  config["incremental"].(bool),
 		}
 
+		if q := config["primaryKey"]; q != nil {
+			mappedTable.PrimaryKey = AsStringArray(q.([]interface{}))
+		}
+
+		storageTable := SnowflakeWriterStorageTable{
+			Source:      mappedTable.TableID,
+			Destination: fmt.Sprintf("%s.csv", mappedTable.TableID),
+		}
+
 		columnConfigs := config["column"].([]interface{})
 		mappedColumns := make([]SnowflakeWriterTableItem, 0, len(columnConfigs))
+		columnNames := make([]string, 0, len(columnConfigs))
 		for _, column := range columnConfigs {
 			columnConfig := column.(map[string]interface{})
 
@@ -119,10 +137,14 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 			}
 
 			mappedColumns = append(mappedColumns, mappedColumn)
+			columnNames = append(columnNames, mappedColumn.Name)
 		}
 
 		mappedTable.Items = mappedColumns
+		storageTable.Columns = columnNames
+
 		mappedTables = append(mappedTables, mappedTable)
+		storageTables = append(storageTables, storageTable)
 	}
 
 	client := meta.(*KbcClient)
@@ -143,6 +165,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 	}
 
 	snowflakeWriter.Configuration.Parameters.Tables = mappedTables
+	snowflakeWriter.Configuration.Storage.Input.Tables = storageTables
 
 	snowflakeConfigJSON, err := json.Marshal(snowflakeWriter.Configuration)
 
@@ -195,9 +218,10 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 
 	for _, tableConfig := range snowflakeWriter.Configuration.Parameters.Tables {
 		tableDetails := map[string]interface{}{
-			"dbName":  tableConfig.DatabaseName,
-			"export":  tableConfig.Export,
-			"tableId": tableConfig.TableID,
+			"dbName":     tableConfig.DatabaseName,
+			"export":     tableConfig.Export,
+			"tableId":    tableConfig.TableID,
+			"primaryKey": tableConfig.PrimaryKey,
 		}
 
 		var columns []map[string]interface{}
@@ -226,10 +250,11 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 }
 
 func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Orchestration Tasks in Keboola.")
+	log.Print("[INFO] Updating Snowflake Writer Tables in Keboola.")
 
 	tables := d.Get("table").([]interface{})
 	mappedTables := make([]SnowflakeWriterTable, 0, len(tables))
+	storageTables := make([]SnowflakeWriterStorageTable, 0, len(tables))
 
 	for _, table := range tables {
 		config := table.(map[string]interface{})
@@ -241,8 +266,18 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 			Incremental:  config["incremental"].(bool),
 		}
 
+		if q := config["primaryKey"]; q != nil {
+			mappedTable.PrimaryKey = AsStringArray(q.([]interface{}))
+		}
+
+		storageTable := SnowflakeWriterStorageTable{
+			Source:      mappedTable.TableID,
+			Destination: fmt.Sprintf("%s.csv", mappedTable.TableID),
+		}
+
 		columnConfigs := config["column"].([]interface{})
 		mappedColumns := make([]SnowflakeWriterTableItem, 0, len(columnConfigs))
+		columnNames := make([]string, 0, len(columnConfigs))
 		for _, column := range columnConfigs {
 			columnConfig := column.(map[string]interface{})
 
@@ -256,10 +291,14 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 			}
 
 			mappedColumns = append(mappedColumns, mappedColumn)
+			columnNames = append(columnNames, mappedColumn.Name)
 		}
 
 		mappedTable.Items = mappedColumns
+		storageTable.Columns = columnNames
+
 		mappedTables = append(mappedTables, mappedTable)
+		storageTables = append(storageTables, storageTable)
 	}
 
 	client := meta.(*KbcClient)
@@ -280,6 +319,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 	}
 
 	snowflakeWriter.Configuration.Parameters.Tables = mappedTables
+	snowflakeWriter.Configuration.Storage.Input.Tables = storageTables
 
 	snowflakeConfigJSON, err := json.Marshal(snowflakeWriter.Configuration)
 
@@ -303,7 +343,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[INFO] Clearing Orchestration Tasks in Keboola: %s", d.Id())
+	log.Printf("[INFO] Clearing Snowflake Writer Tables in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
 
@@ -324,6 +364,9 @@ func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta int
 
 	var emptyTables []SnowflakeWriterTable
 	snowflakeWriter.Configuration.Parameters.Tables = emptyTables
+
+	var emptyStorageTables []SnowflakeWriterStorageTable
+	snowflakeWriter.Configuration.Storage.Input.Tables = emptyStorageTables
 
 	snowflakeConfigJSON, err := json.Marshal(snowflakeWriter.Configuration)
 

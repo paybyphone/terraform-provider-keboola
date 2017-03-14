@@ -35,6 +35,7 @@ type SnowflakeWriterTable struct {
 	Export       bool                       `json:"export"`
 	Incremental  bool                       `json:"incremental"`
 	TableID      string                     `json:"tableId"`
+	PrimaryKey   []string                   `json:"primaryKey,omitempty"`
 	Items        []SnowflakeWriterTableItem `json:"items"`
 }
 
@@ -43,8 +44,21 @@ type SnowflakeWriterParameters struct {
 	Tables   []SnowflakeWriterTable            `json:"tables"`
 }
 
+type SnowflakeWriterStorageTable struct {
+	Source      string   `json:"source"`
+	Destination string   `json:"destination"`
+	Columns     []string `json:"columns"`
+}
+
+type SnowflakeWriterStorage struct {
+	Input struct {
+		Tables []SnowflakeWriterStorageTable `json:"tables"`
+	} `json:"input"`
+}
+
 type SnowflakeWriterConfiguration struct {
 	Parameters SnowflakeWriterParameters `json:"parameters"`
+	Storage    SnowflakeWriterStorage    `json:"storage"`
 }
 
 type ProvisionSnowflakeResponse struct {
