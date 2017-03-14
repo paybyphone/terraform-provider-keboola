@@ -213,7 +213,7 @@ func columnHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	if v, ok := m["title"]; ok {
+	if v, ok := m["name"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
