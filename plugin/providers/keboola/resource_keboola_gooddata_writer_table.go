@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -98,7 +99,7 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 }
 
 func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataColumn {
-	columns := d.Get("column").([]interface{})
+	columns := d.Get("column").(*schema.Set).List()
 	mappedColumns := make(map[string]GoodDataColumn)
 
 	for _, columnConfig := range columns {
@@ -181,7 +182,7 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	var columns []map[string]interface{}
+	columns := make([]interface{}, 0, len(goodDataTable.Columns))
 
 	for _, column := range goodDataTable.Columns {
 		columnDetails := map[string]interface{}{
@@ -202,10 +203,21 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 		d.Set("export", goodDataTable.Export)
 		d.Set("identifier", goodDataTable.Identifier)
 		d.Set("incremental", goodDataTable.Incremental)
-		d.Set("column", columns)
+		d.Set("column", schema.NewSet(columnHash, columns))
 	}
 
 	return nil
+}
+
+func columnHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	if v, ok := m["title"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
 }
 
 func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}) error {
