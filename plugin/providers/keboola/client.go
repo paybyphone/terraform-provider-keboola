@@ -119,6 +119,30 @@ func (c *KbcClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*htt
 	return client.Do(req)
 }
 
+func (c *KbcClient) PutFormToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("PUT", syrupURL+endpoint, formdata)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-StorageApi-Token", c.APIKey)
+	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+	return client.Do(req)
+}
+
+func (c *KbcClient) PatchOnSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("PATCH", syrupURL+endpoint, jsonpayload)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-StorageApi-Token", c.APIKey)
+	req.Header.Add("content-type", "application/json")
+	return client.Do(req)
+}
+
 func (c *KbcClient) DeleteFromSyrup(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", syrupURL+endpoint, nil)

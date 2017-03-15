@@ -30,6 +30,15 @@ Currently, the following KBC resources are supported (or partially supported) fo
 * [hashicorp/terraform](https://github.com/hashicorp/terraform)
 
 
+## Singular vs. Plural
+
+Some resources (e.g. `keboola_gooddata_writer_table`, `keboola_storage_bucket`) are configuration as singular resources, while others (e.g. `keboola_snowflake_writer_tables`, `keboola_orchestration_tasks`). This is a design decision made so
+that the terraform resources closely match how they are managed through the Keboola API(s).
+
+Resources that are plural are managed through the API in a single call that will create/update etc. all of them.
+
+Resources that are singular can be created/updated/deleted etc. independently of one another in separate calls, and so are modelled as such.
+
 ## Usage
 
 ### Provider Configuration
