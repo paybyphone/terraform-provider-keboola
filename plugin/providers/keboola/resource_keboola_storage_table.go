@@ -199,6 +199,10 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s.%s", bucketID, d.Get("name")))
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 

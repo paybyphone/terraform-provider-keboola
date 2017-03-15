@@ -205,6 +205,10 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 	}
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 
@@ -220,7 +224,6 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 	d.Set("id", snowflakeWriter.ID)
 	d.Set("name", snowflakeWriter.Name)
 	d.Set("description", snowflakeWriter.Description)
-	//d.Set("configuration", snowflakeWriter.Configuration)
 
 	return nil
 }

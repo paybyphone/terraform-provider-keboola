@@ -135,6 +135,10 @@ func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchest
 	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil, nil
+		}
+
 		return nil, extractError(err, getResp)
 	}
 

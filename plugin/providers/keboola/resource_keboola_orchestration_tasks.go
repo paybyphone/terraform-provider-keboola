@@ -130,6 +130,10 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 
