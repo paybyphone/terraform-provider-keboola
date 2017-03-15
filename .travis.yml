@@ -10,11 +10,6 @@ matrix:
       env:
         - TF_ACC=true
 
-cache:
-  directories:
-    - $GOPATH/src
-    - $GOPATH/pkg
-
 install:
 - go get -d github.com/hashicorp/terraform
 - ls $GOPATH
