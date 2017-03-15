@@ -3,6 +3,7 @@ package keboola
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 
@@ -24,12 +25,26 @@ type GoodDataColumn struct {
 	Type            string `json:"type"`
 }
 
+type ConvertibleBoolean bool
+
+func (bit *ConvertibleBoolean) UnmarshalJSON(data []byte) error {
+	asString := string(data)
+	if asString == "1" || asString == "true" {
+		*bit = true
+	} else if asString == "0" || asString == "false" {
+		*bit = false
+	} else {
+		return errors.New(fmt.Sprintf("Boolean unmarshal error: invalid input %s", asString))
+	}
+	return nil
+}
+
 type GoodDataTable struct {
 	ID          string                    `json:"tableId,omitempty"`
 	Title       string                    `json:"title"`
 	Export      bool                      `json:"export"`
 	Identifier  string                    `json:"identifier"`
-	Incremental bool                      `json:"incrementalLoad"`
+	Incremental ConvertibleBoolean        `json:"incrementalLoad"`
 	Columns     map[string]GoodDataColumn `json:"columns"`
 }
 
@@ -131,7 +146,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 		Title:       tableID,
 		Export:      d.Get("export").(bool),
 		Identifier:  d.Get("identifier").(string),
-		Incremental: d.Get("incremental").(bool),
+		Incremental: d.Get("incremental").(ConvertibleBoolean),
 	}
 
 	if d.Get("column") != nil {
@@ -171,6 +186,10 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 	getResp, err := client.GetFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s?include=columns", writerID, d.Id()))
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 400 || getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 
@@ -232,7 +251,7 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 		Title:       tableID,
 		Export:      d.Get("export").(bool),
 		Identifier:  d.Get("identifier").(string),
-		Incremental: d.Get("incremental").(bool),
+		Incremental: d.Get("incremental").(ConvertibleBoolean),
 	}
 
 	if d.Get("column") != nil {

@@ -78,6 +78,10 @@ func resourceKeboolaTransformBucketRead(d *schema.ResourceData, meta interface{}
 	}
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 

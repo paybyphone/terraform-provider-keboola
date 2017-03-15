@@ -153,6 +153,10 @@ func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{})
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", d.Id()))
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 

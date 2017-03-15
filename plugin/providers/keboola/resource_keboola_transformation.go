@@ -327,6 +327,10 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 	getResp, err := client.GetFromStorage(readURI)
 
 	if hasErrors(err, getResp) {
+		if getResp.StatusCode == 404 {
+			return nil
+		}
+
 		return extractError(err, getResp)
 	}
 
