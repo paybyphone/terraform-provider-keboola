@@ -163,7 +163,7 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating GoodData User Management in Keboola.")
 
-	gdUserConf := GoodDataUserManagementConfiguration{
+	goodDataUserManagementConfig := GoodDataUserManagementConfiguration{
 		Storage: GoodDataUserManagementStorage{
 			Input:  GoodDataUserManagementInput{},
 			Output: GoodDataUserManagementOutput{},
@@ -173,39 +173,39 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 		},
 	}
 
-	gdUserConf.Storage.Output.Tables = mapOutputs(d, meta)
-	gdUserConf.Storage.Input.Tables = mapInputs(d, meta)
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputs(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputs(d, meta)
 
-	gdUserJSON, err := json.Marshal(gdUserConf)
+	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
 	if err != nil {
 		return err
 	}
 
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
-	form.Add("configuration", string(gdUserJSON))
+	createUserManagementForm := url.Values{}
+	createUserManagementForm.Add("name", d.Get("name").(string))
+	createUserManagementForm.Add("description", d.Get("description").(string))
+	createUserManagementForm.Add("configuration", string(goodDataUserManagementJSON))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	createUserManagementBuffer := bytes.NewBufferString(createUserManagementForm.Encode())
 
 	client := meta.(*KbcClient)
-	postResp, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), formdataBuffer)
+	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), createUserManagementBuffer)
 
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
 	}
 
-	var createRes CreateResourceResult
+	var createUserManagementResult CreateResourceResult
 
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createUserManagementResult)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	d.SetId(string(createUserManagementResult.ID))
 
 	return resourceKeboolaGoodDataUserManagementRead(d, meta)
 }
@@ -214,23 +214,23 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 	log.Println("[INFO] Reading GoodData User Management settings from Keboola.")
 
 	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
 	var goodDataUserManagement GoodDataUserManagement
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&goodDataUserManagement)
 
 	if err != nil {
@@ -274,7 +274,7 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Updating GoodData User Management settings in Keboola.")
 
-	gdUserConf := GoodDataUserManagementConfiguration{
+	goodDataUserManagementConfig := GoodDataUserManagementConfiguration{
 		Storage: GoodDataUserManagementStorage{
 			Input:  GoodDataUserManagementInput{},
 			Output: GoodDataUserManagementOutput{},
@@ -284,27 +284,27 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 		},
 	}
 
-	gdUserConf.Storage.Input.Tables = mapInputs(d, meta)
-	gdUserConf.Storage.Output.Tables = mapOutputs(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputs(d, meta)
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputs(d, meta)
 
-	gdUserJSON, err := json.Marshal(gdUserConf)
+	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
 	if err != nil {
 		return err
 	}
 
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
-	form.Add("configuration", string(gdUserJSON))
+	updateUserManagementForm := url.Values{}
+	updateUserManagementForm.Add("name", d.Get("name").(string))
+	updateUserManagementForm.Add("description", d.Get("description").(string))
+	updateUserManagementForm.Add("configuration", string(goodDataUserManagementJSON))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	updateUserManagementBuffer := bytes.NewBufferString(updateUserManagementForm.Encode())
 
 	client := meta.(*KbcClient)
-	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), formdataBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), updateUserManagementBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaGoodDataUserManagementRead(d, meta)
@@ -314,10 +314,10 @@ func resourceKeboolaGoodDataUserManagementDelete(d *schema.ResourceData, meta in
 	log.Printf("[INFO] Deleting GoodData User Management in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
+	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
 
-	if hasErrors(err, delResp) {
-		return extractError(err, delResp)
+	if hasErrors(err, destroyResponse) {
+		return extractError(err, destroyResponse)
 	}
 
 	d.SetId("")

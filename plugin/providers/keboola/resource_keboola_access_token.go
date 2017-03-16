@@ -79,65 +79,67 @@ func resourceKeboolaAccessToken() *schema.Resource {
 func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Access Token in Keboola.")
 
-	var queryString bytes.Buffer
+	var createAccessTokenQueryString bytes.Buffer
 
-	queryString.WriteString(fmt.Sprintf("description=%s", url.QueryEscape(d.Get("description").(string))))
-	queryString.WriteString(fmt.Sprintf("&canManageBuckets=%s", url.QueryEscape(strconv.FormatBool(d.Get("canManageBuckets").(bool)))))
-	queryString.WriteString(fmt.Sprintf("&canManageTokens=%s", url.QueryEscape(strconv.FormatBool(d.Get("canManageTokens").(bool)))))
-	queryString.WriteString(fmt.Sprintf("&canReadAllFileUploads=%s", url.QueryEscape(strconv.FormatBool(d.Get("canReadAllFileUploads").(bool)))))
-	queryString.WriteString(fmt.Sprintf("&expiresIn=%s", url.QueryEscape(strconv.Itoa(d.Get("expiresIn").(int)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("description=%s", url.QueryEscape(d.Get("description").(string))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canManageBuckets=%s", url.QueryEscape(strconv.FormatBool(d.Get("canManageBuckets").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canManageTokens=%s", url.QueryEscape(strconv.FormatBool(d.Get("canManageTokens").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canReadAllFileUploads=%s", url.QueryEscape(strconv.FormatBool(d.Get("canReadAllFileUploads").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&expiresIn=%s", url.QueryEscape(strconv.Itoa(d.Get("expiresIn").(int)))))
 
 	for key, value := range AsStringArray(d.Get("componentAccess").([]interface{})) {
-		queryString.WriteString(fmt.Sprintf("&componentAccess%%5B%v%%5D=%s", key, value))
+		createAccessTokenQueryString.WriteString(fmt.Sprintf("&componentAccess%%5B%v%%5D=%s", key, value))
 	}
 
 	for key, value := range d.Get("bucketPermissions").(map[string]interface{}) {
-		queryString.WriteString(fmt.Sprintf("&bucketPermissions%%5B%s%%5D=%s", key, value))
+		createAccessTokenQueryString.WriteString(fmt.Sprintf("&bucketPermissions%%5B%s%%5D=%s", key, value))
 	}
 
 	client := meta.(*KbcClient)
 
+	//TODO: Have an empty buffer constant or common utility
 	emptyBuffer := bytes.NewBufferString("")
-	postResp, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", queryString.String()), emptyBuffer)
+	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", createAccessTokenQueryString.String()), emptyBuffer)
 
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
 	}
 
-	var createRes CreateResourceResult
+	var createAccessTokenResult CreateResourceResult
 
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createAccessTokenResult)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	d.SetId(string(createAccessTokenResult.ID))
 
 	return resourceKeboolaAccessTokenRead(d, meta)
 }
 
 func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading Access Tokens from Keboola.")
+
 	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
 	var accessToken AccessToken
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&accessToken)
 
 	if err != nil {
@@ -164,29 +166,29 @@ func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) er
 func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Updating Access Token in Keboola.")
 
-	var queryString bytes.Buffer
+	var updateAccessTokenQueryString bytes.Buffer
 
-	queryString.WriteString(fmt.Sprintf("description=%s", d.Get("description").(string)))
-	queryString.WriteString(fmt.Sprintf("canManageBuckets=%v", d.Get("canManageBuckets").(bool)))
-	queryString.WriteString(fmt.Sprintf("canManageTokens=%v", d.Get("canManageTokens").(bool)))
-	queryString.WriteString(fmt.Sprintf("canReadAllFileUploads=%v", d.Get("canReadAllFileUploads").(bool)))
-	queryString.WriteString(fmt.Sprintf("expiresIn=%v", d.Get("expiresIn").(int)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("description=%s", d.Get("description").(string)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canManageBuckets=%v", d.Get("canManageBuckets").(bool)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canManageTokens=%v", d.Get("canManageTokens").(bool)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canReadAllFileUploads=%v", d.Get("canReadAllFileUploads").(bool)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("expiresIn=%v", d.Get("expiresIn").(int)))
 
 	for key, value := range AsStringArray(d.Get("componentAccess").([]interface{})) {
-		queryString.WriteString(fmt.Sprintf("componentAccess[%v]=%s", key, value))
+		updateAccessTokenQueryString.WriteString(fmt.Sprintf("componentAccess[%v]=%s", key, value))
 	}
 
 	for key, value := range d.Get("bucketPermissions").(map[string]interface{}) {
-		queryString.WriteString(fmt.Sprintf("bucketPermissions[%s]=%s", key, value))
+		updateAccessTokenQueryString.WriteString(fmt.Sprintf("bucketPermissions[%s]=%s", key, value))
 	}
 
 	client := meta.(*KbcClient)
 
 	emptyBuffer := bytes.NewBufferString("")
-	putResp, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(queryString.String())), emptyBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(updateAccessTokenQueryString.String())), emptyBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaAccessTokenRead(d, meta)
@@ -196,10 +198,10 @@ func resourceKeboolaAccessTokenDelete(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[INFO] Deleting Access Token in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
+	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
-	if hasErrors(err, delResp) {
-		return extractError(err, delResp)
+	if hasErrors(err, destroyResponse) {
+		return extractError(err, destroyResponse)
 	}
 
 	d.SetId("")

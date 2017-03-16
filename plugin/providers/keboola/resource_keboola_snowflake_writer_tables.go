@@ -97,8 +97,8 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 	log.Println("[INFO] Creating Snowflake Writer Tables in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
-
 	tables := d.Get("table").([]interface{})
+
 	mappedTables := make([]SnowflakeWriterTable, 0, len(tables))
 	storageTables := make([]SnowflakeWriterStorageTable, 0, len(tables))
 
@@ -149,15 +149,15 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 
 	client := meta.(*KbcClient)
 
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", writerID))
+	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", writerID))
 
-	if hasErrors(err, getResp) {
-		return extractError(err, getResp)
+	if hasErrors(err, getWriterResponse) {
+		return extractError(err, getWriterResponse)
 	}
 
 	var snowflakeWriter SnowflakeWriter
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getWriterResponse.Body)
 	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {
@@ -177,12 +177,12 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 	updateSnowflakeForm.Add("configuration", string(snowflakeConfigJSON))
 	updateSnowflakeForm.Add("changeDescription", "Update Snowflake tables")
 
-	snowflakeConfigBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
+	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
 
-	putResp, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", writerID), snowflakeConfigBuffer)
+	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", writerID), updateSnowflakeBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	d.SetId(writerID)
@@ -199,15 +199,15 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 
 	client := meta.(*KbcClient)
 
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
-	if hasErrors(err, getResp) {
-		return extractError(err, getResp)
+	if hasErrors(err, getResponse) {
+		return extractError(err, getResponse)
 	}
 
 	var snowflakeWriter SnowflakeWriter
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {
@@ -253,6 +253,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 	log.Println("[INFO] Updating Snowflake Writer Tables in Keboola.")
 
 	tables := d.Get("table").([]interface{})
+
 	mappedTables := make([]SnowflakeWriterTable, 0, len(tables))
 	storageTables := make([]SnowflakeWriterStorageTable, 0, len(tables))
 
@@ -303,15 +304,15 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 
 	client := meta.(*KbcClient)
 
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
-	if hasErrors(err, getResp) {
-		return extractError(err, getResp)
+	if hasErrors(err, getWriterResponse) {
+		return extractError(err, getWriterResponse)
 	}
 
 	var snowflakeWriter SnowflakeWriter
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getWriterResponse.Body)
 	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {
@@ -331,12 +332,12 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 	updateSnowflakeForm.Add("configuration", string(snowflakeConfigJSON))
 	updateSnowflakeForm.Add("changeDescription", "Update Snowflake tables")
 
-	snowflakeConfigBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
+	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
 
-	putResp, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), snowflakeConfigBuffer)
+	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), updateSnowflakeBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaSnowflakeWriterTablesRead(d, meta)
@@ -347,15 +348,15 @@ func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta int
 
 	client := meta.(*KbcClient)
 
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
-	if hasErrors(err, getResp) {
-		return extractError(err, getResp)
+	if hasErrors(err, getWriterResponse) {
+		return extractError(err, getWriterResponse)
 	}
 
 	var snowflakeWriter SnowflakeWriter
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getWriterResponse.Body)
 	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {
@@ -374,16 +375,16 @@ func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta int
 		return err
 	}
 
-	updateSnowflakeForm := url.Values{}
-	updateSnowflakeForm.Add("configuration", string(snowflakeConfigJSON))
-	updateSnowflakeForm.Add("changeDescription", "Update Snowflake tables")
+	clearSnowflakeTablesForm := url.Values{}
+	clearSnowflakeTablesForm.Add("configuration", string(snowflakeConfigJSON))
+	clearSnowflakeTablesForm.Add("changeDescription", "Update Snowflake tables")
 
-	snowflakeConfigBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
+	clearSnowflakeTablesBuffer := bytes.NewBufferString(clearSnowflakeTablesForm.Encode())
 
-	putResp, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), snowflakeConfigBuffer)
+	clearResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), clearSnowflakeTablesBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, clearResponse) {
+		return extractError(err, clearResponse)
 	}
 
 	d.SetId("")

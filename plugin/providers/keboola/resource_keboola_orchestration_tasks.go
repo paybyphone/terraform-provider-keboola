@@ -105,10 +105,10 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 	client := meta.(*KbcClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
+	createTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, createTasksResponse) {
+		return extractError(err, createTasksResponse)
 	}
 
 	d.SetId(orchestrationID)
@@ -127,19 +127,19 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	client := meta.(*KbcClient)
 
-	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
+	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
 	var orchestrationTasks []OrchestrationTask
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&orchestrationTasks)
 
 	if err != nil {
@@ -200,10 +200,10 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 	client := meta.(*KbcClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
+	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaOrchestrationTasksRead(d, meta)
@@ -213,11 +213,11 @@ func resourceKeboolaOrchestrationTasksDelete(d *schema.ResourceData, meta interf
 	log.Printf("[INFO] Clearing Orchestration Tasks in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	tasksBuffer := bytes.NewBufferString("[]")
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), tasksBuffer)
+	emptyTasksBuffer := bytes.NewBufferString("[]")
+	clearTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), emptyTasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, clearTasksResponse) {
+		return extractError(err, clearTasksResponse)
 	}
 
 	d.SetId("")

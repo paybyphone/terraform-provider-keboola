@@ -57,19 +57,36 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	log.Println("[INFO] Creating GoodData Writer in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
+	client := meta.(*KbcClient)
 
+	err := provisionGoodDataProject(writerID, d.Get("description").(string), d.Get("authToken").(string), client)
+
+	if err != nil {
+		return err
+	}
+
+	createdConfigID, err := createGoodDataWriterConfiguration(writerID, d.Get("name").(string), d.Get("description").(string), client)
+
+	if err != nil {
+		return err
+	}
+
+	d.SetId(createdConfigID)
+
+	return resourceKeboolaGoodDataWriterRead(d, meta)
+}
+
+func provisionGoodDataProject(writerID string, description string, authToken string, client *KbcClient) error {
 	createProject := CreateGoodDataProject{
 		WriterID:    writerID,
-		Description: d.Get("description").(string),
-		AuthToken:   d.Get("authToken").(string),
+		Description: description,
+		AuthToken:   authToken,
 	}
 
 	createJSON, err := json.Marshal(createProject)
 	if err != nil {
 		return err
 	}
-
-	client := meta.(*KbcClient)
 
 	createBuffer := bytes.NewBuffer(createJSON)
 	createWriterResp, err := client.PostToSyrup("gooddata-writer/v2", createBuffer)
@@ -112,20 +129,24 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 		createWriterStatus = createWriterStatusRes.Status
 	}
 
+	return nil
+}
+
+func createGoodDataWriterConfiguration(writerID string, name string, description string, client *KbcClient) (createdID string, err error) {
 	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
+	form.Add("name", name)
+	form.Add("description", description)
 
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 
 	createWriterConfigResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", writerID), formdataBuffer)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if hasErrors(err, createWriterConfigResp) {
-		return extractError(err, createWriterConfigResp)
+		return "", extractError(err, createWriterConfigResp)
 	}
 
 	var createRes CreateResourceResult
@@ -134,12 +155,10 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	err = createDecoder.Decode(&createRes)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	d.SetId(string(createRes.ID))
-
-	return resourceKeboolaGoodDataWriterRead(d, meta)
+	return string(createRes.ID), nil
 }
 
 func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{}) error {

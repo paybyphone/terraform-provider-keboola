@@ -41,62 +41,63 @@ func resourceKeboolaTransformationBucket() *schema.Resource {
 func resourceKeboolaTransformBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Transformation Bucket in Keboola.")
 
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
+	createBucketForm := url.Values{}
+	createBucketForm.Add("name", d.Get("name").(string))
+	createBucketForm.Add("description", d.Get("description").(string))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	createBucketBuffer := bytes.NewBufferString(createBucketForm.Encode())
 
 	client := meta.(*KbcClient)
-	postResp, err := client.PostToStorage("storage/components/transformation/configs", formdataBuffer)
+	createResponse, err := client.PostToStorage("storage/components/transformation/configs", createBucketBuffer)
 
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
 	}
 
-	var createRes CreateResourceResult
+	var createResult CreateResourceResult
 
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createResult)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	d.SetId(string(createResult.ID))
 
 	return resourceKeboolaTransformBucketRead(d, meta)
 }
 
 func resourceKeboolaTransformBucketRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading Transformation Buckets from Keboola.")
+
 	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()))
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
-	var transBucket TransformationBucket
+	var transformBucket TransformationBucket
 
-	decoder := json.NewDecoder(getResp.Body)
-	err = decoder.Decode(&transBucket)
+	decoder := json.NewDecoder(getResponse.Body)
+	err = decoder.Decode(&transformBucket)
 
 	if err != nil {
 		return err
 	}
 
-	d.Set("id", transBucket.ID)
-	d.Set("name", transBucket.Name)
-	d.Set("description", transBucket.Description)
+	d.Set("id", transformBucket.ID)
+	d.Set("name", transformBucket.Name)
+	d.Set("description", transformBucket.Description)
 
 	return nil
 }
@@ -104,17 +105,17 @@ func resourceKeboolaTransformBucketRead(d *schema.ResourceData, meta interface{}
 func resourceKeboolaTransformBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Updating Transformation Bucket in Keboola.")
 
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
+	updateBucketForm := url.Values{}
+	updateBucketForm.Add("name", d.Get("name").(string))
+	updateBucketForm.Add("description", d.Get("description").(string))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	updateBucketBuffer := bytes.NewBufferString(updateBucketForm.Encode())
 
 	client := meta.(*KbcClient)
-	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()), formdataBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()), updateBucketBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaTransformBucketRead(d, meta)
@@ -124,10 +125,10 @@ func resourceKeboolaTransformBucketDelete(d *schema.ResourceData, meta interface
 	log.Printf("[INFO] Deleting Transformation Bucket in Keboola: %s", d.Id())
 
 	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()))
+	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()))
 
-	if hasErrors(err, delResp) {
-		return extractError(err, delResp)
+	if hasErrors(err, destroyResponse) {
+		return extractError(err, destroyResponse)
 	}
 
 	d.SetId("")
