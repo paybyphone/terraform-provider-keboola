@@ -147,7 +147,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 		storageTables = append(storageTables, storageTable)
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", writerID))
 
@@ -197,7 +197,7 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 		return nil
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
@@ -302,7 +302,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 		storageTables = append(storageTables, storageTable)
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
@@ -346,7 +346,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Clearing Snowflake Writer Tables in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 

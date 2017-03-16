@@ -299,7 +299,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 
 	createTransformBuffer := bytes.NewBufferString(createTransformForm.Encode())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), createTransformBuffer)
 
 	if hasErrors(err, createResponse) {
@@ -323,7 +323,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading Transformations from Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
 
 	if hasErrors(err, getResponse) {
@@ -434,7 +434,7 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 
 	updateTransformBuffer := bytes.NewBufferString(updateTransformForm.Encode())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), updateTransformBuffer)
 
 	if hasErrors(err, updateResponse) {
@@ -449,7 +449,7 @@ func resourceKeboolaTransformDelete(d *schema.ResourceData, meta interface{}) er
 
 	bucketID := d.Get("bucket_id").(string)
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
 
 	if hasErrors(err, destroyResponse) {

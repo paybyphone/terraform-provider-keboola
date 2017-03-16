@@ -108,17 +108,48 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Snowflake Writer in Keboola.")
 
+	client := meta.(*KBCClient)
+
+	createdSnowflakeID, err := createSnowflakeWriterConfiguration(d.Get("name").(string), d.Get("description").(string), client)
+
+	if err != nil {
+		return err
+	}
+
+	err = createSnowflakeAccessToken(createdSnowflakeID, client)
+
+	if err != nil {
+		return err
+	}
+
+	provisionedSnowflake, err := provisionSnowflakeInstance(client)
+
+	if err != nil {
+		return err
+	}
+
+	err = setSnowflakeCredentials(provisionedSnowflake, createdSnowflakeID, client)
+
+	if err != nil {
+		return err
+	}
+
+	d.SetId(createdSnowflakeID)
+
+	return resourceKeboolaSnowflakeWriterRead(d, meta)
+}
+
+func createSnowflakeWriterConfiguration(name string, description string, client *KBCClient) (createdSnowflakeID string, err error) {
 	createWriterForm := url.Values{}
-	createWriterForm.Add("name", d.Get("name").(string))
-	createWriterForm.Add("description", d.Get("description").(string))
+	createWriterForm.Add("name", name)
+	createWriterForm.Add("description", description)
 
 	createWriterBuffer := bytes.NewBufferString(createWriterForm.Encode())
 
-	client := meta.(*KbcClient)
 	createResponse, err := client.PostToStorage("storage/components/keboola.wr-db-snowflake/configs", createWriterBuffer)
 
 	if hasErrors(err, createResponse) {
-		return extractError(err, createResponse)
+		return "", extractError(err, createResponse)
 	}
 
 	var createWriterResult CreateResourceResult
@@ -127,11 +158,15 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 	err = decoder.Decode(&createWriterResult)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
+	return string(createWriterResult.ID), nil
+}
+
+func createSnowflakeAccessToken(snowflakeID string, client *KBCClient) error {
 	createAccessTokenForm := url.Values{}
-	createAccessTokenForm.Add("description", fmt.Sprintf("wrdbsnowflake_%s", string(createWriterResult.ID)))
+	createAccessTokenForm.Add("description", fmt.Sprintf("wrdbsnowflake_%s", snowflakeID))
 	createAccessTokenForm.Add("canManageBuckets", "1")
 
 	createAccessTokenBuffer := bytes.NewBufferString(createAccessTokenForm.Encode())
@@ -142,11 +177,15 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 		return extractError(err, createAccessTokenResponse)
 	}
 
+	return nil
+}
+
+func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse *ProvisionSnowflakeResponse, err error) {
 	provisionSnowflakeBuffer := bytes.NewBufferString("{ \"type\": \"writer\" }")
 	provisionSnowflakeResponse, err := client.PostToSyrup("provisioning/snowflake", provisionSnowflakeBuffer)
 
 	if hasErrors(err, provisionSnowflakeResponse) {
-		return extractError(err, provisionSnowflakeResponse)
+		return nil, extractError(err, provisionSnowflakeResponse)
 	}
 
 	var provisionedSnowflake ProvisionSnowflakeResponse
@@ -155,12 +194,18 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 	err = provisionedSnowflakeDecoder.Decode(&provisionedSnowflake)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if provisionedSnowflake.Status != "ok" {
-		return fmt.Errorf("Unable to provision Snowflake instance")
+		return nil, fmt.Errorf("Unable to provision Snowflake instance")
 	}
+
+	return &provisionedSnowflake, nil
+}
+
+func setSnowflakeCredentials(provisionedSnowflakeResponse *ProvisionSnowflakeResponse, createdSnowflakeID string, client *KBCClient) error {
+	provisionedSnowflake := *provisionedSnowflakeResponse
 
 	snowflakeCredentials := SnowflakeWriterConfiguration{}
 	snowflakeCredentials.Parameters.Database.HostName = provisionedSnowflake.Credentials.HostName
@@ -183,21 +228,19 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 
 	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
 
-	updateCredentialsResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", string(createWriterResult.ID)), updateCredentialsBuffer)
+	updateCredentialsResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateCredentialsBuffer)
 
 	if hasErrors(err, updateCredentialsResponse) {
 		return extractError(err, updateCredentialsResponse)
 	}
 
-	d.SetId(string(createWriterResult.ID))
-
-	return resourceKeboolaSnowflakeWriterRead(d, meta)
+	return nil
 }
 
 func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading Snowflake Writers from Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
 	if d.Id() == "" {
@@ -239,7 +282,7 @@ func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface
 func resourceKeboolaSnowflakeWriterDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Snowflake Writer in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
 	if hasErrors(err, destroyResponse) {

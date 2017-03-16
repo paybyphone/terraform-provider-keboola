@@ -102,7 +102,7 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
 	createTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
@@ -125,7 +125,7 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	orchestrationID := d.Id()
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
 
@@ -197,7 +197,7 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
 	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
@@ -212,7 +212,7 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 func resourceKeboolaOrchestrationTasksDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Clearing Orchestration Tasks in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	emptyTasksBuffer := bytes.NewBufferString("[]")
 	clearTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), emptyTasksBuffer)
 

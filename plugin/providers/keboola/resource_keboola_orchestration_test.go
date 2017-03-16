@@ -27,7 +27,7 @@ func TestAccOrchestration_Basic(t *testing.T) {
 }
 
 func testAccCheckOrchestrationDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*KbcClient)
+	client := testAccProvider.Meta().(*KBCClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "keboola_orchestration" {

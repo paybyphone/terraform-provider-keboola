@@ -57,7 +57,7 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	log.Println("[INFO] Creating GoodData Writer in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	err := provisionGoodDataProject(writerID, d.Get("description").(string), d.Get("authToken").(string), client)
 
@@ -76,7 +76,7 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	return resourceKeboolaGoodDataWriterRead(d, meta)
 }
 
-func provisionGoodDataProject(writerID string, description string, authToken string, client *KbcClient) error {
+func provisionGoodDataProject(writerID string, description string, authToken string, client *KBCClient) error {
 	createProject := CreateGoodDataProject{
 		WriterID:    writerID,
 		Description: description,
@@ -132,7 +132,7 @@ func provisionGoodDataProject(writerID string, description string, authToken str
 	return nil
 }
 
-func createGoodDataWriterConfiguration(writerID string, name string, description string, client *KbcClient) (createdID string, err error) {
+func createGoodDataWriterConfiguration(writerID string, name string, description string, client *KBCClient) (createdID string, err error) {
 	form := url.Values{}
 	form.Add("name", name)
 	form.Add("description", description)
@@ -168,7 +168,7 @@ func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", d.Id()))
 
 	if hasErrors(err, getResp) {
@@ -202,7 +202,7 @@ func resourceKeboolaGoodDataWriterUpdate(d *schema.ResourceData, meta interface{
 	form.Add("name", d.Get("name").(string))
 	form.Add("description", d.Get("description").(string))
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	formdataBuffer := bytes.NewBufferString(form.Encode())
 	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", d.Id()), formdataBuffer)
 
@@ -220,7 +220,7 @@ func resourceKeboolaGoodDataWriterUpdate(d *schema.ResourceData, meta interface{
 func resourceKeboolaGoodDataWriterDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting GoodData Writer in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	delFromSyrupResp, err := client.DeleteFromSyrup(fmt.Sprintf("gooddata-writer/configs/%s", d.Id()))
 
 	if hasErrors(err, delFromSyrupResp) {

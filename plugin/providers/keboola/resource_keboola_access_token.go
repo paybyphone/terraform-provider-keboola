@@ -95,7 +95,7 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 		createAccessTokenQueryString.WriteString(fmt.Sprintf("&bucketPermissions%%5B%s%%5D=%s", key, value))
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	//TODO: Have an empty buffer constant or common utility
 	emptyBuffer := bytes.NewBufferString("")
@@ -122,7 +122,7 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading Access Tokens from Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
 	if d.Id() == "" {
@@ -182,7 +182,7 @@ func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) 
 		updateAccessTokenQueryString.WriteString(fmt.Sprintf("bucketPermissions[%s]=%s", key, value))
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	emptyBuffer := bytes.NewBufferString("")
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(updateAccessTokenQueryString.String())), emptyBuffer)
@@ -197,7 +197,7 @@ func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) 
 func resourceKeboolaAccessTokenDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Access Token in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
 	if hasErrors(err, destroyResponse) {

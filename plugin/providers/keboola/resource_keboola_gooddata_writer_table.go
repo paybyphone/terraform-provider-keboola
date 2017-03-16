@@ -123,7 +123,7 @@ func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataCol
 func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating GoodData Table in Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
@@ -167,7 +167,7 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 
 	writerID := d.Get("writer_id").(string)
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s?include=columns", writerID, d.Id()))
 
 	if hasErrors(err, getResponse) {
@@ -228,7 +228,7 @@ func columnSetHash(v interface{}) int {
 func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Updating GoodData Table in Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
@@ -265,7 +265,7 @@ func resourceKeboolaGoodDataTableDelete(d *schema.ResourceData, meta interface{}
 
 	writerID := d.Get("writer_id").(string)
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyResponse, err := client.DeleteFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, d.Id()))
 
 	if hasErrors(err, destroyResponse) {

@@ -107,7 +107,7 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	orchestrationBuffer := bytes.NewBuffer(orchestrationJSON)
 	createResponse, err := client.PostToSyrup("orchestrator/orchestrations", orchestrationBuffer)
@@ -131,7 +131,7 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 }
 
 func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchestration, error) {
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, getResponse) {
@@ -206,7 +206,7 @@ func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	orchestrationBuffer := bytes.NewBuffer(orchestrationJSON)
 	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()), orchestrationBuffer)
@@ -228,7 +228,7 @@ func resourceKeboolaOrchestrationDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyOrchestrationResponse, err := client.DeleteFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, destroyOrchestrationResponse) {

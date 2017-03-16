@@ -7,8 +7,8 @@ import (
 	"net/http"
 )
 
-//KbcClient is used for communicating with the Keboola Connection API
-type KbcClient struct {
+//KBCClient is used for communicating with the Keboola Connection API
+type KBCClient struct {
 	APIKey string
 }
 
@@ -22,7 +22,7 @@ const syrupURL = "https://syrup.keboola.com/"
 const fileImportURL = "https://import.keboola.com/"
 
 //GetFromStorage requests an object from the Keboola Storage API.
-func (c *KbcClient) GetFromStorage(endpoint string) (*http.Response, error) {
+func (c *KBCClient) GetFromStorage(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", storageURL+endpoint, nil)
 	if err != nil {
@@ -34,7 +34,7 @@ func (c *KbcClient) GetFromStorage(endpoint string) (*http.Response, error) {
 }
 
 //PostToStorage posts a new object to the Keboola Storage API.
-func (c *KbcClient) PostToStorage(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PostToStorage(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", storageURL+endpoint, formdata)
 	if err != nil {
@@ -47,7 +47,7 @@ func (c *KbcClient) PostToStorage(endpoint string, formdata *bytes.Buffer) (*htt
 }
 
 //PostToFileImport posts a new object to the Keboola File Import API.
-func (c *KbcClient) PostToFileImport(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PostToFileImport(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", fileImportURL+endpoint, formdata)
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *KbcClient) PostToFileImport(endpoint string, formdata *bytes.Buffer) (*
 }
 
 //PutToStorage puts an existing object to the Keboola Storage API.
-func (c *KbcClient) PutToStorage(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PutToStorage(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", storageURL+endpoint, jsonpayload)
 	if err != nil {
@@ -73,7 +73,7 @@ func (c *KbcClient) PutToStorage(endpoint string, jsonpayload *bytes.Buffer) (*h
 }
 
 //DeleteFromStorage removes an existing object from the Keboola Storage API.
-func (c *KbcClient) DeleteFromStorage(endpoint string) (*http.Response, error) {
+func (c *KBCClient) DeleteFromStorage(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", storageURL+endpoint, nil)
 	if err != nil {
@@ -84,7 +84,7 @@ func (c *KbcClient) DeleteFromStorage(endpoint string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func (c *KbcClient) GetFromSyrup(endpoint string) (*http.Response, error) {
+func (c *KBCClient) GetFromSyrup(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", syrupURL+endpoint, nil)
 	if err != nil {
@@ -95,7 +95,7 @@ func (c *KbcClient) GetFromSyrup(endpoint string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func (c *KbcClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", syrupURL+endpoint, formdata)
 	if err != nil {
@@ -107,7 +107,7 @@ func (c *KbcClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.
 	return client.Do(req)
 }
 
-func (c *KbcClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", syrupURL+endpoint, jsonpayload)
 	if err != nil {
@@ -119,7 +119,7 @@ func (c *KbcClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*htt
 	return client.Do(req)
 }
 
-func (c *KbcClient) PutFormToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PutFormToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", syrupURL+endpoint, formdata)
 	if err != nil {
@@ -131,7 +131,7 @@ func (c *KbcClient) PutFormToSyrup(endpoint string, formdata *bytes.Buffer) (*ht
 	return client.Do(req)
 }
 
-func (c *KbcClient) PatchOnSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PatchOnSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PATCH", syrupURL+endpoint, jsonpayload)
 	if err != nil {
@@ -143,7 +143,7 @@ func (c *KbcClient) PatchOnSyrup(endpoint string, jsonpayload *bytes.Buffer) (*h
 	return client.Do(req)
 }
 
-func (c *KbcClient) DeleteFromSyrup(endpoint string) (*http.Response, error) {
+func (c *KBCClient) DeleteFromSyrup(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", syrupURL+endpoint, nil)
 	if err != nil {

@@ -65,7 +65,7 @@ func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}
 
 	createBucketBuffer := bytes.NewBufferString(createBucketForm.Encode())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	createResponse, err := client.PostToStorage("storage/buckets", createBucketBuffer)
 
 	if hasErrors(err, createResponse) {
@@ -89,7 +89,7 @@ func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}
 func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading Storage Buckets from Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
 
 	if d.Id() == "" {
@@ -125,7 +125,7 @@ func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) 
 func resourceKeboolaStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Storage Bucket in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
 
 	if hasErrors(err, destroyResponse) {

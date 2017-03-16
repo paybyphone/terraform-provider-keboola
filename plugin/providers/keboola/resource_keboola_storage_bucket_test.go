@@ -41,7 +41,7 @@ func testAccCheckStorageBucketExists(n string, bucket *StorageBucket) resource.T
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		client := testAccProvider.Meta().(*KbcClient)
+		client := testAccProvider.Meta().(*KBCClient)
 		bucketURI := fmt.Sprintf("storage/buckets/%s", rs.Primary.ID)
 		fmt.Printf("Checking bucket exists at: %s\n", bucketURI)
 		getResp, err := client.GetFromStorage(bucketURI)
@@ -72,7 +72,7 @@ func testAccCheckStorageBucketExists(n string, bucket *StorageBucket) resource.T
 }
 
 func testAccCheckStorageBucketDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*KbcClient)
+	client := testAccProvider.Meta().(*KBCClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "keboola_storage_bucket" {

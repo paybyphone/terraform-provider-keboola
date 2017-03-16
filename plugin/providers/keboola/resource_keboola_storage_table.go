@@ -95,7 +95,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Storage Table in Keboola.")
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	columns := AsStringArray(d.Get("columns").([]interface{}))
 
 	uploadFileBuffer := &bytes.Buffer{}
@@ -225,7 +225,7 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 
 	bucketID := d.Get("bucket_id").(string)
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s.%s", bucketID, d.Get("name")))
 
 	if hasErrors(err, getResponse) {
@@ -262,7 +262,7 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 func resourceKeboolaStorageTableDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Storage Table in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
 
 	if hasErrors(err, destroyResponse) {
