@@ -121,7 +121,7 @@ func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataCol
 }
 
 func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating GoodData Table in Keboola.")
+	log.Println("[INFO] Creating GoodData Table in Keboola.")
 
 	client := meta.(*KbcClient)
 
@@ -159,7 +159,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading GoodData Tables from Keboola.")
+	log.Println("[INFO] Reading GoodData Tables from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -226,7 +226,7 @@ func columnHash(v interface{}) int {
 }
 
 func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating GoodData Table in Keboola.")
+	log.Println("[INFO] Updating GoodData Table in Keboola.")
 
 	client := meta.(*KbcClient)
 

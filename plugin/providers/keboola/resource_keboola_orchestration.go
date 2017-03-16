@@ -91,7 +91,7 @@ func mapNotifications(d *schema.ResourceData, meta interface{}) []OrchestrationN
 }
 
 func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Orchestration in Keboola.")
+	log.Println("[INFO] Creating Orchestration in Keboola.")
 
 	orchConf := Orchestration{
 		Name:         d.Get("name").(string),
@@ -155,7 +155,7 @@ func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchest
 }
 
 func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Orchestrations from Keboola.")
+	log.Println("[INFO] Reading Orchestrations from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -190,7 +190,7 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Orchestration in Keboola.")
+	log.Println("[INFO] Updating Orchestration in Keboola.")
 
 	orchConf := Orchestration{
 		Name:         d.Get("name").(string),

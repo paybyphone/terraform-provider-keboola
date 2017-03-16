@@ -106,7 +106,7 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 }
 
 func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Snowflake Writer in Keboola.")
+	log.Println("[INFO] Creating Snowflake Writer in Keboola.")
 
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))
@@ -195,7 +195,7 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Snowflake Writers from Keboola.")
+	log.Println("[INFO] Reading Snowflake Writers from Keboola.")
 
 	client := meta.(*KbcClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
@@ -229,7 +229,7 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Snowflake Writer in Keboola.")
+	log.Println("[INFO] Updating Snowflake Writer in Keboola.")
 
 	return resourceKeboolaSnowflakeWriterRead(d, meta)
 }

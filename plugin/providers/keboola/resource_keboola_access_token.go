@@ -68,15 +68,16 @@ func resourceKeboolaAccessToken() *schema.Resource {
 				},
 			},
 			"bucketPermissions": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:         schema.TypeMap,
+				Optional:     true,
+				ValidateFunc: validateAccessTokenBucketPermissions,
 			},
 		},
 	}
 }
 
 func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Access Token in Keboola.")
+	log.Println("[INFO] Creating Access Token in Keboola.")
 
 	var queryString bytes.Buffer
 
@@ -118,7 +119,7 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Access Tokens from Keboola.")
+	log.Println("[INFO] Reading Access Tokens from Keboola.")
 	client := meta.(*KbcClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
@@ -161,7 +162,7 @@ func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Access Token in Keboola.")
+	log.Println("[INFO] Updating Access Token in Keboola.")
 
 	var queryString bytes.Buffer
 

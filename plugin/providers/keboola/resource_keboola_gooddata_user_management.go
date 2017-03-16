@@ -161,7 +161,7 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 }
 
 func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating GoodData User Management in Keboola.")
+	log.Println("[INFO] Creating GoodData User Management in Keboola.")
 
 	gdUserConf := GoodDataUserManagementConfiguration{
 		Storage: GoodDataUserManagementStorage{
@@ -211,7 +211,7 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 }
 
 func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading GoodData User Management settings from Keboola.")
+	log.Println("[INFO] Reading GoodData User Management settings from Keboola.")
 
 	client := meta.(*KbcClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
@@ -272,7 +272,7 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 }
 
 func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating GoodData User Management settings in Keboola.")
+	log.Println("[INFO] Updating GoodData User Management settings in Keboola.")
 
 	gdUserConf := GoodDataUserManagementConfiguration{
 		Storage: GoodDataUserManagementStorage{

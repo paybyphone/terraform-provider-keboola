@@ -74,7 +74,7 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 }
 
 func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Orchestration Tasks in Keboola.")
+	log.Println("[INFO] Creating Orchestration Tasks in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
 	tasks := d.Get("task").([]interface{})
@@ -117,7 +117,7 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Orchestration Tasks from Keboola.")
+	log.Println("[INFO] Reading Orchestration Tasks from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -169,7 +169,7 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Orchestration Tasks in Keboola.")
+	log.Println("[INFO] Updating Orchestration Tasks in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
 	tasks := d.Get("task").([]interface{})

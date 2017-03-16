@@ -269,7 +269,7 @@ func mapOutputs(d *schema.ResourceData, meta interface{}) []Output {
 }
 
 func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Transformation in Keboola.")
+	log.Println("[INFO] Creating Transformation in Keboola.")
 
 	bucketID := d.Get("bucket_id").(string)
 
@@ -321,7 +321,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Transformations from Keboola.")
+	log.Println("[INFO] Reading Transformations from Keboola.")
 	client := meta.(*KbcClient)
 	readURI := fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id())
 	getResp, err := client.GetFromStorage(readURI)
@@ -404,7 +404,7 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Transformation in Keboola.")
+	log.Println("[INFO] Updating Transformation in Keboola.")
 
 	bucketID := d.Get("bucket_id").(string)
 

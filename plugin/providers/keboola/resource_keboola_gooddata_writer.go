@@ -54,7 +54,7 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 }
 
 func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating GoodData Writer in Keboola.")
+	log.Println("[INFO] Creating GoodData Writer in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
 
@@ -143,7 +143,7 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading GoodData Writers from Keboola.")
+	log.Println("[INFO] Reading GoodData Writers from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -177,7 +177,7 @@ func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKeboolaGoodDataWriterUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating GoodData Writer in Keboola.")
+	log.Println("[INFO] Updating GoodData Writer in Keboola.")
 
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))

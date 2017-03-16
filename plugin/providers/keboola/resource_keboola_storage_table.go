@@ -93,7 +93,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 }
 
 func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Storage Table in Keboola.")
+	log.Println("[INFO] Creating Storage Table in Keboola.")
 
 	client := meta.(*KbcClient)
 	columns := AsStringArray(d.Get("columns").([]interface{}))
@@ -217,7 +217,7 @@ func except(first []string, second []string) []string {
 }
 
 func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Storage Tables from Keboola.")
+	log.Println("[INFO] Reading Storage Tables from Keboola.")
 
 	if d.Id() == "" {
 		return nil

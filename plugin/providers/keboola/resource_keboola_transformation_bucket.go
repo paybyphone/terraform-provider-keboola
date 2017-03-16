@@ -39,7 +39,7 @@ func resourceKeboolaTransformationBucket() *schema.Resource {
 }
 
 func resourceKeboolaTransformBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Transformation Bucket in Keboola.")
+	log.Println("[INFO] Creating Transformation Bucket in Keboola.")
 
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))
@@ -69,7 +69,7 @@ func resourceKeboolaTransformBucketCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceKeboolaTransformBucketRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Transformation Buckets from Keboola.")
+	log.Println("[INFO] Reading Transformation Buckets from Keboola.")
 	client := meta.(*KbcClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s", d.Id()))
 
@@ -102,7 +102,7 @@ func resourceKeboolaTransformBucketRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceKeboolaTransformBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Transformation Bucket in Keboola.")
+	log.Println("[INFO] Updating Transformation Bucket in Keboola.")
 
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))

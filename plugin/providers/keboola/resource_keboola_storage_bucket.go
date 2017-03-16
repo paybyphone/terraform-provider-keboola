@@ -55,7 +55,7 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 }
 
 func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Storage Bucket in Keboola.")
+	log.Println("[INFO] Creating Storage Bucket in Keboola.")
 
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))
@@ -87,7 +87,7 @@ func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Storage Buckets from Keboola.")
+	log.Println("[INFO] Reading Storage Buckets from Keboola.")
 	client := meta.(*KbcClient)
 	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
 

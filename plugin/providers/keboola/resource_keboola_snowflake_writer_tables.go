@@ -94,7 +94,7 @@ func resourceKeboolaSnowflakeWriterTables() *schema.Resource {
 }
 
 func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Snowflake Writer Tables in Keboola.")
+	log.Println("[INFO] Creating Snowflake Writer Tables in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
 
@@ -191,7 +191,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 }
 
 func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Snowflake Writer Tables from Keboola.")
+	log.Println("[INFO] Reading Snowflake Writer Tables from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -250,7 +250,7 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 }
 
 func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Snowflake Writer Tables in Keboola.")
+	log.Println("[INFO] Updating Snowflake Writer Tables in Keboola.")
 
 	tables := d.Get("table").([]interface{})
 	mappedTables := make([]SnowflakeWriterTable, 0, len(tables))

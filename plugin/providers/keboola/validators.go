@@ -2,6 +2,19 @@ package keboola
 
 import "fmt"
 
+func validateAccessTokenBucketPermissions(v interface{}, k string) (ws []string, errors []error) {
+	values := AsStringArray(v.([]interface{}))
+	for _, value := range values {
+		if value != "read" && value != "write" && value != "manage" {
+			errors = append(errors, fmt.Errorf(
+				"%q must be set to one of %s, %s or %s, got %q",
+				k, "read", "write", "manage", value))
+		}
+	}
+
+	return
+}
+
 func validateStorageBucketStage(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if value != "in" && value != "out" && value != "sys" {
