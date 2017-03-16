@@ -125,7 +125,6 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 	form := url.Values{}
 	form.Add("name", d.Get("name").(string))
 	form.Add("primaryKey", strings.Join(AsStringArray(d.Get("primaryKey").([]interface{})), ","))
-	form.Add("indexedColumns", strings.Join(AsStringArray(d.Get("indexedColumns").([]interface{})), ","))
 	form.Add("dataFileId", strconv.Itoa(fileID))
 
 	if d.Get("delimiter") != "" {
@@ -181,9 +180,40 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 		tableLoadStatus = tabeLoadJobStatusRes.Status
 	}
 
+	indexedOnly := except(AsStringArray(d.Get("indexedColumns").([]interface{})), AsStringArray(d.Get("primaryKey").([]interface{})))
+
+	for _, indexedColumn := range indexedOnly {
+		emptyBuffer := bytes.NewBufferString("")
+		addIndexedColumnResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", tabeLoadJobStatusRes.Results.ID, indexedColumn), emptyBuffer)
+
+		if hasErrors(err, addIndexedColumnResp) {
+			return extractError(err, addIndexedColumnResp)
+		}
+	}
+
 	d.SetId(tabeLoadJobStatusRes.Results.ID)
 
 	return resourceKeboolaStorageTableRead(d, meta)
+}
+
+func except(first []string, second []string) []string {
+	var result []string
+
+	for _, elem1 := range first {
+		found := false
+		for _, elem2 := range second {
+			if elem1 == elem2 {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			result = append(result, elem1)
+		}
+	}
+
+	return result
 }
 
 func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) error {

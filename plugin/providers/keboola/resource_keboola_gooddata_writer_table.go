@@ -3,7 +3,6 @@ package keboola
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 
@@ -25,26 +24,12 @@ type GoodDataColumn struct {
 	Type            string `json:"type"`
 }
 
-type ConvertibleBoolean bool
-
-func (bit *ConvertibleBoolean) UnmarshalJSON(data []byte) error {
-	asString := string(data)
-	if asString == "1" || asString == "true" {
-		*bit = true
-	} else if asString == "0" || asString == "false" {
-		*bit = false
-	} else {
-		return errors.New(fmt.Sprintf("Boolean unmarshal error: invalid input %s", asString))
-	}
-	return nil
-}
-
 type GoodDataTable struct {
 	ID          string                    `json:"tableId,omitempty"`
 	Title       string                    `json:"title"`
 	Export      bool                      `json:"export"`
 	Identifier  string                    `json:"identifier"`
-	Incremental ConvertibleBoolean        `json:"incrementalLoad"`
+	Incremental KBCBoolean                `json:"incrementalLoad"`
 	Columns     map[string]GoodDataColumn `json:"columns"`
 }
 
@@ -146,7 +131,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 		Title:       tableID,
 		Export:      d.Get("export").(bool),
 		Identifier:  d.Get("identifier").(string),
-		Incremental: d.Get("incremental").(ConvertibleBoolean),
+		Incremental: d.Get("incremental").(KBCBoolean),
 	}
 
 	if d.Get("column") != nil {
@@ -251,7 +236,7 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 		Title:       tableID,
 		Export:      d.Get("export").(bool),
 		Identifier:  d.Get("identifier").(string),
-		Incremental: d.Get("incremental").(ConvertibleBoolean),
+		Incremental: d.Get("incremental").(KBCBoolean),
 	}
 
 	if d.Get("column") != nil {

@@ -23,6 +23,7 @@ func TestAccAccessToken_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr("keboola_access_token.test_token", "canManageBuckets", "true"),
 					resource.TestCheckResourceAttr("keboola_access_token.test_token", "canManageTokens", "false"),
 					resource.TestCheckResourceAttr("keboola_access_token.test_token", "canReadAllFileUploads", "false"),
+					resource.TestCheckResourceAttr("keboola_access_token.test_token", "expiresIn", "10800"),
 				),
 			},
 		},
