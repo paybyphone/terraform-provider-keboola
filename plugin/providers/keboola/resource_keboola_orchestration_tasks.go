@@ -74,7 +74,7 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 }
 
 func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Orchestration Tasks in Keboola.")
+	log.Println("[INFO] Creating Orchestration Tasks in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
 	tasks := d.Get("task").([]interface{})
@@ -102,13 +102,13 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
+	createTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, createTasksResponse) {
+		return extractError(err, createTasksResponse)
 	}
 
 	d.SetId(orchestrationID)
@@ -117,7 +117,7 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Orchestration Tasks from Keboola.")
+	log.Println("[INFO] Reading Orchestration Tasks from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -125,21 +125,21 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	orchestrationID := d.Id()
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
-	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
+	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
 	var orchestrationTasks []OrchestrationTask
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&orchestrationTasks)
 
 	if err != nil {
@@ -169,7 +169,7 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Orchestration Tasks in Keboola.")
+	log.Println("[INFO] Updating Orchestration Tasks in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
 	tasks := d.Get("task").([]interface{})
@@ -197,13 +197,13 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
 	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
+	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaOrchestrationTasksRead(d, meta)
@@ -212,12 +212,12 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 func resourceKeboolaOrchestrationTasksDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Clearing Orchestration Tasks in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
-	tasksBuffer := bytes.NewBufferString("[]")
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), tasksBuffer)
+	client := meta.(*KBCClient)
+	emptyTasksBuffer := bytes.NewBufferString("[]")
+	clearTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), emptyTasksBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, clearTasksResponse) {
+		return extractError(err, clearTasksResponse)
 	}
 
 	d.SetId("")

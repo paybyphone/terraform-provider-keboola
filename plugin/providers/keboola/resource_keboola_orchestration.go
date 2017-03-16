@@ -91,60 +91,60 @@ func mapNotifications(d *schema.ResourceData, meta interface{}) []OrchestrationN
 }
 
 func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Orchestration in Keboola.")
+	log.Println("[INFO] Creating Orchestration in Keboola.")
 
-	orchConf := Orchestration{
+	orchestrationConfig := Orchestration{
 		Name:         d.Get("name").(string),
 		ScheduleCRON: d.Get("scheduleCron").(string),
 	}
 
 	notifications := mapNotifications(d, meta)
-	orchConf.Notifications = notifications
+	orchestrationConfig.Notifications = notifications
 
-	orchJSON, err := json.Marshal(orchConf)
-
-	if err != nil {
-		return err
-	}
-
-	client := meta.(*KbcClient)
-
-	orchBuffer := bytes.NewBuffer(orchJSON)
-	postResp, err := client.PostToSyrup("orchestrator/orchestrations", orchBuffer)
-
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
-	}
-
-	var createRes CreateResourceResult
-
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	orchestrationJSON, err := json.Marshal(orchestrationConfig)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	client := meta.(*KBCClient)
+
+	orchestrationBuffer := bytes.NewBuffer(orchestrationJSON)
+	createResponse, err := client.PostToSyrup("orchestrator/orchestrations", orchestrationBuffer)
+
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
+	}
+
+	var createResult CreateResourceResult
+
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createResult)
+
+	if err != nil {
+		return err
+	}
+
+	d.SetId(string(createResult.ID))
 
 	return resourceKeboolaOrchestrationRead(d, meta)
 }
 
 func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchestration, error) {
-	client := meta.(*KbcClient)
-	getResp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
+	client := meta.(*KBCClient)
+	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil, nil
 		}
 
-		return nil, extractError(err, getResp)
+		return nil, extractError(err, getResponse)
 	}
 
 	var orchestration Orchestration
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&orchestration)
 
 	if err != nil {
@@ -155,7 +155,7 @@ func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchest
 }
 
 func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Orchestrations from Keboola.")
+	log.Println("[INFO] Reading Orchestrations from Keboola.")
 
 	if d.Id() == "" {
 		return nil
@@ -190,29 +190,29 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Orchestration in Keboola.")
+	log.Println("[INFO] Updating Orchestration in Keboola.")
 
-	orchConf := Orchestration{
+	orchestrationConfig := Orchestration{
 		Name:         d.Get("name").(string),
 		ScheduleCRON: d.Get("scheduleCron").(string),
 	}
 
 	notifications := mapNotifications(d, meta)
-	orchConf.Notifications = notifications
+	orchestrationConfig.Notifications = notifications
 
-	orchJSON, err := json.Marshal(orchConf)
+	orchestrationJSON, err := json.Marshal(orchestrationConfig)
 
 	if err != nil {
 		return err
 	}
 
-	client := meta.(*KbcClient)
+	client := meta.(*KBCClient)
 
-	orchBuffer := bytes.NewBuffer(orchJSON)
-	putResp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()), orchBuffer)
+	orchestrationBuffer := bytes.NewBuffer(orchestrationJSON)
+	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()), orchestrationBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaOrchestrationRead(d, meta)
@@ -228,17 +228,17 @@ func resourceKeboolaOrchestrationDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	client := meta.(*KbcClient)
-	delOrchestrationResp, err := client.DeleteFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
+	client := meta.(*KBCClient)
+	destroyOrchestrationResponse, err := client.DeleteFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
-	if hasErrors(err, delOrchestrationResp) {
-		return extractError(err, delOrchestrationResp)
+	if hasErrors(err, destroyOrchestrationResponse) {
+		return extractError(err, destroyOrchestrationResponse)
 	}
 
-	delTokenResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", tokenID))
+	destroyTokenResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", tokenID))
 
-	if hasErrors(err, delTokenResp) {
-		return extractError(err, delTokenResp)
+	if hasErrors(err, destroyTokenResponse) {
+		return extractError(err, destroyTokenResponse)
 	}
 
 	d.SetId("")

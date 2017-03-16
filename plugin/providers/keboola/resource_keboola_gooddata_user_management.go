@@ -59,111 +59,16 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"output": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"destination": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"deleteWhereColumn": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"deleteWhereValues": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"deleteWhereOperator": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"primaryKey": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"incremental": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-					},
-				},
-			},
-			"input": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"destination": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"datatypes": &schema.Schema{
-							Type:     schema.TypeMap,
-							Optional: true,
-						},
-						"whereColumn": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
-						},
-						"whereValues": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"whereOperator": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "eq",
-						},
-						"columns": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"indexes": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"days": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-					},
-				},
-			},
+			"output": &outputSchema,
+			"input":  &inputSchema,
 		},
 	}
 }
 
 func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating GoodData User Management in Keboola.")
+	log.Println("[INFO] Creating GoodData User Management in Keboola.")
 
-	gdUserConf := GoodDataUserManagementConfiguration{
+	goodDataUserManagementConfig := GoodDataUserManagementConfiguration{
 		Storage: GoodDataUserManagementStorage{
 			Input:  GoodDataUserManagementInput{},
 			Output: GoodDataUserManagementOutput{},
@@ -173,64 +78,64 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 		},
 	}
 
-	gdUserConf.Storage.Output.Tables = mapOutputs(d, meta)
-	gdUserConf.Storage.Input.Tables = mapInputs(d, meta)
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputs(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputs(d, meta)
 
-	gdUserJSON, err := json.Marshal(gdUserConf)
-
-	if err != nil {
-		return err
-	}
-
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
-	form.Add("configuration", string(gdUserJSON))
-
-	formdataBuffer := bytes.NewBufferString(form.Encode())
-
-	client := meta.(*KbcClient)
-	postResp, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), formdataBuffer)
-
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
-	}
-
-	var createRes CreateResourceResult
-
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	createUserManagementForm := url.Values{}
+	createUserManagementForm.Add("name", d.Get("name").(string))
+	createUserManagementForm.Add("description", d.Get("description").(string))
+	createUserManagementForm.Add("configuration", string(goodDataUserManagementJSON))
+
+	createUserManagementBuffer := bytes.NewBufferString(createUserManagementForm.Encode())
+
+	client := meta.(*KBCClient)
+	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), createUserManagementBuffer)
+
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
+	}
+
+	var createUserManagementResult CreateResourceResult
+
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createUserManagementResult)
+
+	if err != nil {
+		return err
+	}
+
+	d.SetId(string(createUserManagementResult.ID))
 
 	return resourceKeboolaGoodDataUserManagementRead(d, meta)
 }
 
 func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading GoodData User Management settings from Keboola.")
+	log.Println("[INFO] Reading GoodData User Management settings from Keboola.")
 
-	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
+	client := meta.(*KBCClient)
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
 	var goodDataUserManagement GoodDataUserManagement
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&goodDataUserManagement)
 
 	if err != nil {
@@ -272,9 +177,9 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 }
 
 func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating GoodData User Management settings in Keboola.")
+	log.Println("[INFO] Updating GoodData User Management settings in Keboola.")
 
-	gdUserConf := GoodDataUserManagementConfiguration{
+	goodDataUserManagementConfig := GoodDataUserManagementConfiguration{
 		Storage: GoodDataUserManagementStorage{
 			Input:  GoodDataUserManagementInput{},
 			Output: GoodDataUserManagementOutput{},
@@ -284,27 +189,27 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 		},
 	}
 
-	gdUserConf.Storage.Input.Tables = mapInputs(d, meta)
-	gdUserConf.Storage.Output.Tables = mapOutputs(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputs(d, meta)
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputs(d, meta)
 
-	gdUserJSON, err := json.Marshal(gdUserConf)
+	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
 	if err != nil {
 		return err
 	}
 
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("description", d.Get("description").(string))
-	form.Add("configuration", string(gdUserJSON))
+	updateUserManagementForm := url.Values{}
+	updateUserManagementForm.Add("name", d.Get("name").(string))
+	updateUserManagementForm.Add("description", d.Get("description").(string))
+	updateUserManagementForm.Add("configuration", string(goodDataUserManagementJSON))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	updateUserManagementBuffer := bytes.NewBufferString(updateUserManagementForm.Encode())
 
-	client := meta.(*KbcClient)
-	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), formdataBuffer)
+	client := meta.(*KBCClient)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), updateUserManagementBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaGoodDataUserManagementRead(d, meta)
@@ -313,11 +218,11 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 func resourceKeboolaGoodDataUserManagementDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting GoodData User Management in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
+	client := meta.(*KBCClient)
+	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()))
 
-	if hasErrors(err, delResp) {
-		return extractError(err, delResp)
+	if hasErrors(err, destroyResponse) {
+		return extractError(err, destroyResponse)
 	}
 
 	d.SetId("")

@@ -55,57 +55,58 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 }
 
 func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Storage Bucket in Keboola.")
+	log.Println("[INFO] Creating Storage Bucket in Keboola.")
 
-	form := url.Values{}
-	form.Add("name", d.Get("name").(string))
-	form.Add("stage", d.Get("stage").(string))
-	form.Add("description", d.Get("description").(string))
-	form.Add("backend", d.Get("backend").(string))
+	createBucketForm := url.Values{}
+	createBucketForm.Add("name", d.Get("name").(string))
+	createBucketForm.Add("stage", d.Get("stage").(string))
+	createBucketForm.Add("description", d.Get("description").(string))
+	createBucketForm.Add("backend", d.Get("backend").(string))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	createBucketBuffer := bytes.NewBufferString(createBucketForm.Encode())
 
-	client := meta.(*KbcClient)
-	postResp, err := client.PostToStorage("storage/buckets", formdataBuffer)
+	client := meta.(*KBCClient)
+	createResponse, err := client.PostToStorage("storage/buckets", createBucketBuffer)
 
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
 	}
 
-	var createRes CreateResourceResult
+	var createBucketResult CreateResourceResult
 
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createBucketResult)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	d.SetId(string(createBucketResult.ID))
 
 	return resourceKeboolaStorageBucketRead(d, meta)
 }
 
 func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Storage Buckets from Keboola.")
-	client := meta.(*KbcClient)
-	getResp, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
+	log.Println("[INFO] Reading Storage Buckets from Keboola.")
+
+	client := meta.(*KBCClient)
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
 	var storageBucket StorageBucket
 
-	decoder := json.NewDecoder(getResp.Body)
+	decoder := json.NewDecoder(getResponse.Body)
 	err = decoder.Decode(&storageBucket)
 
 	if err != nil {
@@ -124,11 +125,11 @@ func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) 
 func resourceKeboolaStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Storage Bucket in Keboola: %s", d.Id())
 
-	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
+	client := meta.(*KBCClient)
+	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
 
-	if hasErrors(err, delResp) {
-		return extractError(err, delResp)
+	if hasErrors(err, destroyResponse) {
+		return extractError(err, destroyResponse)
 	}
 
 	d.SetId("")

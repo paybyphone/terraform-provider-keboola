@@ -97,103 +97,8 @@ func resourceKeboolaTransformation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"output": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"destination": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"deleteWhereColumn": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"deleteWhereValues": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"deleteWhereOperator": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"primaryKey": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"incremental": &schema.Schema{
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-					},
-				},
-			},
-			"input": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"destination": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"datatypes": &schema.Schema{
-							Type:     schema.TypeMap,
-							Optional: true,
-						},
-						"whereColumn": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
-						},
-						"whereValues": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"whereOperator": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "eq",
-						},
-						"columns": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"indexes": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"days": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-					},
-				},
-			},
+			"output": &outputSchema,
+			"input":  &inputSchema,
 		},
 	}
 }
@@ -269,11 +174,11 @@ func mapOutputs(d *schema.ResourceData, meta interface{}) []Output {
 }
 
 func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Creating Transformation in Keboola.")
+	log.Println("[INFO] Creating Transformation in Keboola.")
 
 	bucketID := d.Get("bucket_id").(string)
 
-	transConf := Configuration{
+	transformConfig := Configuration{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		BackEnd:     d.Get("backend").(string),
@@ -282,68 +187,68 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if q := d.Get("queries"); q != nil {
-		transConf.Queries = AsStringArray(q.([]interface{}))
+		transformConfig.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transConf.Input = mapInputs(d, meta)
-	transConf.Output = mapOutputs(d, meta)
+	transformConfig.Input = mapInputs(d, meta)
+	transformConfig.Output = mapOutputs(d, meta)
 
-	transJSON, err := json.Marshal(transConf)
+	transformJSON, err := json.Marshal(transformConfig)
 
 	if err != nil {
 		return err
 	}
 
-	form := url.Values{}
-	form.Add("configuration", string(transJSON))
+	createTransformForm := url.Values{}
+	createTransformForm.Add("configuration", string(transformJSON))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	createTransformBuffer := bytes.NewBufferString(createTransformForm.Encode())
 
-	client := meta.(*KbcClient)
-	postResp, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), formdataBuffer)
+	client := meta.(*KBCClient)
+	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), createTransformBuffer)
 
-	if hasErrors(err, postResp) {
-		return extractError(err, postResp)
+	if hasErrors(err, createResponse) {
+		return extractError(err, createResponse)
 	}
 
-	var createRes CreateResourceResult
+	var createResult CreateResourceResult
 
-	decoder := json.NewDecoder(postResp.Body)
-	err = decoder.Decode(&createRes)
+	decoder := json.NewDecoder(createResponse.Body)
+	err = decoder.Decode(&createResult)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createRes.ID))
+	d.SetId(string(createResult.ID))
 
 	return resourceKeboolaTransformRead(d, meta)
 }
 
 func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Reading Transformations from Keboola.")
-	client := meta.(*KbcClient)
-	readURI := fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id())
-	getResp, err := client.GetFromStorage(readURI)
+	log.Println("[INFO] Reading Transformations from Keboola.")
 
-	if hasErrors(err, getResp) {
-		if getResp.StatusCode == 404 {
+	client := meta.(*KBCClient)
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
+
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResp)
+		return extractError(err, getResponse)
 	}
 
-	var trans []Transformation
+	var transformation []Transformation
 
-	decoder := json.NewDecoder(getResp.Body)
-	err = decoder.Decode(&trans)
+	decoder := json.NewDecoder(getResponse.Body)
+	err = decoder.Decode(&transformation)
 
 	if err != nil {
 		return err
 	}
 
-	for _, row := range trans {
+	for _, row := range transformation {
 		if row.Configuration.ID == d.Id() {
 			var inputs []map[string]interface{}
 			var outputs []map[string]interface{}
@@ -404,11 +309,11 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Print("[INFO] Updating Transformation in Keboola.")
+	log.Println("[INFO] Updating Transformation in Keboola.")
 
 	bucketID := d.Get("bucket_id").(string)
 
-	transConf := Configuration{
+	transformConfig := Configuration{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		BackEnd:     d.Get("backend").(string),
@@ -417,28 +322,28 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if q := d.Get("queries"); q != nil {
-		transConf.Queries = AsStringArray(q.([]interface{}))
+		transformConfig.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transConf.Input = mapInputs(d, meta)
-	transConf.Output = mapOutputs(d, meta)
+	transformConfig.Input = mapInputs(d, meta)
+	transformConfig.Output = mapOutputs(d, meta)
 
-	transJSON, err := json.Marshal(transConf)
+	transformJSON, err := json.Marshal(transformConfig)
 
 	if err != nil {
 		return err
 	}
 
-	form := url.Values{}
-	form.Add("configuration", string(transJSON))
+	updateTransformForm := url.Values{}
+	updateTransformForm.Add("configuration", string(transformJSON))
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	updateTransformBuffer := bytes.NewBufferString(updateTransformForm.Encode())
 
-	client := meta.(*KbcClient)
-	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), formdataBuffer)
+	client := meta.(*KBCClient)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), updateTransformBuffer)
 
-	if hasErrors(err, putResp) {
-		return extractError(err, putResp)
+	if hasErrors(err, updateResponse) {
+		return extractError(err, updateResponse)
 	}
 
 	return resourceKeboolaTransformRead(d, meta)
@@ -449,11 +354,11 @@ func resourceKeboolaTransformDelete(d *schema.ResourceData, meta interface{}) er
 
 	bucketID := d.Get("bucket_id").(string)
 
-	client := meta.(*KbcClient)
-	delResp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
+	client := meta.(*KBCClient)
+	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
 
-	if hasErrors(err, delResp) {
-		return extractError(err, delResp)
+	if hasErrors(err, destroyResponse) {
+		return extractError(err, destroyResponse)
 	}
 
 	d.SetId("")

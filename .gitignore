@@ -4,3 +4,5 @@ terraform.tfstate
 *.backup
 *.log
 *.sensitive
+debug
+.vscode

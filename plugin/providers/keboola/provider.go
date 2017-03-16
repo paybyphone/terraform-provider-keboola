@@ -38,10 +38,9 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	client := &KbcClient{
+	log.Println("[INFO] Initializing Keboola REST client")
+	client := &KBCClient{
 		APIKey: d.Get("api_key").(string),
 	}
-
-	log.Println("[INFO] Initializing Keboola REST client")
 	return client, nil
 }
