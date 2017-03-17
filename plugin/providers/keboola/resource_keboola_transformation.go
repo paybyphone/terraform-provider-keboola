@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -103,76 +102,6 @@ func resourceKeboolaTransformation() *schema.Resource {
 	}
 }
 
-func mapInputs(d *schema.ResourceData, meta interface{}) []Input {
-	inputs := d.Get("input").([]interface{})
-	mappedInputs := make([]Input, 0, len(inputs))
-
-	for _, inputConfig := range inputs {
-		config := inputConfig.(map[string]interface{})
-
-		mappedInput := Input{
-			Source:        config["source"].(string),
-			Destination:   config["destination"].(string),
-			WhereOperator: config["whereOperator"].(string),
-			WhereColumn:   config["whereColumn"].(string),
-			DataTypes:     config["datatypes"].(map[string]interface{}),
-			Days:          config["days"].(int),
-		}
-
-		if q := config["whereValues"]; q != nil {
-			mappedInput.WhereValues = AsStringArray(q.([]interface{}))
-		}
-
-		if q := config["columns"]; q != nil {
-			mappedInput.Columns = AsStringArray(q.([]interface{}))
-		}
-
-		if q := config["indexes"]; q != nil {
-			dest := make([][]string, 0, len(q.([]interface{})))
-			for _, q := range q.([]interface{}) {
-				if q != nil {
-					indexes := strings.Split(q.(string), ",")
-					dest = append(dest, indexes)
-				}
-			}
-			mappedInput.Indexes = dest
-		}
-
-		mappedInputs = append(mappedInputs, mappedInput)
-	}
-
-	return mappedInputs
-}
-
-func mapOutputs(d *schema.ResourceData, meta interface{}) []Output {
-	outputs := d.Get("output").([]interface{})
-	mappedOutputs := make([]Output, 0, len(outputs))
-
-	for _, outputConfig := range outputs {
-		config := outputConfig.(map[string]interface{})
-
-		mappedOutput := Output{
-			Source:              config["source"].(string),
-			Destination:         config["destination"].(string),
-			Incremental:         config["incremental"].(bool),
-			DeleteWhereOperator: config["deleteWhereOperator"].(string),
-			DeleteWhereColumn:   config["deleteWhereColumn"].(string),
-		}
-
-		if q := config["primaryKey"]; q != nil {
-			mappedOutput.PrimaryKey = AsStringArray(q.([]interface{}))
-		}
-
-		if q := config["deleteWhereValues"]; q != nil {
-			mappedOutput.DeleteWhereValues = AsStringArray(q.([]interface{}))
-		}
-
-		mappedOutputs = append(mappedOutputs, mappedOutput)
-	}
-
-	return mappedOutputs
-}
-
 func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Transformation in Keboola.")
 
@@ -190,8 +119,8 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 		transformConfig.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transformConfig.Input = mapInputs(d, meta)
-	transformConfig.Output = mapOutputs(d, meta)
+	transformConfig.Input = mapInputSchemaToModel(d, meta)
+	transformConfig.Output = mapOutputSchemaToModel(d, meta)
 
 	transformJSON, err := json.Marshal(transformConfig)
 
@@ -250,48 +179,8 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 
 	for _, row := range transformation {
 		if row.Configuration.ID == d.Id() {
-			var inputs []map[string]interface{}
-			var outputs []map[string]interface{}
-
-			for _, input := range row.Configuration.Input {
-				inputDetails := map[string]interface{}{
-					"source":        input.Source,
-					"destination":   input.Destination,
-					"columns":       input.Columns,
-					"whereOperator": input.WhereOperator,
-					"whereValues":   input.WhereValues,
-					"whereColumn":   input.WhereColumn,
-					"datatypes":     input.DataTypes,
-					"days":          input.Days,
-				}
-
-				if input.Indexes != nil {
-					indexDetails := make([]string, 0, len(input.Indexes))
-
-					for _, i := range input.Indexes {
-						combinedIndex := strings.Join(i, ",")
-						indexDetails = append(indexDetails, combinedIndex)
-					}
-
-					inputDetails["indexes"] = indexDetails
-				}
-
-				inputs = append(inputs, inputDetails)
-			}
-
-			for _, output := range row.Configuration.Output {
-				outputDetails := map[string]interface{}{
-					"source":              output.Source,
-					"destination":         output.Destination,
-					"incremental":         output.Incremental,
-					"primaryKey":          output.PrimaryKey,
-					"deleteWhereOperator": output.DeleteWhereOperator,
-					"deleteWhereValues":   output.DeleteWhereValues,
-					"deleteWhereColumn":   output.DeleteWhereColumn,
-				}
-
-				outputs = append(outputs, outputDetails)
-			}
+			inputs := mapInputModelToSchema(row.Configuration.Input)
+			outputs := mapOutputModelToSchema(row.Configuration.Output)
 
 			d.Set("id", row.Configuration.ID)
 			d.Set("name", row.Configuration.Name)
@@ -325,8 +214,8 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 		transformConfig.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transformConfig.Input = mapInputs(d, meta)
-	transformConfig.Output = mapOutputs(d, meta)
+	transformConfig.Input = mapInputSchemaToModel(d, meta)
+	transformConfig.Output = mapOutputSchemaToModel(d, meta)
 
 	transformJSON, err := json.Marshal(transformConfig)
 

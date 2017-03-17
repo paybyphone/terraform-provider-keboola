@@ -44,3 +44,51 @@ var outputSchema = schema.Schema{
 		},
 	},
 }
+
+func mapOutputSchemaToModel(d *schema.ResourceData, meta interface{}) []Output {
+	outputs := d.Get("output").([]interface{})
+	mappedOutputs := make([]Output, 0, len(outputs))
+
+	for _, outputConfig := range outputs {
+		config := outputConfig.(map[string]interface{})
+
+		mappedOutput := Output{
+			Source:              config["source"].(string),
+			Destination:         config["destination"].(string),
+			Incremental:         config["incremental"].(bool),
+			DeleteWhereOperator: config["deleteWhereOperator"].(string),
+			DeleteWhereColumn:   config["deleteWhereColumn"].(string),
+		}
+
+		if q := config["primaryKey"]; q != nil {
+			mappedOutput.PrimaryKey = AsStringArray(q.([]interface{}))
+		}
+
+		if q := config["deleteWhereValues"]; q != nil {
+			mappedOutput.DeleteWhereValues = AsStringArray(q.([]interface{}))
+		}
+
+		mappedOutputs = append(mappedOutputs, mappedOutput)
+	}
+
+	return mappedOutputs
+}
+
+func mapOutputModelToSchema(outputs []Output) []map[string]interface{} {
+	var mappedOutputs []map[string]interface{}
+
+	for _, output := range outputs {
+		mappedOutput := map[string]interface{}{
+			"source":              output.Source,
+			"destination":         output.Destination,
+			"incremental":         output.Incremental,
+			"primaryKey":          output.PrimaryKey,
+			"deleteWhereOperator": output.DeleteWhereOperator,
+			"deleteWhereValues":   output.DeleteWhereValues,
+			"deleteWhereColumn":   output.DeleteWhereColumn,
+		}
+
+		mappedOutputs = append(mappedOutputs, mappedOutput)
+	}
+	return mappedOutputs
+}
