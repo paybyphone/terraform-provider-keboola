@@ -30,6 +30,9 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 		Read:   resourceKeboolaGoodDataWriterRead,
 		Update: resourceKeboolaGoodDataWriterUpdate,
 		Delete: resourceKeboolaGoodDataWriterDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"writer_id": &schema.Schema{

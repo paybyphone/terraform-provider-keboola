@@ -45,6 +45,9 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 		Read:   resourceKeboolaGoodDataUserManagementRead,
 		Update: resourceKeboolaGoodDataUserManagementUpdate,
 		Delete: resourceKeboolaGoodDataUserManagementDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -78,8 +81,8 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 		},
 	}
 
-	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputs(d, meta)
-	goodDataUserManagementConfig.Storage.Input.Tables = mapInputs(d, meta)
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputSchemaToModel(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputSchemaToModel(d, meta)
 
 	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
@@ -142,30 +145,8 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	var inputs []map[string]interface{}
-	var outputs []map[string]interface{}
-
-	for _, input := range goodDataUserManagement.Configuration.Storage.Input.Tables {
-		inputDetails := map[string]interface{}{
-			"source":        input.Source,
-			"destination":   input.Destination,
-			"columns":       input.Columns,
-			"whereOperator": input.WhereOperator,
-			"whereValues":   input.WhereValues,
-			"whereColumn":   input.WhereColumn,
-		}
-
-		inputs = append(inputs, inputDetails)
-	}
-
-	for _, output := range goodDataUserManagement.Configuration.Storage.Output.Tables {
-		outputDetails := map[string]interface{}{
-			"source":      output.Source,
-			"destination": output.Destination,
-		}
-
-		outputs = append(outputs, outputDetails)
-	}
+	inputs := mapInputModelToSchema(goodDataUserManagement.Configuration.Storage.Input.Tables)
+	outputs := mapOutputModelToSchema(goodDataUserManagement.Configuration.Storage.Output.Tables)
 
 	d.Set("id", goodDataUserManagement.ID)
 	d.Set("name", goodDataUserManagement.Name)
@@ -189,8 +170,8 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 		},
 	}
 
-	goodDataUserManagementConfig.Storage.Input.Tables = mapInputs(d, meta)
-	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputs(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputSchemaToModel(d, meta)
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputSchemaToModel(d, meta)
 
 	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 

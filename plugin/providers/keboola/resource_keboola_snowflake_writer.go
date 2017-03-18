@@ -91,6 +91,9 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 		Read:   resourceKeboolaSnowflakeWriterRead,
 		Update: resourceKeboolaSnowflakeWriterUpdate,
 		Delete: resourceKeboolaSnowflakeWriterDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{

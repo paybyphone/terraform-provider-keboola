@@ -26,6 +26,9 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 		Create: resourceKeboolaStorageBucketCreate,
 		Read:   resourceKeboolaStorageBucketRead,
 		Delete: resourceKeboolaStorageBucketDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
