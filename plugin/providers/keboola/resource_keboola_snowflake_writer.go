@@ -277,7 +277,19 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Updating Snowflake Writer in Keboola.")
 
-	//TODO: Allow updating of description and name, as both can be updated in the UI
+	client := meta.(*KBCClient)
+
+	updateCredentialsForm := url.Values{}
+	updateCredentialsForm.Add("name", d.Get("name").(string))
+	updateCredentialsForm.Add("description", d.Get("description").(string))
+
+	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
+
+	updateCredentialsResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), updateCredentialsBuffer)
+
+	if hasErrors(err, updateCredentialsResponse) {
+		return extractError(err, updateCredentialsResponse)
+	}
 
 	return resourceKeboolaSnowflakeWriterRead(d, meta)
 }
