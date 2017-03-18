@@ -45,6 +45,9 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 		Read:   resourceKeboolaGoodDataUserManagementRead,
 		Update: resourceKeboolaGoodDataUserManagementUpdate,
 		Delete: resourceKeboolaGoodDataUserManagementDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{

@@ -30,6 +30,9 @@ func resourceKeboolaAccessToken() *schema.Resource {
 		Read:   resourceKeboolaAccessTokenRead,
 		Update: resourceKeboolaAccessTokenUpdate,
 		Delete: resourceKeboolaAccessTokenDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"description": &schema.Schema{

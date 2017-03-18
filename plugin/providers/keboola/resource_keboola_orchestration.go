@@ -34,6 +34,9 @@ func resourceKeboolaOrchestration() *schema.Resource {
 		Read:   resourceKeboolaOrchestrationRead,
 		Update: resourceKeboolaOrchestrationUpdate,
 		Delete: resourceKeboolaOrchestrationDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
