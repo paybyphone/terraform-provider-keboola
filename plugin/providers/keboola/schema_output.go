@@ -45,8 +45,7 @@ var outputSchema = schema.Schema{
 	},
 }
 
-func mapOutputSchemaToModel(d *schema.ResourceData, meta interface{}) []Output {
-	outputs := d.Get("output").([]interface{})
+func mapOutputSchemaToModel(outputs []interface{}) []Output {
 	mappedOutputs := make([]Output, 0, len(outputs))
 
 	for _, outputConfig := range outputs {

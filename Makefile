@@ -2,6 +2,7 @@ default: build deploy
 
 deps:
 	go install github.com/hashicorp/terraform
+	go install github.com/stretchr/testify
 
 build:
 ifeq ($(OS),Windows_NT)

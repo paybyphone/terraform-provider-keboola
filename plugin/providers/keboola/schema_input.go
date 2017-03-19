@@ -62,8 +62,7 @@ var inputSchema = schema.Schema{
 	},
 }
 
-func mapInputSchemaToModel(d *schema.ResourceData, meta interface{}) []Input {
-	inputs := d.Get("input").([]interface{})
+func mapInputSchemaToModel(inputs []interface{}) []Input {
 	mappedInputs := make([]Input, 0, len(inputs))
 
 	for _, inputConfig := range inputs {

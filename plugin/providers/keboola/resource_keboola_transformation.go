@@ -119,8 +119,8 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 		transformConfig.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transformConfig.Input = mapInputSchemaToModel(d, meta)
-	transformConfig.Output = mapOutputSchemaToModel(d, meta)
+	transformConfig.Input = mapInputSchemaToModel(d.Get("input").([]interface{}))
+	transformConfig.Output = mapOutputSchemaToModel(d.Get("output").([]interface{}))
 
 	transformJSON, err := json.Marshal(transformConfig)
 
@@ -214,8 +214,8 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 		transformConfig.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transformConfig.Input = mapInputSchemaToModel(d, meta)
-	transformConfig.Output = mapOutputSchemaToModel(d, meta)
+	transformConfig.Input = mapInputSchemaToModel(d.Get("input").([]interface{}))
+	transformConfig.Output = mapOutputSchemaToModel(d.Get("output").([]interface{}))
 
 	transformJSON, err := json.Marshal(transformConfig)
 

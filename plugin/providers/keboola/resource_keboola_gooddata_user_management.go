@@ -81,8 +81,8 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 		},
 	}
 
-	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputSchemaToModel(d, meta)
-	goodDataUserManagementConfig.Storage.Input.Tables = mapInputSchemaToModel(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputSchemaToModel(d.Get("input").([]interface{}))
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputSchemaToModel(d.Get("output").([]interface{}))
 
 	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
@@ -170,8 +170,8 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 		},
 	}
 
-	goodDataUserManagementConfig.Storage.Input.Tables = mapInputSchemaToModel(d, meta)
-	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputSchemaToModel(d, meta)
+	goodDataUserManagementConfig.Storage.Input.Tables = mapInputSchemaToModel(d.Get("input").([]interface{}))
+	goodDataUserManagementConfig.Storage.Output.Tables = mapOutputSchemaToModel(d.Get("output").([]interface{}))
 
 	goodDataUserManagementJSON, err := json.Marshal(goodDataUserManagementConfig)
 
