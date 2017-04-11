@@ -127,11 +127,13 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
+	isIncremental := KBCBoolean(d.Get("incremental").(bool))
+
 	goodDataTableConfig := GoodDataTable{
 		Title:       tableID,
 		Export:      d.Get("export").(bool),
 		Identifier:  d.Get("identifier").(string),
-		Incremental: d.Get("incremental").(KBCBoolean),
+		Incremental: isIncremental,
 	}
 
 	if d.Get("column") != nil {
@@ -232,11 +234,13 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
+	isIncremental := KBCBoolean(d.Get("incremental").(bool))
+
 	goodDataTableConfig := GoodDataTable{
 		Title:       tableID,
 		Export:      d.Get("export").(bool),
 		Identifier:  d.Get("identifier").(string),
-		Incremental: d.Get("incremental").(KBCBoolean),
+		Incremental: isIncremental,
 	}
 
 	if d.Get("column") != nil {
