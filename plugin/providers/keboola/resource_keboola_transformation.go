@@ -47,6 +47,7 @@ type Configuration struct {
 	Description string   `json:"description"`
 	Disabled    bool     `json:"disabled,omitempty"`
 	BackEnd     string   `json:"backend"`
+	Phase       string   `json:"phase"`
 	Type        string   `json:"type"`
 }
 
@@ -113,6 +114,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 		BackEnd:     d.Get("backend").(string),
 		Type:        d.Get("type").(string),
 		Disabled:    d.Get("disabled").(bool),
+		Phase:       d.Get("phase").(string),
 	}
 
 	if q := d.Get("queries"); q != nil {
@@ -188,6 +190,7 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 			d.Set("queries", row.Configuration.Queries)
 			d.Set("backend", row.Configuration.BackEnd)
 			d.Set("disabled", row.Configuration.Disabled)
+			d.Set("phase", row.Configuration.Phase)
 			d.Set("type", row.Configuration.Type)
 			d.Set("output", outputs)
 			d.Set("input", inputs)
@@ -208,6 +211,7 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 		BackEnd:     d.Get("backend").(string),
 		Type:        d.Get("type").(string),
 		Disabled:    d.Get("disabled").(bool),
+		Phase:       d.Get("phase").(string),
 	}
 
 	if q := d.Get("queries"); q != nil {
