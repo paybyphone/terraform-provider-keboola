@@ -25,12 +25,12 @@ type GoodDataColumn struct {
 }
 
 type GoodDataTable struct {
-	ID          string                    `json:"tableId,omitempty"`
-	Title       string                    `json:"title"`
-	Export      bool                      `json:"export"`
-	Identifier  string                    `json:"identifier"`
-	Incremental KBCBoolean                `json:"incrementalLoad"`
-	Columns     map[string]GoodDataColumn `json:"columns"`
+	ID              string                    `json:"tableId,omitempty"`
+	Title           string                    `json:"title"`
+	Export          bool                      `json:"export"`
+	Identifier      string                    `json:"identifier"`
+	IncrementalDays int                       `json:"incrementalLoad"`
+	Columns         map[string]GoodDataColumn `json:"columns"`
 }
 
 func resourceKeboolaGoodDataTable() *schema.Resource {
@@ -57,10 +57,9 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
-			"incremental": &schema.Schema{
-				Type:     schema.TypeBool,
+			"incrementalDays": &schema.Schema{
+				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  false,
 			},
 			"column": &schema.Schema{
 				Type:     schema.TypeSet,
@@ -72,6 +71,14 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 							Optional: true,
 						},
 						"dataTypeSize": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"dateDimension": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"reference": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -106,12 +113,14 @@ func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataCol
 		config := columnConfig.(map[string]interface{})
 
 		mappedColumn := GoodDataColumn{
-			Name:         config["name"].(string),
-			DataType:     config["dataType"].(string),
-			DataTypeSize: config["dataTypeSize"].(string),
-			Format:       config["format"].(string),
-			Title:        config["title"].(string),
-			Type:         config["type"].(string),
+			Name:          config["name"].(string),
+			DataType:      config["dataType"].(string),
+			DataTypeSize:  config["dataTypeSize"].(string),
+			DateDimension: config["dateDimension"].(string),
+			Reference:     config["reference"].(string),
+			Format:        config["format"].(string),
+			Title:         config["title"].(string),
+			Type:          config["type"].(string),
 		}
 
 		mappedColumns[mappedColumn.Title] = mappedColumn
@@ -127,13 +136,12 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
-	isIncremental := KBCBoolean(d.Get("incremental").(bool))
 
 	goodDataTableConfig := GoodDataTable{
-		Title:       tableID,
-		Export:      d.Get("export").(bool),
-		Identifier:  d.Get("identifier").(string),
-		Incremental: isIncremental,
+		Title:           tableID,
+		Export:          d.Get("export").(bool),
+		Identifier:      d.Get("identifier").(string),
+		IncrementalDays: d.Get("incrementalDays").(int),
 	}
 
 	if d.Get("column") != nil {
@@ -193,12 +201,14 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 
 	for _, column := range goodDataTable.Columns {
 		columnDetails := map[string]interface{}{
-			"dataType":     column.DataType,
-			"dataTypeSize": column.DataTypeSize,
-			"format":       column.Format,
-			"name":         column.Name,
-			"title":        column.Title,
-			"type":         column.Type,
+			"dataType":      column.DataType,
+			"dataTypeSize":  column.DataTypeSize,
+			"dateDimension": column.DateDimension,
+			"reference":     column.Reference,
+			"format":        column.Format,
+			"name":          column.Name,
+			"title":         column.Title,
+			"type":          column.Type,
 		}
 
 		columns = append(columns, columnDetails)
@@ -209,7 +219,7 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 		d.Set("title", goodDataTable.Title)
 		d.Set("export", goodDataTable.Export)
 		d.Set("identifier", goodDataTable.Identifier)
-		d.Set("incremental", goodDataTable.Incremental)
+		d.Set("incrementalDays", goodDataTable.IncrementalDays)
 		d.Set("column", schema.NewSet(columnSetHash, columns))
 	}
 
@@ -234,13 +244,12 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
-	isIncremental := KBCBoolean(d.Get("incremental").(bool))
 
 	goodDataTableConfig := GoodDataTable{
-		Title:       tableID,
-		Export:      d.Get("export").(bool),
-		Identifier:  d.Get("identifier").(string),
-		Incremental: isIncremental,
+		Title:           tableID,
+		Export:          d.Get("export").(bool),
+		Identifier:      d.Get("identifier").(string),
+		IncrementalDays: d.Get("incrementalDays").(int),
 	}
 
 	if d.Get("column") != nil {
