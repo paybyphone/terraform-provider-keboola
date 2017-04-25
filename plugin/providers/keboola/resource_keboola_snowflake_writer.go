@@ -15,10 +15,10 @@ type SnowflakeWriterDatabaseParameters struct {
 	HostName string `json:"host"`
 	Database string `json:"database"`
 	Password string `json:"password"`
-	Username string `string:"user"`
-	Schema   string `string:"schema"`
-	Port     string `string:"port"`
-	Driver   string `string:"driver"`
+	Username string `json:"user"`
+	Schema   string `json:"schema"`
+	Port     string `json:"port"`
+	Driver   string `json:"driver"`
 }
 
 type SnowflakeWriterTableItem struct {
