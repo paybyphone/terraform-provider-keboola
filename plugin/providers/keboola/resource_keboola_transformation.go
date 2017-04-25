@@ -82,6 +82,10 @@ func resourceKeboolaTransformation() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"phase": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,

@@ -218,10 +218,11 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 
 	for _, tableConfig := range snowflakeWriter.Configuration.Parameters.Tables {
 		tableDetails := map[string]interface{}{
-			"dbName":     tableConfig.DatabaseName,
-			"export":     tableConfig.Export,
-			"tableId":    tableConfig.TableID,
-			"primaryKey": tableConfig.PrimaryKey,
+			"dbName":      tableConfig.DatabaseName,
+			"export":      tableConfig.Export,
+			"tableId":     tableConfig.TableID,
+			"incremental": tableConfig.Incremental,
+			"primaryKey":  tableConfig.PrimaryKey,
 		}
 
 		var columns []map[string]interface{}
