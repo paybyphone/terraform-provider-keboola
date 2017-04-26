@@ -22,6 +22,14 @@ func (bit *KBCBoolean) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type KBCNumberString string
+
+func (kns *KBCNumberString) UnmarshalJSON(data []byte) error {
+	asString := string(data)
+	*kns = KBCNumberString(asString)
+	return nil
+}
+
 //KBCTime represents a time value in the Keboola APIs, which has a very specific formatting.
 type KBCTime struct {
 	time.Time

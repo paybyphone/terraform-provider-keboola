@@ -39,16 +39,16 @@ type Output struct {
 //Configuration holds the core configuration for each transformation, as
 //it is structured in the Keboola Storage API.
 type Configuration struct {
-	Input       []Input  `json:"input,omitempty"`
-	Output      []Output `json:"output,omitempty"`
-	Queries     []string `json:"queries,omitempty"`
-	ID          string   `json:"id,omitempty"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Disabled    bool     `json:"disabled,omitempty"`
-	BackEnd     string   `json:"backend"`
-	Phase       string   `json:"phase"`
-	Type        string   `json:"type"`
+	Input       []Input         `json:"input,omitempty"`
+	Output      []Output        `json:"output,omitempty"`
+	Queries     []string        `json:"queries,omitempty"`
+	ID          string          `json:"id,omitempty"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Disabled    bool            `json:"disabled,omitempty"`
+	BackEnd     string          `json:"backend"`
+	Phase       KBCNumberString `json:"phase"`
+	Type        string          `json:"type"`
 }
 
 //Transformation is the data model for data transformations within
@@ -118,7 +118,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 		BackEnd:     d.Get("backend").(string),
 		Type:        d.Get("type").(string),
 		Disabled:    d.Get("disabled").(bool),
-		Phase:       d.Get("phase").(string),
+		Phase:       KBCNumberString(d.Get("phase").(string)),
 	}
 
 	if q := d.Get("queries"); q != nil {
@@ -215,7 +215,7 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 		BackEnd:     d.Get("backend").(string),
 		Type:        d.Get("type").(string),
 		Disabled:    d.Get("disabled").(bool),
-		Phase:       d.Get("phase").(string),
+		Phase:       KBCNumberString(d.Get("phase").(string)),
 	}
 
 	if q := d.Get("queries"); q != nil {
