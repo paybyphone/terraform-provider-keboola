@@ -19,8 +19,8 @@ type Input struct {
 	WhereOperator string                 `json:"whereOperator,omitempty"`
 	WhereValues   []string               `json:"whereValues,omitempty"`
 	Indexes       [][]string             `json:"indexes,omitempty"`
-	Columns       []string               `json:"columns"`
-	DataTypes     map[string]interface{} `json:"datatypes"`
+	Columns       []string               `json:"columns,omitempty"`
+	DataTypes     map[string]interface{} `json:"datatypes,omitempty"`
 	Days          int                    `json:"days,omitempty"`
 }
 
