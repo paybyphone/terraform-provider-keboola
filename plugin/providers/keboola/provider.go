@@ -31,6 +31,7 @@ func Provider() terraform.ResourceProvider {
 			"keboola_access_token":             resourceKeboolaAccessToken(),
 			"keboola_orchestration":            resourceKeboolaOrchestration(),
 			"keboola_orchestration_tasks":      resourceKeboolaOrchestrationTasks(),
+			"keboola_csvimport_extractor":      resourceKeboolaCSVImportExtractor(),
 		},
 
 		ConfigureFunc: providerConfigure,
