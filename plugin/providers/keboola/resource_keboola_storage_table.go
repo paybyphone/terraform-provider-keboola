@@ -73,7 +73,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 				},
 			},
 			"columns": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Schema{
@@ -96,7 +96,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 	log.Println("[INFO] Creating Storage Table in Keboola.")
 
 	client := meta.(*KBCClient)
-	columns := AsStringArray(d.Get("columns").([]interface{}))
+	columns := AsStringArray(d.Get("columns").(*schema.Set).List())
 
 	uploadFileBuffer := &bytes.Buffer{}
 	uploadFileRequestWriter := multipart.NewWriter(uploadFileBuffer)
