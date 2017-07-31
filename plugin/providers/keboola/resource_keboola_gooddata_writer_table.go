@@ -82,6 +82,10 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"schemaReference": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"format": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
@@ -113,14 +117,15 @@ func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataCol
 		config := columnConfig.(map[string]interface{})
 
 		mappedColumn := GoodDataColumn{
-			Name:          config["name"].(string),
-			DataType:      config["dataType"].(string),
-			DataTypeSize:  config["dataTypeSize"].(string),
-			DateDimension: config["dateDimension"].(string),
-			Reference:     config["reference"].(string),
-			Format:        config["format"].(string),
-			Title:         config["title"].(string),
-			Type:          config["type"].(string),
+			Name:            config["name"].(string),
+			DataType:        config["dataType"].(string),
+			DataTypeSize:    config["dataTypeSize"].(string),
+			DateDimension:   config["dateDimension"].(string),
+			Reference:       config["reference"].(string),
+			SchemaReference: config["schemaReference"].(string),
+			Format:          config["format"].(string),
+			Title:           config["title"].(string),
+			Type:            config["type"].(string),
 		}
 
 		mappedColumns[mappedColumn.Title] = mappedColumn
@@ -201,14 +206,15 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 
 	for _, column := range goodDataTable.Columns {
 		columnDetails := map[string]interface{}{
-			"dataType":      column.DataType,
-			"dataTypeSize":  column.DataTypeSize,
-			"dateDimension": column.DateDimension,
-			"reference":     column.Reference,
-			"format":        column.Format,
-			"name":          column.Name,
-			"title":         column.Title,
-			"type":          column.Type,
+			"dataType":        column.DataType,
+			"dataTypeSize":    column.DataTypeSize,
+			"dateDimension":   column.DateDimension,
+			"reference":       column.Reference,
+			"schemaReference": column.SchemaReference,
+			"format":          column.Format,
+			"name":            column.Name,
+			"title":           column.Title,
+			"type":            column.Type,
 		}
 
 		columns = append(columns, columnDetails)
