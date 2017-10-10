@@ -18,9 +18,9 @@ func (c *KBCClient) GetFromSyrup(endpoint string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func (c *KBCClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PostToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", syrupURL+endpoint, formdata)
+	req, err := http.NewRequest("POST", syrupURL+endpoint, jsonpayload)
 	if err != nil {
 		return nil, err
 	}
