@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/url"
 
@@ -100,13 +99,13 @@ func resourceKeboolaPostgreSQLWriterCreate(d *schema.ResourceData, meta interfac
 
 	client := meta.(*KBCClient)
 
-	params := d.Get("dbParameters").(map[string]interface{})
-
 	createdPostgreSQLID, err := createPostgreSQLWriterConfiguration(d.Get("name").(string), d.Get("description").(string), client)
 
 	if err != nil {
 		return err
 	}
+
+	params := d.Get("dbParameters").(map[string]interface{})
 
 	if len(params) > 0 {
 		err = setPostgreSQLCredentials(createdPostgreSQLID, params, client)
@@ -149,8 +148,6 @@ func createPostgreSQLWriterConfiguration(name string, description string, client
 func setPostgreSQLCredentials(createdPostgreSQLID string, params map[string]interface{}, client *KBCClient) error {
 	postgresqlCredentials := PostgreSQLWriterConfiguration{}
 
-	ioutil.WriteFile("tack.tmp", []byte("tack"), 0644)
-
 	postgresqlCredentials.Parameters.Database.HostName = params["host"].(string)
 	postgresqlCredentials.Parameters.Database.Port = params["port"].(string)
 	postgresqlCredentials.Parameters.Database.Database = params["database"].(string)
@@ -169,12 +166,8 @@ func setPostgreSQLCredentials(createdPostgreSQLID string, params map[string]inte
 	updateCredentialsForm.Add("configuration", string(postgresqlCredentialsJSON))
 	updateCredentialsForm.Add("changeDescription", "Update credentials")
 
-	ioutil.WriteFile("tick.tmp", []byte("tick"), 0644)
-
 	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
 	updateCredentialsResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", createdPostgreSQLID), updateCredentialsBuffer)
-
-	ioutil.WriteFile("tock.tmp", []byte("tock"), 0644)
 
 	if hasErrors(err, updateCredentialsResponse) {
 		return extractError(err, updateCredentialsResponse)
@@ -232,6 +225,16 @@ func resourceKeboolaPostgreSQLWriterUpdate(d *schema.ResourceData, meta interfac
 
 	if hasErrors(err, updateWriterResponse) {
 		return extractError(err, updateWriterResponse)
+	}
+
+	params := d.Get("dbParameters").(map[string]interface{})
+
+	if len(params) > 0 {
+		err = setPostgreSQLCredentials(d.Id(), params, client)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceKeboolaPostgreSQLWriterRead(d, meta)
