@@ -7,6 +7,7 @@ import (
 
 const syrupURL = "https://syrup.keboola.com/"
 
+//GetFromSyrup requests an object from the Keboola Syrup API.
 func (c *KBCClient) GetFromSyrup(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", syrupURL+endpoint, nil)
@@ -18,9 +19,10 @@ func (c *KBCClient) GetFromSyrup(endpoint string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func (c *KBCClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+//PostToSyrup posts a new object to the Keboola Syrup API.
+func (c *KBCClient) PostToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", syrupURL+endpoint, formdata)
+	req, err := http.NewRequest("POST", syrupURL+endpoint, jsonpayload)
 	if err != nil {
 		return nil, err
 	}
@@ -30,6 +32,7 @@ func (c *KBCClient) PostToSyrup(endpoint string, formdata *bytes.Buffer) (*http.
 	return client.Do(req)
 }
 
+//PutToSyrup puts an existing object to the Keboola Syrup API for update.
 func (c *KBCClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", syrupURL+endpoint, jsonpayload)
@@ -42,6 +45,7 @@ func (c *KBCClient) PutToSyrup(endpoint string, jsonpayload *bytes.Buffer) (*htt
 	return client.Do(req)
 }
 
+//PutFormToSyrup puts an existing object in Form encoded format to the Keboola Storage API for update.
 func (c *KBCClient) PutFormToSyrup(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", syrupURL+endpoint, formdata)
@@ -54,6 +58,7 @@ func (c *KBCClient) PutFormToSyrup(endpoint string, formdata *bytes.Buffer) (*ht
 	return client.Do(req)
 }
 
+//PatchOnSyrup applies a patch/changeset to an existing object on the Keboola Storage API.
 func (c *KBCClient) PatchOnSyrup(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PATCH", syrupURL+endpoint, jsonpayload)
@@ -66,6 +71,7 @@ func (c *KBCClient) PatchOnSyrup(endpoint string, jsonpayload *bytes.Buffer) (*h
 	return client.Do(req)
 }
 
+//DeleteFromSyrup removes an existing object from the Keboola Syrup API.
 func (c *KBCClient) DeleteFromSyrup(endpoint string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", syrupURL+endpoint, nil)
