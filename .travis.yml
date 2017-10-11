@@ -7,8 +7,6 @@ branches:
 matrix:
   include:
     - go: 1.8
-      env:
-        - TF_ACC=false
 
 install:
 - go get -d github.com/hashicorp/terraform
