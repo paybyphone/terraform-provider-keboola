@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//TODO: This, and resource_keboola_snowflake_writer_tables are practically identical, can probably define everything only once and reuse for both.
+
 func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaPostgreSQLWriterTablesCreate,
@@ -71,7 +73,8 @@ func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 									},
 									"size": &schema.Schema{
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+										Default:  "",
 									},
 									"nullable": &schema.Schema{
 										Type:     schema.TypeBool,

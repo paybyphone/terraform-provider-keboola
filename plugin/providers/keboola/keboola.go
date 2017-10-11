@@ -22,8 +22,10 @@ func (bit *KBCBoolean) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+//KBCNumberString represents a dual value in the Keboola APIs, which can take either a string, or a number/integer.
 type KBCNumberString string
 
+//UnmarshalJSON handles unmarshaling a KBCNumberString in to JSON.
 func (kns *KBCNumberString) UnmarshalJSON(data []byte) error {
 	asString := string(data)
 	*kns = KBCNumberString(asString)
