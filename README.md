@@ -16,10 +16,15 @@ This is a custom terraform provider for managing resources within the Keboola Co
 Currently, the following KBC resources are supported (or partially supported) for configuration via Terraform:
 
 * `keboola_access_token`
+* `keboola_csvimport_extractor`
 * `keboola_gooddata_user_management`
 * `keboola_gooddata_writer`
 * `keboola_orchestration`
 * `keboola_orchestration_tasks`
+* `keboola_postgresql_writer`
+* `keboola_postgresql_writer_tables`
+* `keboola_snowflake_writer`
+* `keboola_snowflake_writer_tables`
 * `keboola_storage_bucket`
 * `keboola_storage_table`
 * `keboola_transformation_bucket`
@@ -53,29 +58,4 @@ provider "keboola" {
 
 ### Resource Configuration
 
-#### `keboola_transformation_bucket`
-
-A transformation bucket is an organisational grouping of transformations.
-
-```
-
-resource "keboola_transformation_bucket" "foo" {
-  name              = "Foo"
-  description       = "This is a Foo bucket."
-}
-
-```
-
-#### `keboola_transformation`
-
-```
-
-resource "keboola_transformation" "bar" {
-  bucket_id         = "${keboola_transformation_bucket.terraform_test_bucket.id}"
-  name              = "Bar"
-  description       = "This is a Bar transformation."
-  backend           = "snowflake"
-  type              = "simple"
-}
-
-```
+For documentation on each supported resource, refer to the [wiki](https://github.com/plmwong/terraform-provider-keboola/wiki).
