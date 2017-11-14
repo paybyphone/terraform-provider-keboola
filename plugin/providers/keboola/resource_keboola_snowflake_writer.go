@@ -200,8 +200,8 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 		return nil, err
 	}
 
-	if provisionedSnowflake.Status != "ok" {
-		return nil, fmt.Errorf("Unable to provision Snowflake instance")
+	if provisionSnowflakeResponse.StatusCode < 200 || provisionSnowflakeResponse.StatusCode > 299 {
+		return nil, fmt.Errorf("Unable to provision Snowflake instance (status code: %v)", provisionSnowflakeResponse.StatusCode)
 	}
 
 	return &provisionedSnowflake, nil
