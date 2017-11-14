@@ -1,5 +1,9 @@
 default: build deploy
 
+gets:
+	go get github.com/hashicorp/terraform
+	go get github.com/stretchr/testify
+
 deps:
 	go install github.com/hashicorp/terraform
 	go install github.com/stretchr/testify
