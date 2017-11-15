@@ -37,16 +37,18 @@ Currently, the following KBC resources are supported (or partially supported) fo
 
 ## Singular vs. Plural
 
-Some resources (e.g. `keboola_gooddata_writer_table`, `keboola_storage_bucket`) are configuration as singular resources, while others (e.g. `keboola_snowflake_writer_tables`, `keboola_orchestration_tasks`). This is a design decision made so
-that the terraform resources closely match how they are managed through the Keboola API(s).
+Some resources (e.g. `keboola_gooddata_writer_table`, `keboola_storage_bucket`) are configured as singular resources, while others (e.g. `keboola_snowflake_writer_tables`, `keboola_orchestration_tasks`) are plural. This is a design decision in order for
+the terraform resources to closely match how they are managed through the Keboola API(s).
 
-Resources that are plural are managed through the API in a single call that will create/update etc. all of them.
-
-Resources that are singular can be created/updated/deleted etc. independently of one another in separate calls, and so are modelled as such.
+Resources that are plural are managed through the API in a single call that will create/update/delete all of them at once.
+Resources that are singular can be created/updated/deleted independently of one another in separate API calls, and so are modelled as such.
 
 ## Usage
 
 ### Provider Configuration
+
+The provider only requires a single configuration setting `api_key`. Make sure that the access token you use has the required permissions
+for the resources that you wish to manage.
 
 #### `keboola`
 
