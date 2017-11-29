@@ -46,7 +46,7 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"actionParameters": &schema.Schema{
+						"action_parameters": &schema.Schema{
 							Type:     schema.TypeMap,
 							Optional: true,
 						},
@@ -54,11 +54,11 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"isActive": &schema.Schema{
+						"is_active": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"continueOnFailure": &schema.Schema{
+						"continue_on_failure": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -86,10 +86,10 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  config["actionParameters"].(map[string]interface{}),
+			ActionParameters:  config["action_parameters"].(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
-			IsActive:          config["isActive"].(bool),
-			ContinueOnFailure: config["continueOnFailure"].(bool),
+			IsActive:          config["is_active"].(bool),
+			ContinueOnFailure: config["continue_on_failure"].(bool),
 			Phase:             config["phase"].(string),
 		}
 
@@ -150,13 +150,13 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	for _, orchestrationTask := range orchestrationTasks {
 		taskDetails := map[string]interface{}{
-			"component":         orchestrationTask.Component,
-			"action":            orchestrationTask.Action,
-			"actionParameters":  orchestrationTask.ActionParameters,
-			"timeout":           orchestrationTask.Timeout,
-			"isActive":          orchestrationTask.IsActive,
-			"continueOnFailure": orchestrationTask.ContinueOnFailure,
-			"phase":             orchestrationTask.Phase,
+			"component":           orchestrationTask.Component,
+			"action":              orchestrationTask.Action,
+			"action_parameters":   orchestrationTask.ActionParameters,
+			"timeout":             orchestrationTask.Timeout,
+			"is_active":           orchestrationTask.IsActive,
+			"continue_on_failure": orchestrationTask.ContinueOnFailure,
+			"phase":               orchestrationTask.Phase,
 		}
 
 		tasks = append(tasks, taskDetails)
@@ -181,10 +181,10 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  config["actionParameters"].(map[string]interface{}),
+			ActionParameters:  config["action_parameters"].(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
-			IsActive:          config["isActive"].(bool),
-			ContinueOnFailure: config["continueOnFailure"].(bool),
+			IsActive:          config["is_active"].(bool),
+			ContinueOnFailure: config["continue_on_failure"].(bool),
 			Phase:             config["phase"].(string),
 		}
 

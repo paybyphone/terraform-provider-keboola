@@ -43,7 +43,7 @@ func resourceKeboolaOrchestration() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"scheduleCron": &schema.Schema{
+			"schedule_cron": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -98,7 +98,7 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 
 	orchestrationConfig := Orchestration{
 		Name:         d.Get("name").(string),
-		ScheduleCRON: d.Get("scheduleCron").(string),
+		ScheduleCRON: d.Get("schedule_cron").(string),
 	}
 
 	notifications := mapNotifications(d, meta)
@@ -186,7 +186,7 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 
 	d.Set("id", orchestration.ID)
 	d.Set("name", orchestration.Name)
-	d.Set("scheduleCron", orchestration.ScheduleCRON)
+	d.Set("schedule_cron", orchestration.ScheduleCRON)
 	d.Set("notification", notifications)
 
 	return nil
@@ -197,7 +197,7 @@ func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}
 
 	orchestrationConfig := Orchestration{
 		Name:         d.Get("name").(string),
-		ScheduleCRON: d.Get("scheduleCron").(string),
+		ScheduleCRON: d.Get("schedule_cron").(string),
 	}
 
 	notifications := mapNotifications(d, meta)

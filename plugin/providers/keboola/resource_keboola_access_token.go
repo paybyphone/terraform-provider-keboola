@@ -39,38 +39,38 @@ func resourceKeboolaAccessToken() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"canManageBuckets": &schema.Schema{
+			"can_manage_buckets": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-			"canManageTokens": &schema.Schema{
+			"can_manage_tokens": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-			"canReadAllFileUploads": &schema.Schema{
+			"can_read_all_file_uploads": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-			"expiresIn": &schema.Schema{
+			"expires_in": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Default:  nil,
 			},
-			"componentAccess": &schema.Schema{
+			"component_access": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"bucketPermissions": &schema.Schema{
+			"bucket_permissions": &schema.Schema{
 				Type:         schema.TypeMap,
 				Optional:     true,
 				ValidateFunc: validateAccessTokenBucketPermissions,
@@ -85,16 +85,16 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 	var createAccessTokenQueryString bytes.Buffer
 
 	createAccessTokenQueryString.WriteString(fmt.Sprintf("description=%s", url.QueryEscape(d.Get("description").(string))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canManageBuckets=%s", url.QueryEscape(strconv.FormatBool(d.Get("canManageBuckets").(bool)))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canManageTokens=%s", url.QueryEscape(strconv.FormatBool(d.Get("canManageTokens").(bool)))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canReadAllFileUploads=%s", url.QueryEscape(strconv.FormatBool(d.Get("canReadAllFileUploads").(bool)))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&expiresIn=%s", url.QueryEscape(strconv.Itoa(d.Get("expiresIn").(int)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&can_manage_buckets=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_manage_buckets").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&can_manage_tokens=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_manage_tokens").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&can_read_all_file_uploads=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_read_all_file_uploads").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&expires_in=%s", url.QueryEscape(strconv.Itoa(d.Get("expires_in").(int)))))
 
-	for key, value := range AsStringArray(d.Get("componentAccess").([]interface{})) {
+	for key, value := range AsStringArray(d.Get("component_access").([]interface{})) {
 		createAccessTokenQueryString.WriteString(fmt.Sprintf("&componentAccess%%5B%v%%5D=%s", key, value))
 	}
 
-	for key, value := range d.Get("bucketPermissions").(map[string]interface{}) {
+	for key, value := range d.Get("bucket_permissions").(map[string]interface{}) {
 		createAccessTokenQueryString.WriteString(fmt.Sprintf("&bucketPermissions%%5B%s%%5D=%s", key, value))
 	}
 
@@ -156,12 +156,12 @@ func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) er
 
 	d.Set("id", accessToken.ID)
 	d.Set("description", accessToken.Description)
-	d.Set("canManageBuckets", accessToken.CanManageBuckets)
-	d.Set("canManageTokens", accessToken.CanManageTokens)
-	d.Set("canReadAllFileUploads", accessToken.CanReadAllFileUploads)
-	d.Set("expiresIn", remaining/time.Second)
-	d.Set("componentAccess", accessToken.ComponentAccess)
-	d.Set("bucketPermissions", accessToken.BucketPermissions)
+	d.Set("can_manage_buckets", accessToken.CanManageBuckets)
+	d.Set("can_manage_tokens", accessToken.CanManageTokens)
+	d.Set("can_read_all_file_uploads", accessToken.CanReadAllFileUploads)
+	d.Set("expires_in", remaining/time.Second)
+	d.Set("component_access", accessToken.ComponentAccess)
+	d.Set("bucket_permissions", accessToken.BucketPermissions)
 
 	return nil
 }
@@ -172,16 +172,16 @@ func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) 
 	var updateAccessTokenQueryString bytes.Buffer
 
 	updateAccessTokenQueryString.WriteString(fmt.Sprintf("description=%s", d.Get("description").(string)))
-	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canManageBuckets=%v", d.Get("canManageBuckets").(bool)))
-	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canManageTokens=%v", d.Get("canManageTokens").(bool)))
-	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canReadAllFileUploads=%v", d.Get("canReadAllFileUploads").(bool)))
-	updateAccessTokenQueryString.WriteString(fmt.Sprintf("expiresIn=%v", d.Get("expiresIn").(int)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canManageBuckets=%v", d.Get("can_manage_buckets").(bool)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canManageTokens=%v", d.Get("can_manage_tokens").(bool)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("canReadAllFileUploads=%v", d.Get("can_read_all_file_uploads").(bool)))
+	updateAccessTokenQueryString.WriteString(fmt.Sprintf("expiresIn=%v", d.Get("expires_in").(int)))
 
-	for key, value := range AsStringArray(d.Get("componentAccess").([]interface{})) {
+	for key, value := range AsStringArray(d.Get("component_access").([]interface{})) {
 		updateAccessTokenQueryString.WriteString(fmt.Sprintf("componentAccess[%v]=%s", key, value))
 	}
 
-	for key, value := range d.Get("bucketPermissions").(map[string]interface{}) {
+	for key, value := range d.Get("bucket_permissions").(map[string]interface{}) {
 		updateAccessTokenQueryString.WriteString(fmt.Sprintf("bucketPermissions[%s]=%s", key, value))
 	}
 

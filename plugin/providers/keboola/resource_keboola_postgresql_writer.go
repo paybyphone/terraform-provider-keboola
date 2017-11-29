@@ -86,7 +86,7 @@ func resourceKeboolaPostgreSQLWriter() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"dbParameters": &schema.Schema{
+			"db_parameters": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
@@ -105,7 +105,7 @@ func resourceKeboolaPostgreSQLWriterCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	params := d.Get("dbParameters").(map[string]interface{})
+	params := d.Get("db_parameters").(map[string]interface{})
 
 	if len(params) > 0 {
 		err = setPostgreSQLCredentials(createdPostgreSQLID, params, client)
@@ -153,7 +153,7 @@ func setPostgreSQLCredentials(createdPostgreSQLID string, params map[string]inte
 	postgresqlCredentials.Parameters.Database.Database = params["database"].(string)
 	postgresqlCredentials.Parameters.Database.Schema = params["schema"].(string)
 	postgresqlCredentials.Parameters.Database.Username = params["username"].(string)
-	postgresqlCredentials.Parameters.Database.Password = params["hashedPassword"].(string)
+	postgresqlCredentials.Parameters.Database.Password = params["hashed_password"].(string)
 	postgresqlCredentials.Parameters.Database.Driver = "pgsql"
 
 	postgresqlCredentialsJSON, err := json.Marshal(postgresqlCredentials)
@@ -227,7 +227,7 @@ func resourceKeboolaPostgreSQLWriterUpdate(d *schema.ResourceData, meta interfac
 		return extractError(err, updateWriterResponse)
 	}
 
-	params := d.Get("dbParameters").(map[string]interface{})
+	params := d.Get("db_parameters").(map[string]interface{})
 
 	if len(params) > 0 {
 		err = setPostgreSQLCredentials(d.Id(), params, client)

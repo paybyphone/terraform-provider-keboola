@@ -15,22 +15,22 @@ var outputSchema = schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"deleteWhereColumn": &schema.Schema{
+			"delete_where_column": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"deleteWhereValues": &schema.Schema{
+			"delete_where_values": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"deleteWhereOperator": &schema.Schema{
+			"delete_where_operator": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"primaryKey": &schema.Schema{
+			"primary_key": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -55,15 +55,15 @@ func mapOutputSchemaToModel(outputs []interface{}) []Output {
 			Source:              config["source"].(string),
 			Destination:         config["destination"].(string),
 			Incremental:         config["incremental"].(bool),
-			DeleteWhereOperator: config["deleteWhereOperator"].(string),
-			DeleteWhereColumn:   config["deleteWhereColumn"].(string),
+			DeleteWhereOperator: config["delete_where_operator"].(string),
+			DeleteWhereColumn:   config["delete_where_column"].(string),
 		}
 
-		if q := config["primaryKey"]; q != nil {
+		if q := config["primary_key"]; q != nil {
 			mappedOutput.PrimaryKey = AsStringArray(q.([]interface{}))
 		}
 
-		if q := config["deleteWhereValues"]; q != nil {
+		if q := config["delete_where_values"]; q != nil {
 			mappedOutput.DeleteWhereValues = AsStringArray(q.([]interface{}))
 		}
 
@@ -78,13 +78,13 @@ func mapOutputModelToSchema(outputs []Output) []map[string]interface{} {
 
 	for _, output := range outputs {
 		mappedOutput := map[string]interface{}{
-			"source":              output.Source,
-			"destination":         output.Destination,
-			"incremental":         output.Incremental,
-			"primaryKey":          output.PrimaryKey,
-			"deleteWhereOperator": output.DeleteWhereOperator,
-			"deleteWhereValues":   output.DeleteWhereValues,
-			"deleteWhereColumn":   output.DeleteWhereColumn,
+			"source":                output.Source,
+			"destination":           output.Destination,
+			"incremental":           output.Incremental,
+			"primary_key":           output.PrimaryKey,
+			"delete_where_operator": output.DeleteWhereOperator,
+			"delete_where_values":   output.DeleteWhereValues,
+			"delete_where_column":   output.DeleteWhereColumn,
 		}
 
 		mappedOutputs = append(mappedOutputs, mappedOutput)
