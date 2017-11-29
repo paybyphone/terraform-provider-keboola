@@ -47,8 +47,9 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 							Required: true,
 						},
 						"action_parameters": &schema.Schema{
-							Type:     schema.TypeMap,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: suppressEquivalentJSON,
 						},
 						"timeout": &schema.Schema{
 							Type:     schema.TypeInt,
@@ -83,10 +84,14 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 	for _, task := range tasks {
 		config := task.(map[string]interface{})
 
+		actionParametersJSON := config["action_parameters"].(string)
+		var mappedActionParameters interface{}
+		json.Unmarshal([]byte(actionParametersJSON), &mappedActionParameters)
+
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  config["action_parameters"].(map[string]interface{}),
+			ActionParameters:  mappedActionParameters.(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
 			IsActive:          config["is_active"].(bool),
 			ContinueOnFailure: config["continue_on_failure"].(bool),
@@ -149,10 +154,13 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 	var tasks []map[string]interface{}
 
 	for _, orchestrationTask := range orchestrationTasks {
+
+		actionParametersJSON, _ := json.Marshal(orchestrationTask.ActionParameters)
+
 		taskDetails := map[string]interface{}{
 			"component":           orchestrationTask.Component,
 			"action":              orchestrationTask.Action,
-			"action_parameters":   orchestrationTask.ActionParameters,
+			"action_parameters":   string(actionParametersJSON),
 			"timeout":             orchestrationTask.Timeout,
 			"is_active":           orchestrationTask.IsActive,
 			"continue_on_failure": orchestrationTask.ContinueOnFailure,
@@ -178,10 +186,14 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 	for _, task := range tasks {
 		config := task.(map[string]interface{})
 
+		actionParametersJSON := config["action_parameters"].(string)
+		var mappedActionParameters interface{}
+		json.Unmarshal([]byte(actionParametersJSON), &mappedActionParameters)
+
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  config["action_parameters"].(map[string]interface{}),
+			ActionParameters:  mappedActionParameters.(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
 			IsActive:          config["is_active"].(bool),
 			ContinueOnFailure: config["continue_on_failure"].(bool),

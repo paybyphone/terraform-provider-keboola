@@ -87,8 +87,9 @@ func resourceKeboolaPostgreSQLWriter() *schema.Resource {
 				Optional: true,
 			},
 			"db_parameters": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: suppressEquivalentJSON,
 			},
 		},
 	}
@@ -105,7 +106,10 @@ func resourceKeboolaPostgreSQLWriterCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	params := d.Get("db_parameters").(map[string]interface{})
+	paramsJSON := d.Get("db_parameters").(string)
+	var mappedParams interface{}
+	json.Unmarshal([]byte(paramsJSON), &mappedParams)
+	params := mappedParams.(map[string]interface{})
 
 	if len(params) > 0 {
 		err = setPostgreSQLCredentials(createdPostgreSQLID, params, client)
@@ -227,7 +231,10 @@ func resourceKeboolaPostgreSQLWriterUpdate(d *schema.ResourceData, meta interfac
 		return extractError(err, updateWriterResponse)
 	}
 
-	params := d.Get("db_parameters").(map[string]interface{})
+	paramsJSON := d.Get("db_parameters").(string)
+	var mappedParams interface{}
+	json.Unmarshal([]byte(paramsJSON), &mappedParams)
+	params := mappedParams.(map[string]interface{})
 
 	if len(params) > 0 {
 		err = setPostgreSQLCredentials(d.Id(), params, client)

@@ -85,10 +85,10 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 	var createAccessTokenQueryString bytes.Buffer
 
 	createAccessTokenQueryString.WriteString(fmt.Sprintf("description=%s", url.QueryEscape(d.Get("description").(string))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&can_manage_buckets=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_manage_buckets").(bool)))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&can_manage_tokens=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_manage_tokens").(bool)))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&can_read_all_file_uploads=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_read_all_file_uploads").(bool)))))
-	createAccessTokenQueryString.WriteString(fmt.Sprintf("&expires_in=%s", url.QueryEscape(strconv.Itoa(d.Get("expires_in").(int)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canManageBuckets=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_manage_buckets").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canManageTokens=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_manage_tokens").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&canReadAllFileUploads=%s", url.QueryEscape(strconv.FormatBool(d.Get("can_read_all_file_uploads").(bool)))))
+	createAccessTokenQueryString.WriteString(fmt.Sprintf("&expiresIn=%s", url.QueryEscape(strconv.Itoa(d.Get("expires_in").(int)))))
 
 	for key, value := range AsStringArray(d.Get("component_access").([]interface{})) {
 		createAccessTokenQueryString.WriteString(fmt.Sprintf("&componentAccess%%5B%v%%5D=%s", key, value))
