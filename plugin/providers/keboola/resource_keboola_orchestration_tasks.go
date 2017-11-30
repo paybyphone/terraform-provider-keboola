@@ -91,11 +91,14 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  mappedActionParameters.(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
 			IsActive:          config["is_active"].(bool),
 			ContinueOnFailure: config["continue_on_failure"].(bool),
 			Phase:             config["phase"].(string),
+		}
+
+		if mappedActionParameters != nil {
+			mappedTask.ActionParameters = mappedActionParameters.(map[string]interface{})
 		}
 
 		mappedTasks = append(mappedTasks, mappedTask)
@@ -193,11 +196,14 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  mappedActionParameters.(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
 			IsActive:          config["is_active"].(bool),
 			ContinueOnFailure: config["continue_on_failure"].(bool),
 			Phase:             config["phase"].(string),
+		}
+
+		if mappedActionParameters != nil {
+			mappedTask.ActionParameters = mappedActionParameters.(map[string]interface{})
 		}
 
 		mappedTasks = append(mappedTasks, mappedTask)
