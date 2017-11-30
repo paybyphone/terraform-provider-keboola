@@ -60,7 +60,7 @@ func resourceKeboolaCSVImportExtractor() *schema.Resource {
 				Optional: true,
 				Default:  "\"",
 			},
-			"primaryKey": &schema.Schema{
+			"primary_key": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -134,7 +134,7 @@ func resourceKeboolaCSVImportExtractorRead(d *schema.ResourceData, meta interfac
 	d.Set("description", csvImportExtractor.Description)
 	d.Set("destination", csvImportExtractor.Configuration.Destination)
 	d.Set("incremental", csvImportExtractor.Configuration.Incremental)
-	d.Set("primaryKey", csvImportExtractor.Configuration.PrimaryKey)
+	d.Set("primary_key", csvImportExtractor.Configuration.PrimaryKey)
 	d.Set("delimiter", csvImportExtractor.Configuration.Delimiter)
 	d.Set("enclosure", csvImportExtractor.Configuration.Enclosure)
 
@@ -155,7 +155,7 @@ func resourceKeboolaCSVImportExtractorUpdate(d *schema.ResourceData, meta interf
 		Incremental: d.Get("incremental").(bool),
 		Delimiter:   d.Get("delimiter").(string),
 		Enclosure:   d.Get("enclosure").(string),
-		PrimaryKey:  AsStringArray(d.Get("primaryKey").([]interface{})),
+		PrimaryKey:  AsStringArray(d.Get("primary_key").([]interface{})),
 	}
 
 	uploadSettingsJSON, err := json.Marshal(uploadSettings)

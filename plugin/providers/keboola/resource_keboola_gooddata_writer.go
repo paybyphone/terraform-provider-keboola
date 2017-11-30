@@ -47,7 +47,7 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"authToken": &schema.Schema{
+			"auth_token": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "keboola_demo",
@@ -62,7 +62,7 @@ func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{
 	writerID := d.Get("writer_id").(string)
 	client := meta.(*KBCClient)
 
-	err := provisionGoodDataProject(writerID, d.Get("description").(string), d.Get("authToken").(string), client)
+	err := provisionGoodDataProject(writerID, d.Get("description").(string), d.Get("auth_token").(string), client)
 
 	if err != nil {
 		return err

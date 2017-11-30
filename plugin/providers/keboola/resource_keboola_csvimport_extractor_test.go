@@ -58,5 +58,5 @@ const testCSVImportExtractorBasic = `
 		destination = "out.foo.bar"
 		delimiter = "%"
 		enclosure = "'"
-		primaryKey = [ "baz" ]
+		primary_key = [ "baz" ]
 	}`

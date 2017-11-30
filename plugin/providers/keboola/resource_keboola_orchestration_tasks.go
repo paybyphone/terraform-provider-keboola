@@ -46,19 +46,20 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"actionParameters": &schema.Schema{
-							Type:     schema.TypeMap,
-							Optional: true,
+						"action_parameters": &schema.Schema{
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: suppressEquivalentJSON,
 						},
 						"timeout": &schema.Schema{
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"isActive": &schema.Schema{
+						"is_active": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"continueOnFailure": &schema.Schema{
+						"continue_on_failure": &schema.Schema{
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -83,14 +84,21 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 	for _, task := range tasks {
 		config := task.(map[string]interface{})
 
+		actionParametersJSON := config["action_parameters"].(string)
+		var mappedActionParameters interface{}
+		json.Unmarshal([]byte(actionParametersJSON), &mappedActionParameters)
+
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  config["actionParameters"].(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
-			IsActive:          config["isActive"].(bool),
-			ContinueOnFailure: config["continueOnFailure"].(bool),
+			IsActive:          config["is_active"].(bool),
+			ContinueOnFailure: config["continue_on_failure"].(bool),
 			Phase:             config["phase"].(string),
+		}
+
+		if mappedActionParameters != nil {
+			mappedTask.ActionParameters = mappedActionParameters.(map[string]interface{})
 		}
 
 		mappedTasks = append(mappedTasks, mappedTask)
@@ -149,14 +157,17 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 	var tasks []map[string]interface{}
 
 	for _, orchestrationTask := range orchestrationTasks {
+
+		actionParametersJSON, _ := json.Marshal(orchestrationTask.ActionParameters)
+
 		taskDetails := map[string]interface{}{
-			"component":         orchestrationTask.Component,
-			"action":            orchestrationTask.Action,
-			"actionParameters":  orchestrationTask.ActionParameters,
-			"timeout":           orchestrationTask.Timeout,
-			"isActive":          orchestrationTask.IsActive,
-			"continueOnFailure": orchestrationTask.ContinueOnFailure,
-			"phase":             orchestrationTask.Phase,
+			"component":           orchestrationTask.Component,
+			"action":              orchestrationTask.Action,
+			"action_parameters":   string(actionParametersJSON),
+			"timeout":             orchestrationTask.Timeout,
+			"is_active":           orchestrationTask.IsActive,
+			"continue_on_failure": orchestrationTask.ContinueOnFailure,
+			"phase":               orchestrationTask.Phase,
 		}
 
 		tasks = append(tasks, taskDetails)
@@ -178,14 +189,21 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 	for _, task := range tasks {
 		config := task.(map[string]interface{})
 
+		actionParametersJSON := config["action_parameters"].(string)
+		var mappedActionParameters interface{}
+		json.Unmarshal([]byte(actionParametersJSON), &mappedActionParameters)
+
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
 			Action:            config["action"].(string),
-			ActionParameters:  config["actionParameters"].(map[string]interface{}),
 			Timeout:           config["timeout"].(int),
-			IsActive:          config["isActive"].(bool),
-			ContinueOnFailure: config["continueOnFailure"].(bool),
+			IsActive:          config["is_active"].(bool),
+			ContinueOnFailure: config["continue_on_failure"].(bool),
 			Phase:             config["phase"].(string),
+		}
+
+		if mappedActionParameters != nil {
+			mappedTask.ActionParameters = mappedActionParameters.(map[string]interface{})
 		}
 
 		mappedTasks = append(mappedTasks, mappedTask)
