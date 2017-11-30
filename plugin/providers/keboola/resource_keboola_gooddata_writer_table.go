@@ -57,7 +57,7 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
-			"incrementalDays": &schema.Schema{
+			"incremental_days": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -66,15 +66,15 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"dataType": &schema.Schema{
+						"data_type": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"dataTypeSize": &schema.Schema{
+						"data_type_size": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"dateDimension": &schema.Schema{
+						"date_dimension": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -82,7 +82,7 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"schemaReference": &schema.Schema{
+						"schema_reference": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -118,11 +118,11 @@ func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataCol
 
 		mappedColumn := GoodDataColumn{
 			Name:            config["name"].(string),
-			DataType:        config["dataType"].(string),
-			DataTypeSize:    config["dataTypeSize"].(string),
-			DateDimension:   config["dateDimension"].(string),
+			DataType:        config["data_type"].(string),
+			DataTypeSize:    config["data_type_size"].(string),
+			DateDimension:   config["date_dimension"].(string),
 			Reference:       config["reference"].(string),
-			SchemaReference: config["schemaReference"].(string),
+			SchemaReference: config["schema_reference"].(string),
 			Format:          config["format"].(string),
 			Title:           config["title"].(string),
 			Type:            config["type"].(string),
@@ -146,7 +146,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
-		IncrementalDays: d.Get("incrementalDays").(int),
+		IncrementalDays: d.Get("incremental_days").(int),
 	}
 
 	if d.Get("column") != nil {
@@ -206,15 +206,15 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 
 	for _, column := range goodDataTable.Columns {
 		columnDetails := map[string]interface{}{
-			"dataType":        column.DataType,
-			"dataTypeSize":    column.DataTypeSize,
-			"dateDimension":   column.DateDimension,
-			"reference":       column.Reference,
-			"schemaReference": column.SchemaReference,
-			"format":          column.Format,
-			"name":            column.Name,
-			"title":           column.Title,
-			"type":            column.Type,
+			"data_type":        column.DataType,
+			"data_type_size":   column.DataTypeSize,
+			"date_dimension":   column.DateDimension,
+			"reference":        column.Reference,
+			"schema_reference": column.SchemaReference,
+			"format":           column.Format,
+			"name":             column.Name,
+			"title":            column.Title,
+			"type":             column.Type,
 		}
 
 		columns = append(columns, columnDetails)
@@ -225,7 +225,7 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 		d.Set("title", goodDataTable.Title)
 		d.Set("export", goodDataTable.Export)
 		d.Set("identifier", goodDataTable.Identifier)
-		d.Set("incrementalDays", goodDataTable.IncrementalDays)
+		d.Set("incremental_days", goodDataTable.IncrementalDays)
 		d.Set("column", schema.NewSet(columnSetHash, columns))
 	}
 
@@ -255,7 +255,7 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
-		IncrementalDays: d.Get("incrementalDays").(int),
+		IncrementalDays: d.Get("incremental_days").(int),
 	}
 
 	if d.Get("column") != nil {

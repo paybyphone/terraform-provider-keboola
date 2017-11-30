@@ -20,10 +20,10 @@ func TestAccAccessToken_Basic(t *testing.T) {
 				Config: testAccessTokenBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_access_token.test_token", "description", "test description"),
-					resource.TestCheckResourceAttr("keboola_access_token.test_token", "canManageBuckets", "true"),
-					resource.TestCheckResourceAttr("keboola_access_token.test_token", "canManageTokens", "false"),
-					resource.TestCheckResourceAttr("keboola_access_token.test_token", "canReadAllFileUploads", "false"),
-					resource.TestCheckResourceAttr("keboola_access_token.test_token", "expiresIn", "10800"),
+					resource.TestCheckResourceAttr("keboola_access_token.test_token", "can_manage_buckets", "true"),
+					resource.TestCheckResourceAttr("keboola_access_token.test_token", "can_manage_tokens", "false"),
+					resource.TestCheckResourceAttr("keboola_access_token.test_token", "can_read_all_file_uploads", "false"),
+					resource.TestCheckResourceAttr("keboola_access_token.test_token", "expires_in", "10800"),
 				),
 			},
 		},
@@ -53,11 +53,11 @@ func testAccCheckAccessTokenDestroy(s *terraform.State) error {
 const testAccessTokenBasic = `
 	resource "keboola_access_token" "test_token" {
 		description = "test description"
-		canManageBuckets = true
-		canManageTokens = false
-		canReadAllFileUploads = false
-		expiresIn = 10800
+		can_manage_buckets = true
+		can_manage_tokens = false
+		can_read_all_file_uploads = false
+		expires_in = 10800
     lifecycle {
-        ignore_changes = [ "expiresIn" ]
+        ignore_changes = [ "expires_in" ]
     }
 	}`

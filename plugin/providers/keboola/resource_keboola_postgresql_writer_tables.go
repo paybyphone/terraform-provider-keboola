@@ -29,7 +29,7 @@ func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"dbName": &schema.Schema{
+						"db_name": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -38,7 +38,7 @@ func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
-						"tableId": &schema.Schema{
+						"table_id": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -47,7 +47,7 @@ func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
-						"primaryKey": &schema.Schema{
+						"primary_key": &schema.Schema{
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
@@ -63,7 +63,7 @@ func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"dbName": &schema.Schema{
+									"db_name": &schema.Schema{
 										Type:     schema.TypeString,
 										Optional: true,
 									},
@@ -109,13 +109,13 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 		config := table.(map[string]interface{})
 
 		mappedTable := PostgreSQLWriterTable{
-			DatabaseName: config["dbName"].(string),
+			DatabaseName: config["db_name"].(string),
 			Export:       config["export"].(bool),
-			TableID:      config["tableId"].(string),
+			TableID:      config["table_id"].(string),
 			Incremental:  config["incremental"].(bool),
 		}
 
-		if q := config["primaryKey"]; q != nil {
+		if q := config["primary_key"]; q != nil {
 			mappedTable.PrimaryKey = AsStringArray(q.([]interface{}))
 		}
 
@@ -132,7 +132,7 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 
 			mappedColumn := PostgreSQLWriterTableItem{
 				Name:         columnConfig["name"].(string),
-				DatabaseName: columnConfig["dbName"].(string),
+				DatabaseName: columnConfig["db_name"].(string),
 				Type:         columnConfig["type"].(string),
 				Size:         columnConfig["size"].(string),
 				IsNullable:   columnConfig["nullable"].(bool),
@@ -178,7 +178,7 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 
 	updatePostgreSQLForm := url.Values{}
 	updatePostgreSQLForm.Add("configuration", string(postgresqlConfigJSON))
-	updatePostgreSQLForm.Add("changeDescription", "Update PostgreSQL tables")
+	updatePostgreSQLForm.Add("change_description", "Update PostgreSQL tables")
 
 	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
 
@@ -221,11 +221,11 @@ func resourceKeboolaPostgreSQLWriterTablesRead(d *schema.ResourceData, meta inte
 
 	for _, tableConfig := range postgresqlWriter.Configuration.Parameters.Tables {
 		tableDetails := map[string]interface{}{
-			"dbName":      tableConfig.DatabaseName,
+			"db_name":     tableConfig.DatabaseName,
 			"export":      tableConfig.Export,
-			"tableId":     tableConfig.TableID,
+			"table_id":    tableConfig.TableID,
 			"incremental": tableConfig.Incremental,
-			"primaryKey":  tableConfig.PrimaryKey,
+			"primary_key": tableConfig.PrimaryKey,
 		}
 
 		var columns []map[string]interface{}
@@ -233,7 +233,7 @@ func resourceKeboolaPostgreSQLWriterTablesRead(d *schema.ResourceData, meta inte
 		for _, item := range tableConfig.Items {
 			columnDetails := map[string]interface{}{
 				"name":     item.Name,
-				"dbName":   item.DatabaseName,
+				"db_name":  item.DatabaseName,
 				"type":     item.Type,
 				"size":     item.Size,
 				"nullable": item.IsNullable,
@@ -265,13 +265,13 @@ func resourceKeboolaPostgreSQLWriterTablesUpdate(d *schema.ResourceData, meta in
 		config := table.(map[string]interface{})
 
 		mappedTable := PostgreSQLWriterTable{
-			DatabaseName: config["dbName"].(string),
+			DatabaseName: config["db_name"].(string),
 			Export:       config["export"].(bool),
-			TableID:      config["tableId"].(string),
+			TableID:      config["table_id"].(string),
 			Incremental:  config["incremental"].(bool),
 		}
 
-		if q := config["primaryKey"]; q != nil {
+		if q := config["primary_key"]; q != nil {
 			mappedTable.PrimaryKey = AsStringArray(q.([]interface{}))
 		}
 
@@ -288,7 +288,7 @@ func resourceKeboolaPostgreSQLWriterTablesUpdate(d *schema.ResourceData, meta in
 
 			mappedColumn := PostgreSQLWriterTableItem{
 				Name:         columnConfig["name"].(string),
-				DatabaseName: columnConfig["dbName"].(string),
+				DatabaseName: columnConfig["db_name"].(string),
 				Type:         columnConfig["type"].(string),
 				Size:         columnConfig["size"].(string),
 				IsNullable:   columnConfig["nullable"].(bool),

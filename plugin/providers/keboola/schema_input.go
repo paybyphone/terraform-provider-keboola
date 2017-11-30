@@ -23,19 +23,19 @@ var inputSchema = schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
-			"whereColumn": &schema.Schema{
+			"where_column": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
-			"whereValues": &schema.Schema{
+			"where_values": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"whereOperator": &schema.Schema{
+			"where_operator": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "eq",
@@ -71,13 +71,13 @@ func mapInputSchemaToModel(inputs []interface{}) []Input {
 		mappedInput := Input{
 			Source:        config["source"].(string),
 			Destination:   config["destination"].(string),
-			WhereOperator: config["whereOperator"].(string),
-			WhereColumn:   config["whereColumn"].(string),
+			WhereOperator: config["where_operator"].(string),
+			WhereColumn:   config["where_column"].(string),
 			DataTypes:     config["datatypes"].(map[string]interface{}),
 			Days:          config["days"].(int),
 		}
 
-		if q := config["whereValues"]; q != nil {
+		if q := config["where_values"]; q != nil {
 			mappedInput.WhereValues = AsStringArray(q.([]interface{}))
 		}
 
@@ -107,14 +107,14 @@ func mapInputModelToSchema(inputs []Input) []map[string]interface{} {
 
 	for _, input := range inputs {
 		mappedInput := map[string]interface{}{
-			"source":        input.Source,
-			"destination":   input.Destination,
-			"columns":       input.Columns,
-			"whereOperator": input.WhereOperator,
-			"whereValues":   input.WhereValues,
-			"whereColumn":   input.WhereColumn,
-			"datatypes":     input.DataTypes,
-			"days":          input.Days,
+			"source":         input.Source,
+			"destination":    input.Destination,
+			"columns":        input.Columns,
+			"where_operator": input.WhereOperator,
+			"where_values":   input.WhereValues,
+			"where_column":   input.WhereColumn,
+			"datatypes":      input.DataTypes,
+			"days":           input.Days,
 		}
 
 		if input.Indexes != nil {

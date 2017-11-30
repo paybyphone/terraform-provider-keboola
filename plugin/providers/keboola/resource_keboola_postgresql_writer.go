@@ -86,9 +86,10 @@ func resourceKeboolaPostgreSQLWriter() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"dbParameters": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
+			"db_parameters": &schema.Schema{
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: suppressEquivalentJSON,
 			},
 		},
 	}
@@ -105,13 +106,19 @@ func resourceKeboolaPostgreSQLWriterCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	params := d.Get("dbParameters").(map[string]interface{})
+	paramsJSON := d.Get("db_parameters").(string)
+	var mappedParams interface{}
+	json.Unmarshal([]byte(paramsJSON), &mappedParams)
 
-	if len(params) > 0 {
-		err = setPostgreSQLCredentials(createdPostgreSQLID, params, client)
+	if mappedParams != nil {
+		params := mappedParams.(map[string]interface{})
 
-		if err != nil {
-			return err
+		if len(params) > 0 {
+			err = setPostgreSQLCredentials(createdPostgreSQLID, params, client)
+
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -153,7 +160,7 @@ func setPostgreSQLCredentials(createdPostgreSQLID string, params map[string]inte
 	postgresqlCredentials.Parameters.Database.Database = params["database"].(string)
 	postgresqlCredentials.Parameters.Database.Schema = params["schema"].(string)
 	postgresqlCredentials.Parameters.Database.Username = params["username"].(string)
-	postgresqlCredentials.Parameters.Database.Password = params["hashedPassword"].(string)
+	postgresqlCredentials.Parameters.Database.Password = params["hashed_password"].(string)
 	postgresqlCredentials.Parameters.Database.Driver = "pgsql"
 
 	postgresqlCredentialsJSON, err := json.Marshal(postgresqlCredentials)
@@ -227,7 +234,10 @@ func resourceKeboolaPostgreSQLWriterUpdate(d *schema.ResourceData, meta interfac
 		return extractError(err, updateWriterResponse)
 	}
 
-	params := d.Get("dbParameters").(map[string]interface{})
+	paramsJSON := d.Get("db_parameters").(string)
+	var mappedParams interface{}
+	json.Unmarshal([]byte(paramsJSON), &mappedParams)
+	params := mappedParams.(map[string]interface{})
 
 	if len(params) > 0 {
 		err = setPostgreSQLCredentials(d.Id(), params, client)

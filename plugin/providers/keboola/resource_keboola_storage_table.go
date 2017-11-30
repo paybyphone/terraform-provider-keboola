@@ -64,7 +64,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"primaryKey": &schema.Schema{
+			"primary_key": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -80,7 +80,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"indexedColumns": &schema.Schema{
+			"indexed_columns": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -124,7 +124,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 
 	loadTableForm := url.Values{}
 	loadTableForm.Add("name", d.Get("name").(string))
-	loadTableForm.Add("primaryKey", strings.Join(AsStringArray(d.Get("primaryKey").([]interface{})), ","))
+	loadTableForm.Add("primaryKey", strings.Join(AsStringArray(d.Get("primary_key").([]interface{})), ","))
 	loadTableForm.Add("dataFileId", strconv.Itoa(fileID))
 
 	if d.Get("delimiter") != "" {
@@ -180,7 +180,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 		tableLoadStatus = tableLoadStatusResult.Status
 	}
 
-	indexedOnlyColumns := except(AsStringArray(d.Get("indexedColumns").([]interface{})), AsStringArray(d.Get("primaryKey").([]interface{})))
+	indexedOnlyColumns := except(AsStringArray(d.Get("indexed_columns").([]interface{})), AsStringArray(d.Get("primary_key").([]interface{})))
 
 	for _, indexedColumn := range indexedOnlyColumns {
 		emptyBuffer := bytes.NewBufferString("")
@@ -251,8 +251,8 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("delimiter", storageTable.Delimiter)
 		d.Set("enclosure", storageTable.Enclosure)
 		d.Set("transactional", storageTable.Transactional)
-		d.Set("primaryKey", storageTable.PrimaryKey)
-		d.Set("indexedColumns", storageTable.IndexedColumns)
+		d.Set("primary_key", storageTable.PrimaryKey)
+		d.Set("indexed_columns", storageTable.IndexedColumns)
 		d.Set("columns", storageTable.Columns)
 	}
 
