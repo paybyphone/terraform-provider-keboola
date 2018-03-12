@@ -231,7 +231,7 @@ func setSnowflakeCredentials(provisionedSnowflakeResponse *ProvisionSnowflakeRes
 
 	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
 
-	updateCredentialsResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateCredentialsBuffer)
+	updateCredentialsResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateCredentialsBuffer)
 
 	if hasErrors(err, updateCredentialsResponse) {
 		return extractError(err, updateCredentialsResponse)
