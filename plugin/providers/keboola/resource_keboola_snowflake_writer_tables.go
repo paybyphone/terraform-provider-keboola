@@ -179,7 +179,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 
 	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", writerID), updateSnowflakeBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", writerID), updateSnowflakeBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -335,7 +335,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 
 	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), updateSnowflakeBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), updateSnowflakeBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -382,7 +382,7 @@ func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta int
 
 	clearSnowflakeTablesBuffer := bytes.NewBufferString(clearSnowflakeTablesForm.Encode())
 
-	clearResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), clearSnowflakeTablesBuffer)
+	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), clearSnowflakeTablesBuffer)
 
 	if hasErrors(err, clearResponse) {
 		return extractError(err, clearResponse)
