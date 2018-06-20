@@ -182,7 +182,7 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 
 	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-pgsql/configs/%s", writerID), updatePostgreSQLBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -338,7 +338,7 @@ func resourceKeboolaPostgreSQLWriterTablesUpdate(d *schema.ResourceData, meta in
 
 	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -385,7 +385,7 @@ func resourceKeboolaPostgreSQLWriterTablesDelete(d *schema.ResourceData, meta in
 
 	clearPostgreSQLTablesBuffer := bytes.NewBufferString(clearPostgreSQLTablesForm.Encode())
 
-	clearResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-pgsql/configs/%s", d.Id()), clearPostgreSQLTablesBuffer)
+	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), clearPostgreSQLTablesBuffer)
 
 	if hasErrors(err, clearResponse) {
 		return extractError(err, clearResponse)
