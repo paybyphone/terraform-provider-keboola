@@ -17,7 +17,7 @@ func TestAccTransformationBucket_Basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckTransformationBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testTransformationBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
@@ -37,7 +37,7 @@ func TestAccTransformationBucket_Update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckTransformationBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testTransformationBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),
@@ -45,7 +45,7 @@ func TestAccTransformationBucket_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("keboola_transformation_bucket.test_bucket", "description", "test description"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testTransformationBucketUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTransformationBucketExists("keboola_transformation_bucket.test_bucket", &bucket),

@@ -17,7 +17,7 @@ func TestAccStorageBucket_Basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testStorageBucketBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists("keboola_storage_bucket.test_bucket", &bucket),

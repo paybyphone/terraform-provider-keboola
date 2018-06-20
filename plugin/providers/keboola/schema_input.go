@@ -11,50 +11,50 @@ var inputSchema = schema.Schema{
 	Optional: true,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"destination": &schema.Schema{
+			"destination": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"datatypes": &schema.Schema{
+			"datatypes": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
-			"where_column": &schema.Schema{
+			"where_column": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
-			"where_values": &schema.Schema{
+			"where_values": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"where_operator": &schema.Schema{
+			"where_operator": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "eq",
 			},
-			"columns": &schema.Schema{
+			"columns": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"indexes": &schema.Schema{
+			"indexes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"days": &schema.Schema{
+			"days": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 //TransformationBucket is the data model for data transformations within
 //the Keboola Storage API.
 type TransformationBucket struct {
@@ -17,6 +19,8 @@ type TransformationBucket struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description"`
 }
+
+//endregion
 
 func resourceKeboolaTransformationBucket() *schema.Resource {
 	return &schema.Resource{
@@ -29,11 +33,11 @@ func resourceKeboolaTransformationBucket() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

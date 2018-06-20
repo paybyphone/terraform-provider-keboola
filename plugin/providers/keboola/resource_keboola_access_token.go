@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type AccessToken struct {
 	ID                    string                 `json:"id,omitempty"`
 	Description           string                 `json:"description"`
@@ -24,6 +26,8 @@ type AccessToken struct {
 	BucketPermissions     map[string]interface{} `json:"bucketPermissions"`
 }
 
+//endregion
+
 func resourceKeboolaAccessToken() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaAccessTokenCreate,
@@ -35,42 +39,42 @@ func resourceKeboolaAccessToken() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"can_manage_buckets": &schema.Schema{
+			"can_manage_buckets": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-			"can_manage_tokens": &schema.Schema{
+			"can_manage_tokens": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-			"can_read_all_file_uploads": &schema.Schema{
+			"can_read_all_file_uploads": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-			"expires_in": &schema.Schema{
+			"expires_in": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Default:  nil,
 			},
-			"component_access": &schema.Schema{
+			"component_access": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"bucket_permissions": &schema.Schema{
+			"bucket_permissions": {
 				Type:         schema.TypeMap,
 				Optional:     true,
 				ValidateFunc: validateAccessTokenBucketPermissions,
@@ -100,17 +104,16 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 	client := meta.(*KBCClient)
 
-	//TODO: Have an empty buffer constant or common utility
 	emptyBuffer := bytes.NewBufferString("")
-	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", createAccessTokenQueryString.String()), emptyBuffer)
+	createAccessTokenResponse, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", createAccessTokenQueryString.String()), emptyBuffer)
 
-	if hasErrors(err, createResponse) {
-		return extractError(err, createResponse)
+	if hasErrors(err, createAccessTokenResponse) {
+		return extractError(err, createAccessTokenResponse)
 	}
 
 	var createAccessTokenResult CreateResourceResult
 
-	decoder := json.NewDecoder(createResponse.Body)
+	decoder := json.NewDecoder(createAccessTokenResponse.Body)
 	err = decoder.Decode(&createAccessTokenResult)
 
 	if err != nil {
@@ -119,30 +122,32 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(string(createAccessTokenResult.ID))
 
+	log.Println(fmt.Sprintf("[INFO] Access Token created in Keboola (ID: %s).", string(createAccessTokenResult.ID)) )
+
 	return resourceKeboolaAccessTokenRead(d, meta)
 }
 
 func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
-	log.Println("[INFO] Reading Access Tokens from Keboola.")
+	log.Println("[INFO] Reading Access Token from Keboola.")
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
+	getAccessTokenResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 404 {
+	if hasErrors(err, getAccessTokenResponse) {
+		if getAccessTokenResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, getAccessTokenResponse)
 	}
 
 	var accessToken AccessToken
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(getAccessTokenResponse.Body)
 	err = decoder.Decode(&accessToken)
 
 	if err != nil {
@@ -188,11 +193,13 @@ func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*KBCClient)
 
 	emptyBuffer := bytes.NewBufferString("")
-	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(updateAccessTokenQueryString.String())), emptyBuffer)
+	updateAccessTokenResponse, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(updateAccessTokenQueryString.String())), emptyBuffer)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, updateAccessTokenResponse) {
+		return extractError(err, updateAccessTokenResponse)
 	}
+
+	log.Println("[INFO] Access Token in Keboola updated.")
 
 	return resourceKeboolaAccessTokenRead(d, meta)
 }
@@ -201,13 +208,15 @@ func resourceKeboolaAccessTokenDelete(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[INFO] Deleting Access Token in Keboola: %s", d.Id())
 
 	client := meta.(*KBCClient)
-	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
+	destroyAccessTokenResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", d.Id()))
 
-	if hasErrors(err, destroyResponse) {
-		return extractError(err, destroyResponse)
+	if hasErrors(err, destroyAccessTokenResponse) {
+		return extractError(err, destroyAccessTokenResponse)
 	}
 
 	d.SetId("")
+
+	log.Println("[INFO] Access Token in Keboola deleted.")
 
 	return nil
 }

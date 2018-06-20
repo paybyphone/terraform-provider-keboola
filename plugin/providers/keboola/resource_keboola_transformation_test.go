@@ -17,7 +17,7 @@ func TestAccTransformation_Basic(t *testing.T) {
 			testAccCheckTransformationDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testTransformBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_transformation.test_transform", "name", "test name"),

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type GoodDataUserManagementParameters struct {
 	Writer string `json:"gd_writer"`
 }
@@ -39,6 +41,8 @@ type GoodDataUserManagement struct {
 	Configuration GoodDataUserManagementConfiguration `json:"configuration"`
 }
 
+//endregion
+
 func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaGoodDataUserManagementCreate,
@@ -50,15 +54,15 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"writer": &schema.Schema{
+			"writer": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
