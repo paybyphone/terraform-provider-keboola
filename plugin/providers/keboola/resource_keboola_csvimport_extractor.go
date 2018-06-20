@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type CSVImportExtractor struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -25,6 +27,8 @@ type CSVUploadSettings struct {
 	Enclosure   string   `json:"enclosure"`
 }
 
+//endregion
+
 func resourceKeboolaCSVImportExtractor() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaCSVImportExtractorCreate,
@@ -33,34 +37,34 @@ func resourceKeboolaCSVImportExtractor() *schema.Resource {
 		Delete: resourceKeboolaCSVImportExtractorDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"destination": &schema.Schema{
+			"destination": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"incremental": &schema.Schema{
+			"incremental": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"delimiter": &schema.Schema{
+			"delimiter": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  ",",
 			},
-			"enclosure": &schema.Schema{
+			"enclosure": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "\"",
 			},
-			"primary_key": &schema.Schema{
+			"primary_key": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{

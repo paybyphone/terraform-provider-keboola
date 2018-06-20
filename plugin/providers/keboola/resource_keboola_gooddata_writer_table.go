@@ -41,64 +41,64 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 		Delete: resourceKeboolaGoodDataTableDelete,
 
 		Schema: map[string]*schema.Schema{
-			"writer_id": &schema.Schema{
+			"writer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"identifier": &schema.Schema{
+			"identifier": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"title": &schema.Schema{
+			"title": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"export": &schema.Schema{
+			"export": {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
-			"incremental_days": &schema.Schema{
+			"incremental_days": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"column": &schema.Schema{
+			"column": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"data_type": &schema.Schema{
+						"data_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"data_type_size": &schema.Schema{
+						"data_type_size": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"date_dimension": &schema.Schema{
+						"date_dimension": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"reference": &schema.Schema{
+						"reference": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"schema_reference": &schema.Schema{
+						"schema_reference": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"format": &schema.Schema{
+						"format": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"title": &schema.Schema{
+						"title": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -109,7 +109,7 @@ func resourceKeboolaGoodDataTable() *schema.Resource {
 	}
 }
 
-func mapColumns(d *schema.ResourceData, meta interface{}) map[string]GoodDataColumn {
+func mapColumns(d *schema.ResourceData) map[string]GoodDataColumn {
 	columns := d.Get("column").(*schema.Set).List()
 	mappedColumns := make(map[string]GoodDataColumn)
 
@@ -150,7 +150,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	if d.Get("column") != nil {
-		goodDataTableConfig.Columns = mapColumns(d, meta)
+		goodDataTableConfig.Columns = mapColumns(d)
 	}
 
 	goodDataTableJSON, err := json.Marshal(goodDataTableConfig)
@@ -259,7 +259,7 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	if d.Get("column") != nil {
-		goodDataTableConfig.Columns = mapColumns(d, meta)
+		goodDataTableConfig.Columns = mapColumns(d)
 	}
 
 	goodDataTableJSON, err := json.Marshal(goodDataTableConfig)

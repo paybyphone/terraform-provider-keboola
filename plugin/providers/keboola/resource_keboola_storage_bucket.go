@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 //StorageBucket is the data model for storage buckets within
 //the Keboola Storage API.
 type StorageBucket struct {
@@ -20,6 +22,8 @@ type StorageBucket struct {
 	Description string `json:"description"`
 	Backend     string `json:"backend,omitempty"`
 }
+
+//endregion
 
 func resourceKeboolaStorageBucket() *schema.Resource {
 	return &schema.Resource{
@@ -31,23 +35,23 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"stage": &schema.Schema{
+			"stage": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateStorageBucketStage,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"backend": &schema.Schema{
+			"backend": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,

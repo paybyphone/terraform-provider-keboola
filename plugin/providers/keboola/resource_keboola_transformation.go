@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 //Input is a mapping from input tables to internal tables for
 //use by the transformation queries.
 type Input struct {
@@ -58,6 +60,8 @@ type Transformation struct {
 	Configuration Configuration `json:"configuration"`
 }
 
+//endregion
+
 func resourceKeboolaTransformation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaTransformCreate,
@@ -66,35 +70,35 @@ func resourceKeboolaTransformation() *schema.Resource {
 		Delete: resourceKeboolaTransformDelete,
 
 		Schema: map[string]*schema.Schema{
-			"bucket_id": &schema.Schema{
+			"bucket_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"backend": &schema.Schema{
+			"backend": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"phase": &schema.Schema{
+			"phase": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"disabled": &schema.Schema{
+			"disabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"queries": &schema.Schema{
+			"queries": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{

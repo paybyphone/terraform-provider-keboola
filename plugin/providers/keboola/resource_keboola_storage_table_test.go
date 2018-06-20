@@ -17,7 +17,7 @@ func TestAccStorageTable_Basic(t *testing.T) {
 			testAccCheckStorageBucketDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testStorageTableBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_storage_table.test_table", "name", "test_table"),

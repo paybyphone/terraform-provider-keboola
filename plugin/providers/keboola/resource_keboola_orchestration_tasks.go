@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type OrchestrationTask struct {
 	ID                json.Number            `json:"id"`
 	Component         string                 `json:"component"`
@@ -20,6 +22,8 @@ type OrchestrationTask struct {
 	Phase             string                 `json:"phase"`
 }
 
+//endregion
+
 func resourceKeboolaOrchestrationTasks() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaOrchestrationTasksCreate,
@@ -28,42 +32,42 @@ func resourceKeboolaOrchestrationTasks() *schema.Resource {
 		Delete: resourceKeboolaOrchestrationTasksDelete,
 
 		Schema: map[string]*schema.Schema{
-			"orchestration_id": &schema.Schema{
+			"orchestration_id": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
 			},
-			"task": &schema.Schema{
+			"task": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"component": &schema.Schema{
+						"component": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"action": &schema.Schema{
+						"action": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"action_parameters": &schema.Schema{
+						"action_parameters": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: suppressEquivalentJSON,
 						},
-						"timeout": &schema.Schema{
+						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"is_active": &schema.Schema{
+						"is_active": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"continue_on_failure": &schema.Schema{
+						"continue_on_failure": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"phase": &schema.Schema{
+						"phase": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},

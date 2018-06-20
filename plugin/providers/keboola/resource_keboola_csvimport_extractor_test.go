@@ -17,7 +17,7 @@ func TestAccCSVImportExtractor_Basic(t *testing.T) {
 			testAccCheckStorageBucketDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testCSVImportExtractorBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_csvimport_extractor.test_extractor", "name", "test_extractor"),

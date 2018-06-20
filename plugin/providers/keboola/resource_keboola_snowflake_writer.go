@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type SnowflakeWriterDatabaseParameters struct {
 	HostName          string `json:"host"`
 	Database          string `json:"database"`
@@ -86,6 +88,8 @@ type SnowflakeWriter struct {
 	Configuration SnowflakeWriterConfiguration `json:"configuration"`
 }
 
+//endregion
+
 func resourceKeboolaSnowflakeWriter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaSnowflakeWriterCreate,
@@ -97,54 +101,54 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"provision_new_instance": &schema.Schema{
+			"provision_new_instance": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 				ForceNew: true,
 			},
-			"snowflake_db_parameters": &schema.Schema{
+			"snowflake_db_parameters": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"hostname": &schema.Schema{
+						"hostname": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  443,
 						},
-						"database": &schema.Schema{
+						"database": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"schema": &schema.Schema{
+						"schema": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"warehouse": &schema.Schema{
+						"warehouse": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"username": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"username": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"hashed_password": &schema.Schema{
+						"hashed_password": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 					},
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -333,7 +337,7 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 	d.Set("description", snowflakeWriter.Description)
 
 	if d.Get("provision_new_database") == false {
-		var dbParameters map[string]interface{}
+		dbParameters := make(map[string]interface{})
 
 		databaseCredentials := snowflakeWriter.Configuration.Parameters.Database
 

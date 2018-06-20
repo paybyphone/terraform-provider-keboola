@@ -16,7 +16,7 @@ func TestAccAccessToken_Basic(t *testing.T) {
 			testAccCheckAccessTokenDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccessTokenBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_access_token.test_token", "description", "test description"),

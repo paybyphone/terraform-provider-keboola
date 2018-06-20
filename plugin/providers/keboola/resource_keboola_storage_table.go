@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 //StorageTable is the data model for Storage Tables within
 //the Keboola Storage API.
 type StorageTable struct {
@@ -32,6 +34,8 @@ type UploadFileResult struct {
 	ID int `json:"id"`
 }
 
+//endregion
+
 func resourceKeboolaStorageTable() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaStorageTableCreate,
@@ -39,32 +43,32 @@ func resourceKeboolaStorageTable() *schema.Resource {
 		Delete: resourceKeboolaStorageTableDelete,
 
 		Schema: map[string]*schema.Schema{
-			"bucket_id": &schema.Schema{
+			"bucket_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"delimiter": &schema.Schema{
+			"delimiter": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"enclosure": &schema.Schema{
+			"enclosure": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"transactional": &schema.Schema{
+			"transactional": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 			},
-			"primary_key": &schema.Schema{
+			"primary_key": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -72,7 +76,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"columns": &schema.Schema{
+			"columns": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
@@ -80,7 +84,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"indexed_columns": &schema.Schema{
+			"indexed_columns": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type PostgreSQLWriterDatabaseParameters struct {
 	HostName string `json:"host"`
 	Database string `json:"database"`
@@ -66,6 +68,8 @@ type PostgreSQLWriter struct {
 	Description   string                        `json:"description"`
 	Configuration PostgreSQLWriterConfiguration `json:"configuration"`
 }
+
+//endregion
 
 func resourceKeboolaPostgreSQLWriter() *schema.Resource {
 	return &schema.Resource{
