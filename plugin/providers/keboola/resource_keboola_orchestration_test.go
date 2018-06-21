@@ -16,7 +16,7 @@ func TestAccOrchestration_Basic(t *testing.T) {
 			testAccCheckOrchestrationDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testOrchestrationBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_orchestration.test_orchestration", "name", "test name"),

@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type CreateGoodDataProject struct {
 	WriterID    string `json:"writerId"`
 	Description string `json:"description"`
@@ -24,6 +26,8 @@ type GoodDataWriter struct {
 	Description string `json:"description"`
 }
 
+//endregion
+
 func resourceKeboolaGoodDataWriter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaGoodDataWriterCreate,
@@ -35,19 +39,19 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"writer_id": &schema.Schema{
+			"writer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"auth_token": &schema.Schema{
+			"auth_token": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "keboola_demo",

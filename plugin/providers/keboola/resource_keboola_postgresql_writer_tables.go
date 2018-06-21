@@ -20,68 +20,68 @@ func resourceKeboolaPostgreSQLWriterTables() *schema.Resource {
 		Delete: resourceKeboolaPostgreSQLWriterTablesDelete,
 
 		Schema: map[string]*schema.Schema{
-			"writer_id": &schema.Schema{
+			"writer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"table": &schema.Schema{
+			"table": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"db_name": &schema.Schema{
+						"db_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"export": &schema.Schema{
+						"export": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"table_id": &schema.Schema{
+						"table_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"incremental": &schema.Schema{
+						"incremental": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"primary_key": &schema.Schema{
+						"primary_key": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
-						"column": &schema.Schema{
+						"column": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"db_name": &schema.Schema{
+									"db_name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"type": &schema.Schema{
+									"type": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"size": &schema.Schema{
+									"size": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
 									},
-									"nullable": &schema.Schema{
+									"nullable": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
-									"default": &schema.Schema{
+									"default": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
@@ -182,7 +182,7 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 
 	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-pgsql/configs/%s", writerID), updatePostgreSQLBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -338,7 +338,7 @@ func resourceKeboolaPostgreSQLWriterTablesUpdate(d *schema.ResourceData, meta in
 
 	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -385,7 +385,7 @@ func resourceKeboolaPostgreSQLWriterTablesDelete(d *schema.ResourceData, meta in
 
 	clearPostgreSQLTablesBuffer := bytes.NewBufferString(clearPostgreSQLTablesForm.Encode())
 
-	clearResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-pgsql/configs/%s", d.Id()), clearPostgreSQLTablesBuffer)
+	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), clearPostgreSQLTablesBuffer)
 
 	if hasErrors(err, clearResponse) {
 		return extractError(err, clearResponse)

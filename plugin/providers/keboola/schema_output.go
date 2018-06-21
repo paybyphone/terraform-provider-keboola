@@ -7,37 +7,37 @@ var outputSchema = schema.Schema{
 	Optional: true,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"destination": &schema.Schema{
+			"destination": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"delete_where_column": &schema.Schema{
+			"delete_where_column": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"delete_where_values": &schema.Schema{
+			"delete_where_values": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"delete_where_operator": &schema.Schema{
+			"delete_where_operator": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"primary_key": &schema.Schema{
+			"primary_key": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"incremental": &schema.Schema{
+			"incremental": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},

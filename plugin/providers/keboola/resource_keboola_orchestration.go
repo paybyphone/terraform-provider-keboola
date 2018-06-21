@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type OrchestrationNotification struct {
 	Email      string                 `json:"email"`
 	Channel    string                 `json:"channel"`
@@ -28,6 +30,8 @@ type Orchestration struct {
 	Notifications []OrchestrationNotification `json:"notifications"`
 }
 
+//endregion
+
 func resourceKeboolaOrchestration() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaOrchestrationCreate,
@@ -39,29 +43,29 @@ func resourceKeboolaOrchestration() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"schedule_cron": &schema.Schema{
+			"schedule_cron": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"notification": &schema.Schema{
+			"notification": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"email": &schema.Schema{
+						"email": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"channel": &schema.Schema{
+						"channel": {
 							Type:         schema.TypeString,
 							ValidateFunc: validateOrchestrationNotificationChannel,
 							Required:     true,
 						},
-						"parameters": &schema.Schema{
+						"parameters": {
 							Type:     schema.TypeMap,
 							Optional: true,
 						},
@@ -72,7 +76,7 @@ func resourceKeboolaOrchestration() *schema.Resource {
 	}
 }
 
-func mapNotifications(d *schema.ResourceData, meta interface{}) []OrchestrationNotification {
+func mapNotifications(d *schema.ResourceData) []OrchestrationNotification {
 	notifications := d.Get("notification").([]interface{})
 	mappedNotifications := make([]OrchestrationNotification, 0, len(notifications))
 
@@ -101,7 +105,7 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 		ScheduleCRON: d.Get("schedule_cron").(string),
 	}
 
-	notifications := mapNotifications(d, meta)
+	notifications := mapNotifications(d)
 	orchestrationConfig.Notifications = notifications
 
 	orchestrationJSON, err := json.Marshal(orchestrationConfig)
@@ -200,7 +204,7 @@ func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}
 		ScheduleCRON: d.Get("schedule_cron").(string),
 	}
 
-	notifications := mapNotifications(d, meta)
+	notifications := mapNotifications(d)
 	orchestrationConfig.Notifications = notifications
 
 	orchestrationJSON, err := json.Marshal(orchestrationConfig)

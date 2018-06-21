@@ -6,19 +6,22 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+//region Keboola API Contracts
+
 type SnowflakeWriterDatabaseParameters struct {
-	HostName string `json:"host"`
-	Database string `json:"database"`
-	Password string `json:"password"`
-	Username string `json:"user"`
-	Schema   string `json:"schema"`
-	Port     string `json:"port"`
-	Driver   string `json:"driver"`
+	HostName          string `json:"host"`
+	Database          string `json:"database"`
+	Password          string `json:"password,omitempty"`
+	EncryptedPassword string `json:"#password,omitempty"`
+	Username          string `json:"user"`
+	Schema            string `json:"schema"`
+	Port              string `json:"port"`
+	Driver            string `json:"driver"`
+	Warehouse         string `json:"warehouse"`
 }
 
 type SnowflakeWriterTableItem struct {
@@ -41,7 +44,7 @@ type SnowflakeWriterTable struct {
 
 type SnowflakeWriterParameters struct {
 	Database SnowflakeWriterDatabaseParameters `json:"db"`
-	Tables   []SnowflakeWriterTable            `json:"tables"`
+	Tables   []SnowflakeWriterTable            `json:"tables,omitempty"`
 }
 
 type SnowflakeWriterStorageTable struct {
@@ -52,13 +55,13 @@ type SnowflakeWriterStorageTable struct {
 
 type SnowflakeWriterStorage struct {
 	Input struct {
-		Tables []SnowflakeWriterStorageTable `json:"tables"`
-	} `json:"input"`
+		Tables []SnowflakeWriterStorageTable `json:"tables,omitempty"`
+	} `json:"input,omitempty"`
 }
 
 type SnowflakeWriterConfiguration struct {
 	Parameters SnowflakeWriterParameters `json:"parameters"`
-	Storage    SnowflakeWriterStorage    `json:"storage"`
+	Storage    SnowflakeWriterStorage    `json:"storage,omitempty"`
 }
 
 type ProvisionSnowflakeResponse struct {
@@ -85,6 +88,8 @@ type SnowflakeWriter struct {
 	Configuration SnowflakeWriterConfiguration `json:"configuration"`
 }
 
+//endregion
+
 func resourceKeboolaSnowflakeWriter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeboolaSnowflakeWriterCreate,
@@ -96,11 +101,54 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"provision_new_instance": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				ForceNew: true,
+			},
+			"snowflake_db_parameters": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hostname": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  443,
+						},
+						"database": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"schema": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"warehouse": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"username": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"hashed_password": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -125,13 +173,27 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	provisionedSnowflake, err := provisionSnowflakeInstance(client)
+	snowflakeDatabaseCredentials := d.Get("snowflake_db_parameters").(map[string]interface{})
 
-	if err != nil {
-		return err
+	if d.Get("provision_new_instance").(bool) == true {
+		provisionedSnowflake, err := provisionSnowflakeInstance(client)
+
+		if err != nil {
+			return err
+		}
+
+		snowflakeDatabaseCredentials = map[string]interface{}{
+			"hostname":        provisionedSnowflake.Credentials.HostName,
+			"port":            provisionedSnowflake.Credentials.Port,
+			"database":        provisionedSnowflake.Credentials.Database,
+			"schema":          provisionedSnowflake.Credentials.Schema,
+			"warehouse":       provisionedSnowflake.Credentials.Warehouse,
+			"username":        provisionedSnowflake.Credentials.Username,
+			"hashed_password": provisionedSnowflake.Credentials.Password,
+		}
 	}
 
-	err = setSnowflakeCredentials(provisionedSnowflake, createdSnowflakeID, client)
+	err = createSnowflakeCredentialsConfiguration(snowflakeDatabaseCredentials, createdSnowflakeID, client)
 
 	if err != nil {
 		return err
@@ -207,34 +269,38 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 	return &provisionedSnowflake, nil
 }
 
-func setSnowflakeCredentials(provisionedSnowflakeResponse *ProvisionSnowflakeResponse, createdSnowflakeID string, client *KBCClient) error {
-	provisionedSnowflake := *provisionedSnowflakeResponse
+func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, dest SnowflakeWriterDatabaseParameters) {
+	dest.HostName = source["hostname"].(string)
+	dest.Port = source["port"].(string)
+	dest.Database = source["database"].(string)
+	dest.Schema = source["schema"].(string)
+	dest.Warehouse = source["warehouse"].(string)
+	dest.Username = source["username"].(string)
+	dest.EncryptedPassword = source["hashed_password"].(string)
+	dest.Driver = "snowflake"
+}
 
-	snowflakeCredentials := SnowflakeWriterConfiguration{}
-	snowflakeCredentials.Parameters.Database.HostName = provisionedSnowflake.Credentials.HostName
-	snowflakeCredentials.Parameters.Database.Port = strconv.Itoa(provisionedSnowflake.Credentials.Port)
-	snowflakeCredentials.Parameters.Database.Database = provisionedSnowflake.Credentials.Database
-	snowflakeCredentials.Parameters.Database.Schema = provisionedSnowflake.Credentials.Schema
-	snowflakeCredentials.Parameters.Database.Username = provisionedSnowflake.Credentials.Username
-	snowflakeCredentials.Parameters.Database.Password = provisionedSnowflake.Credentials.Password
-	snowflakeCredentials.Parameters.Database.Driver = "snowflake"
+func createSnowflakeCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {
+	snowflakeWriterConfiguration := SnowflakeWriterConfiguration{}
 
-	snowflakeCredentialsJSON, err := json.Marshal(snowflakeCredentials)
+	mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, snowflakeWriterConfiguration.Parameters.Database)
+
+	snowflakeWriterConfigurationJSON, err := json.Marshal(snowflakeWriterConfiguration)
 
 	if err != nil {
 		return err
 	}
 
-	updateCredentialsForm := url.Values{}
-	updateCredentialsForm.Add("configuration", string(snowflakeCredentialsJSON))
-	updateCredentialsForm.Add("changeDescription", "Update credentials")
+	updateConfigurationRequestForm := url.Values{}
+	updateConfigurationRequestForm.Add("configuration", string(snowflakeWriterConfigurationJSON))
+	updateConfigurationRequestForm.Add("changeDescription", "Update credentials")
 
-	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
+	updateConfigurationRequestBuffer := bytes.NewBufferString(updateConfigurationRequestForm.Encode())
 
-	updateCredentialsResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateCredentialsBuffer)
+	updateConfigurationResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateConfigurationRequestBuffer)
 
-	if hasErrors(err, updateCredentialsResponse) {
-		return extractError(err, updateCredentialsResponse)
+	if hasErrors(err, updateConfigurationResponse) {
+		return extractError(err, updateConfigurationResponse)
 	}
 
 	return nil
@@ -244,23 +310,22 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 	log.Println("[INFO] Reading Snowflake Writers from Keboola.")
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+	getSnowflakeWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 404 {
+	if hasErrors(err, getSnowflakeWriterResponse) {
+		if getSnowflakeWriterResponse.StatusCode == 404 {
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, getSnowflakeWriterResponse)
 	}
 
 	var snowflakeWriter SnowflakeWriter
-
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(getSnowflakeWriterResponse.Body)
 	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {
@@ -271,6 +336,22 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 	d.Set("name", snowflakeWriter.Name)
 	d.Set("description", snowflakeWriter.Description)
 
+	if d.Get("provision_new_database") == false {
+		dbParameters := make(map[string]interface{})
+
+		databaseCredentials := snowflakeWriter.Configuration.Parameters.Database
+
+		dbParameters["hostname"] = databaseCredentials.HostName
+		dbParameters["port"] = databaseCredentials.Port
+		dbParameters["database"] = databaseCredentials.Database
+		dbParameters["schema"] = databaseCredentials.Schema
+		dbParameters["warehouse"] = databaseCredentials.Warehouse
+		dbParameters["username"] = databaseCredentials.Username
+		dbParameters["hashed_password"] = databaseCredentials.EncryptedPassword
+
+		d.Set("snowflake_db_parameters", dbParameters)
+	}
+
 	return nil
 }
 
@@ -279,9 +360,38 @@ func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface
 
 	client := meta.(*KBCClient)
 
+	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+
+	if hasErrors(err, getWriterResponse) {
+		return extractError(err, getWriterResponse)
+	}
+
+	var snowflakeWriter SnowflakeWriter
+
+	decoder := json.NewDecoder(getWriterResponse.Body)
+	err = decoder.Decode(&snowflakeWriter)
+
+	if err != nil {
+		return err
+	}
+
+	snowflakeCredentials := d.Get("snowflake_db_parameters").(map[string]interface{})
+
+	if d.Get("provision_new_instance").(bool) == false {
+		mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, snowflakeWriter.Configuration.Parameters.Database)
+	}
+
+	snowflakeConfigJSON, err := json.Marshal(snowflakeWriter.Configuration)
+
+	if err != nil {
+		return err
+	}
+
 	updateCredentialsForm := url.Values{}
 	updateCredentialsForm.Add("name", d.Get("name").(string))
 	updateCredentialsForm.Add("description", d.Get("description").(string))
+	updateCredentialsForm.Add("configuration", string(snowflakeConfigJSON))
+	updateCredentialsForm.Add("changeDescription", "Update via Terraform")
 
 	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
 

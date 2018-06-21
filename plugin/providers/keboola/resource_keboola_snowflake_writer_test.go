@@ -16,7 +16,7 @@ func TestAccSnowflakeWriter_Basic(t *testing.T) {
 			testAccCheckSnowflakeWriterDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testSnowflakeWriterBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_snowflake_writer.test_writer", "name", "test_snowflake_writer"),
@@ -35,14 +35,14 @@ func TestAccSnowflakeWriter_Update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSnowflakeWriterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testSnowflakeWriterBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_snowflake_writer.test_writer", "name", "test_snowflake_writer"),
 					resource.TestCheckResourceAttr("keboola_snowflake_writer.test_writer", "description", "test description"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testSnowflakeWriterUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_snowflake_writer.test_writer", "name", "updated_test_snowflake_writer"),
@@ -66,7 +66,7 @@ func testAccCheckSnowflakeWriterDestroy(s *terraform.State) error {
 		getResp, err := client.GetFromStorage(SnowflakeWriterURI)
 
 		if err == nil && getResp.StatusCode == 200 {
-			return fmt.Errorf("Snowflake Writer still exists")
+			return fmt.Errorf("snowflake writer still exists")
 		}
 	}
 

@@ -17,6 +17,7 @@ func stripWhitespace(str string) string {
 	}, str)
 }
 
+//noinspection GoUnusedParameter
 func suppressEquivalentJSON(k, old, new string, d *schema.ResourceData) bool {
 	return stripWhitespace(old) == stripWhitespace(new)
 }

@@ -16,7 +16,7 @@ func TestAccPostgresqlWriter_Basic(t *testing.T) {
 			testAccCheckPostgresqlWriterDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testPostgresqlWriterBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_postgresql_writer.test_writer", "name", "test_postgresql_writer"),
@@ -33,14 +33,14 @@ func TestAccPostgresqlWriter_Update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPostgresqlWriterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testPostgresqlWriterBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_postgresql_writer.test_writer", "name", "test_postgresql_writer"),
 					resource.TestCheckResourceAttr("keboola_postgresql_writer.test_writer", "description", "test description"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testPostgresqlWriterUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_postgresql_writer.test_writer", "name", "updated_test_postgresql_writer"),

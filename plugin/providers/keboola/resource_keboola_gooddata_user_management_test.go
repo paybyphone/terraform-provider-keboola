@@ -16,7 +16,7 @@ func TestAccGoodDataUserManagement_Basic(t *testing.T) {
 			testAccCheckGoodDataUserManagementDestroy,
 		),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testUserManagementBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_gooddata_user_management.test_config", "name", "test name"),

@@ -18,67 +18,67 @@ func resourceKeboolaSnowflakeWriterTables() *schema.Resource {
 		Delete: resourceKeboolaSnowflakeWriterTablesDelete,
 
 		Schema: map[string]*schema.Schema{
-			"writer_id": &schema.Schema{
+			"writer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"table": &schema.Schema{
+			"table": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"db_name": &schema.Schema{
+						"db_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"export": &schema.Schema{
+						"export": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"table_id": &schema.Schema{
+						"table_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"incremental": &schema.Schema{
+						"incremental": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"primary_key": &schema.Schema{
+						"primary_key": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
-						"column": &schema.Schema{
+						"column": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"db_name": &schema.Schema{
+									"db_name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"type": &schema.Schema{
+									"type": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"size": &schema.Schema{
+									"size": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
-									"nullable": &schema.Schema{
+									"nullable": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
-									"default": &schema.Schema{
+									"default": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
@@ -179,7 +179,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 
 	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", writerID), updateSnowflakeBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", writerID), updateSnowflakeBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -335,7 +335,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 
 	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
 
-	updateResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), updateSnowflakeBuffer)
+	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), updateSnowflakeBuffer)
 
 	if hasErrors(err, updateResponse) {
 		return extractError(err, updateResponse)
@@ -382,7 +382,7 @@ func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta int
 
 	clearSnowflakeTablesBuffer := bytes.NewBufferString(clearSnowflakeTablesForm.Encode())
 
-	clearResponse, err := client.PutFormToSyrup(fmt.Sprintf("docker/keboola.wr-db-snowflake/configs/%s", d.Id()), clearSnowflakeTablesBuffer)
+	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), clearSnowflakeTablesBuffer)
 
 	if hasErrors(err, clearResponse) {
 		return extractError(err, clearResponse)
