@@ -2,35 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="60337750-01f1-4e03-b4bc-3033f9d39300" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_access_token.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_access_token.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_access_token_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_access_token_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_csvimport_extractor.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_csvimport_extractor.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_csvimport_extractor_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_csvimport_extractor_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_user_management.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_user_management.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_user_management_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_user_management_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_writer.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_writer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_writer_table.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_writer_table.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_tasks.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_tasks.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer_tables.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer_tables.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_tables.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_tables.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_bucket.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_bucket.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_bucket_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_bucket_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_table.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_table.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_table_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_table_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation_bucket.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation_bucket.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation_bucket_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation_bucket_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_transformation_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/schema_input.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/schema_input.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/schema_output.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/schema_output.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/providers/keboola/suppress_funcs.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/providers/keboola/suppress_funcs.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -41,20 +13,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="resource_keboola_orchestration_tasks.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_tasks.go">
+      <file leaf-file-name="resource_keboola_snowflake_writer.go" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="39" column="21" lean-forward="true" selection-start-line="39" selection-start-column="21" selection-end-line="39" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="suppress_funcs.go" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/suppress_funcs.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="17" column="1" lean-forward="true" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
+            <state relative-caret-position="963">
+              <caret line="372" column="39" selection-start-line="372" selection-start-column="39" selection-end-line="372" selection-end-column="39" />
+              <folding>
+                <element signature="e#129#159#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -86,7 +52,6 @@
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer_tables.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_gooddata_writer_table.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_postgresql_writer_test.go" />
-        <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_tables.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_test.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_storage_bucket.go" />
@@ -101,6 +66,7 @@
         <option value="$PROJECT_DIR$/plugin/providers/keboola/schema_output.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_tasks.go" />
         <option value="$PROJECT_DIR$/plugin/providers/keboola/suppress_funcs.go" />
+        <option value="$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go" />
       </list>
     </option>
   </component>
@@ -333,16 +299,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="355" column="1" lean-forward="true" selection-start-line="355" selection-start-column="1" selection-end-line="355" selection-end-column="1" />
-          <folding>
-            <element signature="e#129#159#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer_tables.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-225">
@@ -499,17 +455,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_tasks.go">
+    <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/suppress_funcs.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="39" column="21" lean-forward="true" selection-start-line="39" selection-start-column="21" selection-end-line="39" selection-end-column="21" />
+        <state relative-caret-position="324">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/suppress_funcs.go">
+    <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_orchestration_tasks.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="17" column="1" lean-forward="true" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
+        <state relative-caret-position="756">
+          <caret line="113" column="18" lean-forward="true" selection-start-line="113" selection-start-column="18" selection-end-line="113" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plugin/providers/keboola/resource_keboola_snowflake_writer.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="963">
+          <caret line="372" column="39" selection-start-line="372" selection-start-column="39" selection-end-line="372" selection-end-column="39" />
+          <folding>
+            <element signature="e#129#159#0" />
+          </folding>
         </state>
       </provider>
     </entry>

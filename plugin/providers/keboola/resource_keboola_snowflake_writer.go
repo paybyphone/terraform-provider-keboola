@@ -269,21 +269,25 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 	return &provisionedSnowflake, nil
 }
 
-func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, dest SnowflakeWriterDatabaseParameters) {
-	dest.HostName = source["hostname"].(string)
-	dest.Port = source["port"].(string)
-	dest.Database = source["database"].(string)
-	dest.Schema = source["schema"].(string)
-	dest.Warehouse = source["warehouse"].(string)
-	dest.Username = source["username"].(string)
-	dest.EncryptedPassword = source["hashed_password"].(string)
-	dest.Driver = "snowflake"
+func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}) SnowflakeWriterDatabaseParameters {
+	databaseParameters := SnowflakeWriterDatabaseParameters{}
+
+	databaseParameters.HostName = source["hostname"].(string)
+	databaseParameters.Port = source["port"].(string)
+	databaseParameters.Database = source["database"].(string)
+	databaseParameters.Schema = source["schema"].(string)
+	databaseParameters.Warehouse = source["warehouse"].(string)
+	databaseParameters.Username = source["username"].(string)
+	databaseParameters.EncryptedPassword = source["hashed_password"].(string)
+	databaseParameters.Driver = "snowflake"
+
+	return databaseParameters
 }
 
 func createSnowflakeCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {
 	snowflakeWriterConfiguration := SnowflakeWriterConfiguration{}
 
-	mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, snowflakeWriterConfiguration.Parameters.Database)
+	snowflakeWriterConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
 
 	snowflakeWriterConfigurationJSON, err := json.Marshal(snowflakeWriterConfiguration)
 
@@ -378,7 +382,7 @@ func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface
 	snowflakeCredentials := d.Get("snowflake_db_parameters").(map[string]interface{})
 
 	if d.Get("provision_new_instance").(bool) == false {
-		mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, snowflakeWriter.Configuration.Parameters.Database)
+		snowflakeWriter.Configuration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
 	}
 
 	snowflakeConfigJSON, err := json.Marshal(snowflakeWriter.Configuration)
