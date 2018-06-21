@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 func resourceKeboolaSnowflakeWriterTables() *schema.Resource {
