@@ -1,25 +1,25 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
 
 type PostgreSQLWriterDatabaseParameters struct {
-	HostName string `json:"host"`
-	Database string `json:"database"`
-	Password string `json:"#password"`
-	Username string `json:"user"`
-	Schema   string `json:"schema"`
-	Port     string `json:"port"`
-	Driver   string `json:"driver"`
+	HostName          string `json:"host"`
+	Database          string `json:"database"`
+	EncryptedPassword string `json:"#password"`
+	Username          string `json:"user"`
+	Schema            string `json:"schema"`
+	Port              string `json:"port"`
+	Driver            string `json:"driver"`
 }
 
 type PostgreSQLWriterTableItem struct {
@@ -82,18 +82,54 @@ func resourceKeboolaPostgreSQLWriter() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"db_parameters": &schema.Schema{
+			"db_parameters": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Removed: 		  "'db_parameters' has been deprecated, please use 'postgresql_db_parameters' instead",
 				DiffSuppressFunc: suppressEquivalentJSON,
+			},
+			"postgresql_db_parameters": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hostname": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  5432,
+						},
+						"database": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"schema": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"username": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"hashed_password": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Sensitive:    true,
+							ValidateFunc: validateKBCEncryptedValue,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -110,21 +146,8 @@ func resourceKeboolaPostgreSQLWriterCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	paramsJSON := d.Get("db_parameters").(string)
-	var mappedParams interface{}
-	json.Unmarshal([]byte(paramsJSON), &mappedParams)
-
-	if mappedParams != nil {
-		params := mappedParams.(map[string]interface{})
-
-		if len(params) > 0 {
-			err = setPostgreSQLCredentials(createdPostgreSQLID, params, client)
-
-			if err != nil {
-				return err
-			}
-		}
-	}
+	postgresqlDatabaseCredentials := d.Get("postgresql_db_parameters").(map[string]interface{})
+	err = createPostgreSQLCredentialsConfiguration(postgresqlDatabaseCredentials, createdPostgreSQLID, client)
 
 	d.SetId(createdPostgreSQLID)
 
@@ -136,7 +159,7 @@ func createPostgreSQLWriterConfiguration(name string, description string, client
 	createWriterForm.Add("name", name)
 	createWriterForm.Add("description", description)
 
-	createWriterBuffer := bytes.NewBufferString(createWriterForm.Encode())
+	createWriterBuffer := buffer.FromForm(createWriterForm)
 
 	createResponse, err := client.PostToStorage("storage/components/keboola.wr-db-pgsql/configs", createWriterBuffer)
 
@@ -156,16 +179,24 @@ func createPostgreSQLWriterConfiguration(name string, description string, client
 	return string(createWriterResult.ID), nil
 }
 
-func setPostgreSQLCredentials(createdPostgreSQLID string, params map[string]interface{}, client *KBCClient) error {
+func mapPostgreSQLCredentialsToConfiguration(source map[string]interface{}) PostgreSQLWriterDatabaseParameters {
+	databaseParameters := PostgreSQLWriterDatabaseParameters{}
+
+	databaseParameters.HostName = source["hostname"].(string)
+	databaseParameters.Port = source["port"].(string)
+	databaseParameters.Database = source["database"].(string)
+	databaseParameters.Schema = source["schema"].(string)
+	databaseParameters.Username = source["username"].(string)
+	databaseParameters.EncryptedPassword = source["hashed_password"].(string)
+	databaseParameters.Driver = "pgsql"
+
+	return databaseParameters
+}
+
+func createPostgreSQLCredentialsConfiguration(params map[string]interface{}, createdPostgreSQLID string, client *KBCClient) error {
 	postgresqlCredentials := PostgreSQLWriterConfiguration{}
 
-	postgresqlCredentials.Parameters.Database.HostName = params["host"].(string)
-	postgresqlCredentials.Parameters.Database.Port = params["port"].(string)
-	postgresqlCredentials.Parameters.Database.Database = params["database"].(string)
-	postgresqlCredentials.Parameters.Database.Schema = params["schema"].(string)
-	postgresqlCredentials.Parameters.Database.Username = params["username"].(string)
-	postgresqlCredentials.Parameters.Database.Password = params["hashed_password"].(string)
-	postgresqlCredentials.Parameters.Database.Driver = "pgsql"
+	postgresqlCredentials.Parameters.Database = mapPostgreSQLCredentialsToConfiguration(params)
 
 	postgresqlCredentialsJSON, err := json.Marshal(postgresqlCredentials)
 
@@ -175,9 +206,9 @@ func setPostgreSQLCredentials(createdPostgreSQLID string, params map[string]inte
 
 	updateCredentialsForm := url.Values{}
 	updateCredentialsForm.Add("configuration", string(postgresqlCredentialsJSON))
-	updateCredentialsForm.Add("changeDescription", "Update credentials")
+	updateCredentialsForm.Add("changeDescription", "Created database credentials")
 
-	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
+	updateCredentialsBuffer := buffer.FromForm(updateCredentialsForm)
 	updateCredentialsResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", createdPostgreSQLID), updateCredentialsBuffer)
 
 	if hasErrors(err, updateCredentialsResponse) {
@@ -226,11 +257,36 @@ func resourceKeboolaPostgreSQLWriterUpdate(d *schema.ResourceData, meta interfac
 
 	client := meta.(*KBCClient)
 
-	updateWriterForm := url.Values{}
-	updateWriterForm.Add("name", d.Get("name").(string))
-	updateWriterForm.Add("description", d.Get("description").(string))
+	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
 
-	updateWriterBuffer := bytes.NewBufferString(updateWriterForm.Encode())
+	if hasErrors(err, getWriterResponse) {
+		return extractError(err, getWriterResponse)
+	}
+
+	var postgreSQLWriter PostgreSQLWriter
+
+	decoder := json.NewDecoder(getWriterResponse.Body)
+	err = decoder.Decode(&postgreSQLWriter)
+
+	if err != nil {
+		return err
+	}
+
+	postgreSQLCredentials := d.Get("postgresql_db_parameters").(map[string]interface{})
+	postgreSQLWriter.Configuration.Parameters.Database = mapPostgreSQLCredentialsToConfiguration(postgreSQLCredentials)
+	postgreSQLConfigJSON, err := json.Marshal(postgreSQLWriter.Configuration)
+
+	if err != nil {
+		return err
+	}
+
+	updateCredentialsForm := url.Values{}
+	updateCredentialsForm.Add("name", d.Get("name").(string))
+	updateCredentialsForm.Add("description", d.Get("description").(string))
+	updateCredentialsForm.Add("configuration", string(postgreSQLConfigJSON))
+	updateCredentialsForm.Add("changeDescription", "Updated PostgreSQL Writer configuration via Terraform")
+
+	updateWriterBuffer := buffer.FromForm(updateCredentialsForm)
 
 	updateWriterResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updateWriterBuffer)
 
@@ -238,21 +294,8 @@ func resourceKeboolaPostgreSQLWriterUpdate(d *schema.ResourceData, meta interfac
 		return extractError(err, updateWriterResponse)
 	}
 
-	paramsJSON := d.Get("db_parameters").(string)
-	var mappedParams interface{}
-	json.Unmarshal([]byte(paramsJSON), &mappedParams)
-
-	if mappedParams != nil {
-		params := mappedParams.(map[string]interface{})
-
-		if len(params) > 0 {
-			err = setPostgreSQLCredentials(d.Id(), params, client)
-
-			if err != nil {
-				return err
-			}
-		}
-	}
+	postgresqlDatabaseCredentials := d.Get("postgresql_db_parameters").(map[string]interface{})
+	err = createPostgreSQLCredentialsConfiguration(postgresqlDatabaseCredentials, d.Id(), client)
 
 	return resourceKeboolaPostgreSQLWriterRead(d, meta)
 }

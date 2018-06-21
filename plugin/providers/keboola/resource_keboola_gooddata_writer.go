@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -144,7 +145,7 @@ func createGoodDataWriterConfiguration(writerID string, name string, description
 	form.Add("name", name)
 	form.Add("description", description)
 
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	formdataBuffer := buffer.FromForm(form)
 
 	createWriterConfigResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", writerID), formdataBuffer)
 
@@ -210,7 +211,7 @@ func resourceKeboolaGoodDataWriterUpdate(d *schema.ResourceData, meta interface{
 	form.Add("description", d.Get("description").(string))
 
 	client := meta.(*KBCClient)
-	formdataBuffer := bytes.NewBufferString(form.Encode())
+	formdataBuffer := buffer.FromForm(form)
 	putResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", d.Id()), formdataBuffer)
 
 	if err != nil {

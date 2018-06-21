@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -104,8 +105,7 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 	client := meta.(*KBCClient)
 
-	emptyBuffer := bytes.NewBufferString("")
-	createAccessTokenResponse, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", createAccessTokenQueryString.String()), emptyBuffer)
+	createAccessTokenResponse, err := client.PostToStorage(fmt.Sprintf("storage/tokens/?%s", createAccessTokenQueryString.String()), buffer.Empty())
 
 	if hasErrors(err, createAccessTokenResponse) {
 		return extractError(err, createAccessTokenResponse)
@@ -192,8 +192,7 @@ func resourceKeboolaAccessTokenUpdate(d *schema.ResourceData, meta interface{}) 
 
 	client := meta.(*KBCClient)
 
-	emptyBuffer := bytes.NewBufferString("")
-	updateAccessTokenResponse, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(updateAccessTokenQueryString.String())), emptyBuffer)
+	updateAccessTokenResponse, err := client.PutToStorage(fmt.Sprintf("storage/tokens/%s?%s", d.Id(), url.QueryEscape(updateAccessTokenQueryString.String())), buffer.Empty())
 
 	if hasErrors(err, updateAccessTokenResponse) {
 		return extractError(err, updateAccessTokenResponse)

@@ -1,13 +1,13 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -82,7 +82,7 @@ func resourceKeboolaCSVImportExtractorCreate(d *schema.ResourceData, meta interf
 	createExtractorForm.Add("name", d.Get("name").(string))
 	createExtractorForm.Add("description", d.Get("description").(string))
 
-	createExtractorBuffer := bytes.NewBufferString(createExtractorForm.Encode())
+	createExtractorBuffer := buffer.FromForm(createExtractorForm)
 
 	client := meta.(*KBCClient)
 	createResponse, err := client.PostToStorage("storage/components/keboola.csv-import/configs", createExtractorBuffer)
@@ -164,12 +164,12 @@ func resourceKeboolaCSVImportExtractorUpdate(d *schema.ResourceData, meta interf
 
 	uploadSettingsJSON, err := json.Marshal(uploadSettings)
 
-	if err != nil {
+	if err != nil {buffer.FromForm(updateExtractorForm)
 		return err
 	}
 
 	updateExtractorForm.Add("configuration", string(uploadSettingsJSON))
-	updateExtractorBuffer := bytes.NewBufferString(updateExtractorForm.Encode())
+	updateExtractorBuffer := buffer.FromForm(updateExtractorForm)
 
 	updateExtractorResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()), updateExtractorBuffer)
 

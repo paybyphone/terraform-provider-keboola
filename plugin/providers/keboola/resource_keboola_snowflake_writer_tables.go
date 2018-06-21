@@ -1,7 +1,6 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -177,7 +176,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 	updateSnowflakeForm.Add("configuration", string(snowflakeConfigJSON))
 	updateSnowflakeForm.Add("changeDescription", "Update Snowflake tables")
 
-	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
+	updateSnowflakeBuffer := buffer.FromForm(updateSnowflakeForm)
 
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", writerID), updateSnowflakeBuffer)
 
@@ -333,7 +332,7 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 	updateSnowflakeForm.Add("configuration", string(snowflakeConfigJSON))
 	updateSnowflakeForm.Add("changeDescription", "Update Snowflake tables")
 
-	updateSnowflakeBuffer := bytes.NewBufferString(updateSnowflakeForm.Encode())
+	updateSnowflakeBuffer := buffer.FromForm(updateSnowflakeForm)
 
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), updateSnowflakeBuffer)
 
@@ -380,7 +379,7 @@ func resourceKeboolaSnowflakeWriterTablesDelete(d *schema.ResourceData, meta int
 	clearSnowflakeTablesForm.Add("configuration", string(snowflakeConfigJSON))
 	clearSnowflakeTablesForm.Add("changeDescription", "Update Snowflake tables")
 
-	clearSnowflakeTablesBuffer := bytes.NewBufferString(clearSnowflakeTablesForm.Encode())
+	clearSnowflakeTablesBuffer := buffer.FromForm(clearSnowflakeTablesForm)
 
 	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), clearSnowflakeTablesBuffer)
 

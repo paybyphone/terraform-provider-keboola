@@ -142,8 +142,10 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 							Required: true,
 						},
 						"hashed_password": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							Sensitive:    true,
+							ValidateFunc: validateKBCEncryptedValue,
 						},
 					},
 				},
@@ -209,7 +211,7 @@ func createSnowflakeWriterConfiguration(name string, description string, client 
 	createWriterForm.Add("name", name)
 	createWriterForm.Add("description", description)
 
-	createWriterBuffer := bytes.NewBufferString(createWriterForm.Encode())
+	createWriterBuffer := buffer.FromForm(createWriterForm)
 
 	createResponse, err := client.PostToStorage("storage/components/keboola.wr-db-snowflake/configs", createWriterBuffer)
 
@@ -234,7 +236,7 @@ func createSnowflakeAccessToken(snowflakeID string, client *KBCClient) error {
 	createAccessTokenForm.Add("description", fmt.Sprintf("wrdbsnowflake_%s", snowflakeID))
 	createAccessTokenForm.Add("canManageBuckets", "1")
 
-	createAccessTokenBuffer := bytes.NewBufferString(createAccessTokenForm.Encode())
+	createAccessTokenBuffer := buffer.FromForm(createAccessTokenForm)
 
 	createAccessTokenResponse, err := client.PostToStorage("storage/tokens", createAccessTokenBuffer)
 
@@ -297,9 +299,9 @@ func createSnowflakeCredentialsConfiguration(snowflakeCredentials map[string]int
 
 	updateConfigurationRequestForm := url.Values{}
 	updateConfigurationRequestForm.Add("configuration", string(snowflakeWriterConfigurationJSON))
-	updateConfigurationRequestForm.Add("changeDescription", "Update credentials")
+	updateConfigurationRequestForm.Add("changeDescription", "Created database credentials")
 
-	updateConfigurationRequestBuffer := bytes.NewBufferString(updateConfigurationRequestForm.Encode())
+	updateConfigurationRequestBuffer := buffer.FromForm(updateConfigurationRequestForm)
 
 	updateConfigurationResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateConfigurationRequestBuffer)
 
@@ -395,9 +397,9 @@ func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface
 	updateCredentialsForm.Add("name", d.Get("name").(string))
 	updateCredentialsForm.Add("description", d.Get("description").(string))
 	updateCredentialsForm.Add("configuration", string(snowflakeConfigJSON))
-	updateCredentialsForm.Add("changeDescription", "Update via Terraform")
+	updateCredentialsForm.Add("changeDescription", "Updated Snowflake Writer configuration via Terraform")
 
-	updateCredentialsBuffer := bytes.NewBufferString(updateCredentialsForm.Encode())
+	updateCredentialsBuffer := buffer.FromForm(updateCredentialsForm)
 
 	updateCredentialsResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()), updateCredentialsBuffer)
 

@@ -17,7 +17,7 @@ func (bit *KBCBoolean) UnmarshalJSON(data []byte) error {
 	} else if asString == "0" || asString == "false" {
 		*bit = false
 	} else {
-		return fmt.Errorf("Boolean unmarshal error: invalid input %s", asString)
+		return fmt.Errorf("error unmarshaling to boolean: invalid input %s", asString)
 	}
 	return nil
 }

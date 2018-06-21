@@ -1,13 +1,13 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //TODO: This, and resource_keboola_snowflake_writer_tables are practically identical, can probably define everything only once and reuse for both.
@@ -180,7 +180,7 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 	updatePostgreSQLForm.Add("configuration", string(postgresqlConfigJSON))
 	updatePostgreSQLForm.Add("change_description", "Update PostgreSQL tables")
 
-	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
+	updatePostgreSQLBuffer := buffer.FromForm(updatePostgreSQLForm)
 
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
 
@@ -336,7 +336,7 @@ func resourceKeboolaPostgreSQLWriterTablesUpdate(d *schema.ResourceData, meta in
 	updatePostgreSQLForm.Add("configuration", string(postgresqlConfigJSON))
 	updatePostgreSQLForm.Add("changeDescription", "Update PostgreSQL tables")
 
-	updatePostgreSQLBuffer := bytes.NewBufferString(updatePostgreSQLForm.Encode())
+	updatePostgreSQLBuffer := buffer.FromForm(updatePostgreSQLForm)
 
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
 
@@ -383,7 +383,7 @@ func resourceKeboolaPostgreSQLWriterTablesDelete(d *schema.ResourceData, meta in
 	clearPostgreSQLTablesForm.Add("configuration", string(postgresqlConfigJSON))
 	clearPostgreSQLTablesForm.Add("changeDescription", "Update PostgreSQL tables")
 
-	clearPostgreSQLTablesBuffer := bytes.NewBufferString(clearPostgreSQLTablesForm.Encode())
+	clearPostgreSQLTablesBuffer := buffer.FromForm(clearPostgreSQLTablesForm)
 
 	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), clearPostgreSQLTablesBuffer)
 
