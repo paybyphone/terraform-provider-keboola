@@ -199,15 +199,20 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 
 	client := meta.(*KBCClient)
 
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+	getSnowflakeWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
-	if hasErrors(err, getResponse) {
-		return extractError(err, getResponse)
+	if hasErrors(err, getSnowflakeWriterResponse) {
+		if getSnowflakeWriterResponse.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+
+		return extractError(err, getSnowflakeWriterResponse)
 	}
 
 	var snowflakeWriter SnowflakeWriter
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(getSnowflakeWriterResponse.Body)
 	err = decoder.Decode(&snowflakeWriter)
 
 	if err != nil {

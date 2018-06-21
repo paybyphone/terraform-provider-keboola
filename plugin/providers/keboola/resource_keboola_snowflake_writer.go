@@ -275,13 +275,14 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}) SnowflakeWriterDatabaseParameters {
 	databaseParameters := SnowflakeWriterDatabaseParameters{}
 
-	databaseParameters.HostName = source["hostname"].(string)
-	databaseParameters.Port = source["port"].(string)
-	databaseParameters.Database = source["database"].(string)
-	databaseParameters.Schema = source["schema"].(string)
-	databaseParameters.Warehouse = source["warehouse"].(string)
-	databaseParameters.Username = source["username"].(string)
-	databaseParameters.EncryptedPassword = source["hashed_password"].(string)
+	if val, ok := source["hostname"]; ok { databaseParameters.HostName = val.(string) }
+	if val, ok := source["port"]; ok { databaseParameters.Port = val.(string) }
+	if val, ok := source["database"]; ok { databaseParameters.Database = val.(string) }
+	if val, ok := source["schema"]; ok { databaseParameters.Schema = val.(string) }
+	if val, ok := source["warehouse"]; ok { databaseParameters.Warehouse = val.(string) }
+	if val, ok := source["username"]; ok { databaseParameters.Username = val.(string) }
+	if val, ok := source["hashed_password"]; ok { databaseParameters.EncryptedPassword = val.(string) }
+
 	databaseParameters.Driver = "snowflake"
 
 	return databaseParameters
@@ -325,6 +326,7 @@ func resourceKeboolaSnowflakeWriterRead(d *schema.ResourceData, meta interface{}
 
 	if hasErrors(err, getSnowflakeWriterResponse) {
 		if getSnowflakeWriterResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 
