@@ -1,13 +1,13 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -99,7 +99,7 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 	createUserManagementForm.Add("description", d.Get("description").(string))
 	createUserManagementForm.Add("configuration", string(goodDataUserManagementJSON))
 
-	createUserManagementBuffer := bytes.NewBufferString(createUserManagementForm.Encode())
+	createUserManagementBuffer := buffer.FromForm(createUserManagementForm)
 
 	client := meta.(*KBCClient)
 	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), createUserManagementBuffer)
@@ -188,7 +188,7 @@ func resourceKeboolaGoodDataUserManagementUpdate(d *schema.ResourceData, meta in
 	updateUserManagementForm.Add("description", d.Get("description").(string))
 	updateUserManagementForm.Add("configuration", string(goodDataUserManagementJSON))
 
-	updateUserManagementBuffer := bytes.NewBufferString(updateUserManagementForm.Encode())
+	updateUserManagementBuffer := buffer.FromForm(updateUserManagementForm)
 
 	client := meta.(*KBCClient)
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs/%s", d.Id()), updateUserManagementBuffer)

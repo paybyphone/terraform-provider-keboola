@@ -1,7 +1,6 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -70,7 +70,7 @@ func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}
 	createBucketForm.Add("description", d.Get("description").(string))
 	createBucketForm.Add("backend", d.Get("backend").(string))
 
-	createBucketBuffer := bytes.NewBufferString(createBucketForm.Encode())
+	createBucketBuffer := buffer.FromForm(createBucketForm)
 
 	client := meta.(*KBCClient)
 	createResponse, err := client.PostToStorage("storage/buckets", createBucketBuffer)

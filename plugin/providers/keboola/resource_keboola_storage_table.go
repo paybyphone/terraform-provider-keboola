@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -143,7 +144,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 		loadTableForm.Add("enclosure", "\"")
 	}
 
-	loadTableBuffer := bytes.NewBufferString(loadTableForm.Encode())
+	loadTableBuffer := buffer.FromForm(loadTableForm)
 
 	bucketID := d.Get("bucket_id").(string)
 
@@ -187,8 +188,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 	indexedOnlyColumns := except(AsStringArray(d.Get("indexed_columns").([]interface{})), AsStringArray(d.Get("primary_key").([]interface{})))
 
 	for _, indexedColumn := range indexedOnlyColumns {
-		emptyBuffer := bytes.NewBufferString("")
-		addIndexedColumnResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", tableLoadStatusResult.Results.ID, indexedColumn), emptyBuffer)
+		addIndexedColumnResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", tableLoadStatusResult.Results.ID, indexedColumn), buffer.Empty())
 
 		if hasErrors(err, addIndexedColumnResp) {
 			return extractError(err, addIndexedColumnResp)

@@ -1,6 +1,9 @@
 package keboola
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func validateAccessTokenBucketPermissions(v interface{}, k string) (ws []string, errors []error) {
 	values := v.(map[string]interface{})
@@ -44,6 +47,16 @@ func validateOrchestrationNotificationChannel(v interface{}, k string) (ws []str
 		errors = append(errors, fmt.Errorf(
 			"%q must be set to one of %s, %s or %s, got %q",
 			k, "error", "warning", "processing", value))
+	}
+
+	return
+}
+
+func validateKBCEncryptedValue(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if !strings.HasPrefix(value, "KBC::ProjectSecure::") {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a value encrypted using the KBC Encryption API (https://developers.keboola.com/overview/encryption/), and is expected to start with 'KBC::ProjectSecure::'", k))
 	}
 
 	return

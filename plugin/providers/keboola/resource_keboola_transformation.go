@@ -1,13 +1,13 @@
 package keboola
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
@@ -141,7 +141,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 	createTransformForm := url.Values{}
 	createTransformForm.Add("configuration", string(transformJSON))
 
-	createTransformBuffer := bytes.NewBufferString(createTransformForm.Encode())
+	createTransformBuffer := buffer.FromForm(createTransformForm)
 
 	client := meta.(*KBCClient)
 	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), createTransformBuffer)
@@ -238,7 +238,7 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 	updateTransformForm := url.Values{}
 	updateTransformForm.Add("configuration", string(transformJSON))
 
-	updateTransformBuffer := bytes.NewBufferString(updateTransformForm.Encode())
+	updateTransformBuffer := buffer.FromForm(updateTransformForm)
 
 	client := meta.(*KBCClient)
 	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), updateTransformBuffer)
