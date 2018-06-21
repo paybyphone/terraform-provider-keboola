@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/plugin"
-	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola"
+	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola"
 )
 
 func main() {

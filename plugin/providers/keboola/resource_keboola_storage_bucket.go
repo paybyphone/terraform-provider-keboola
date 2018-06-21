@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"paybyphone.com/terraform-provider-keboola/plugin/providers/keboola/buffer"
+	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //region Keboola API Contracts
