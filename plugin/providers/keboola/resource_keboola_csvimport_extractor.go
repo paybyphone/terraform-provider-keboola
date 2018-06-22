@@ -82,6 +82,21 @@ func resourceKeboolaCSVImportExtractorCreate(d *schema.ResourceData, meta interf
 	createExtractorForm.Add("name", d.Get("name").(string))
 	createExtractorForm.Add("description", d.Get("description").(string))
 
+	uploadSettings := CSVUploadSettings{
+		Destination: d.Get("destination").(string),
+		Incremental: d.Get("incremental").(bool),
+		Delimiter:   d.Get("delimiter").(string),
+		Enclosure:   d.Get("enclosure").(string),
+		PrimaryKey:  AsStringArray(d.Get("primary_key").([]interface{})),
+	}
+
+	uploadSettingsJSON, err := json.Marshal(uploadSettings)
+
+	if err != nil {
+		return err
+	}
+
+	createExtractorForm.Add("configuration", string(uploadSettingsJSON))
 	createExtractorBuffer := buffer.FromForm(createExtractorForm)
 
 	client := meta.(*KBCClient)
@@ -102,31 +117,31 @@ func resourceKeboolaCSVImportExtractorCreate(d *schema.ResourceData, meta interf
 
 	d.SetId(string(createResult.ID))
 
-	return resourceKeboolaCSVImportExtractorUpdate(d, meta)
+	return resourceKeboolaCSVImportExtractorRead(d, meta)
 }
 
 func resourceKeboolaCSVImportExtractorRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Reading CSV Import Extractor from Keboola.")
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()))
+	getCSVExtractorResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 404 {
+	if hasErrors(err, getCSVExtractorResponse) {
+		if getCSVExtractorResponse.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, getCSVExtractorResponse)
 	}
 
 	var csvImportExtractor CSVImportExtractor
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(getCSVExtractorResponse.Body)
 	err = decoder.Decode(&csvImportExtractor)
 
 	if err != nil {
@@ -136,6 +151,7 @@ func resourceKeboolaCSVImportExtractorRead(d *schema.ResourceData, meta interfac
 	d.Set("id", csvImportExtractor.ID)
 	d.Set("name", csvImportExtractor.Name)
 	d.Set("description", csvImportExtractor.Description)
+
 	d.Set("destination", csvImportExtractor.Configuration.Destination)
 	d.Set("incremental", csvImportExtractor.Configuration.Incremental)
 	d.Set("primary_key", csvImportExtractor.Configuration.PrimaryKey)
@@ -164,7 +180,7 @@ func resourceKeboolaCSVImportExtractorUpdate(d *schema.ResourceData, meta interf
 
 	uploadSettingsJSON, err := json.Marshal(uploadSettings)
 
-	if err != nil {buffer.FromForm(updateExtractorForm)
+	if err != nil {
 		return err
 	}
 
