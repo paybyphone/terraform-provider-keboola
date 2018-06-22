@@ -105,6 +105,7 @@ func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) 
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

@@ -181,6 +181,7 @@ func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{})
 
 	if hasErrors(err, getResp) {
 		if getResp.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

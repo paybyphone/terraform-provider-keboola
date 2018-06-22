@@ -187,6 +187,7 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 400 || getResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

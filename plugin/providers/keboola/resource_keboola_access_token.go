@@ -139,6 +139,7 @@ func resourceKeboolaAccessTokenRead(d *schema.ResourceData, meta interface{}) er
 
 	if hasErrors(err, getAccessTokenResponse) {
 		if getAccessTokenResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

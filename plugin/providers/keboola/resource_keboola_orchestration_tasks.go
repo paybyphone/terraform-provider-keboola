@@ -143,6 +143,7 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

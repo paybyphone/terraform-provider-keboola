@@ -172,6 +172,7 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

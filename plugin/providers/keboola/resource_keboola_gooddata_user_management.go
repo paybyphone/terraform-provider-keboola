@@ -134,6 +134,7 @@ func resourceKeboolaGoodDataUserManagementRead(d *schema.ResourceData, meta inte
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 

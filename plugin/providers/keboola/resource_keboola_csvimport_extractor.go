@@ -117,6 +117,7 @@ func resourceKeboolaCSVImportExtractorRead(d *schema.ResourceData, meta interfac
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
+			d.SetId("")
 			return nil
 		}
 
@@ -134,7 +135,6 @@ func resourceKeboolaCSVImportExtractorRead(d *schema.ResourceData, meta interfac
 
 	d.Set("id", csvImportExtractor.ID)
 	d.Set("name", csvImportExtractor.Name)
-
 	d.Set("description", csvImportExtractor.Description)
 	d.Set("destination", csvImportExtractor.Configuration.Destination)
 	d.Set("incremental", csvImportExtractor.Configuration.Incremental)

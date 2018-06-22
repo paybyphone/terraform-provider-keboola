@@ -137,16 +137,23 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 	return resourceKeboolaOrchestrationRead(d, meta)
 }
 
-func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchestration, error) {
+func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) error {
+	log.Println("[INFO] Reading Orchestrations from Keboola.")
+
+	if d.Id() == "" {
+		return nil
+	}
+
 	client := meta.(*KBCClient)
 	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
-			return nil, nil
+			d.SetId("")
+			return nil
 		}
 
-		return nil, extractError(err, getResponse)
+		return extractError(err, getResponse)
 	}
 
 	var orchestration Orchestration
@@ -155,23 +162,11 @@ func getKeboolaOrchestration(d *schema.ResourceData, meta interface{}) (*Orchest
 	err = decoder.Decode(&orchestration)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return &orchestration, nil
-}
-
-func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) error {
-	log.Println("[INFO] Reading Orchestrations from Keboola.")
-
-	if d.Id() == "" {
-		return nil
-	}
-
-	orchestrationPtr, err := getKeboolaOrchestration(d, meta)
-	orchestration := *orchestrationPtr
 
 	if err != nil {
+		d.SetId("")
 		return err
 	}
 
@@ -228,14 +223,33 @@ func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}
 func resourceKeboolaOrchestrationDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Deleting Orchestration in Keboola: %s", d.Id())
 
-	orchestration, err := getKeboolaOrchestration(d, meta)
-	tokenID := (*orchestration).Token.ID
+	client := meta.(*KBCClient)
+	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
+
+	if hasErrors(err, getResponse) {
+		if getResponse.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+
+		return extractError(err, getResponse)
+	}
+
+	var orchestration Orchestration
+
+	decoder := json.NewDecoder(getResponse.Body)
+	err = decoder.Decode(&orchestration)
 
 	if err != nil {
 		return err
 	}
 
-	client := meta.(*KBCClient)
+	tokenID := orchestration.Token.ID
+
+	if err != nil {
+		return err
+	}
+
 	destroyOrchestrationResponse, err := client.DeleteFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, destroyOrchestrationResponse) {
