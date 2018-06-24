@@ -1,19 +1,16 @@
 # terraform-provider-keboola
 
-[Terraform](https://www.terraform.io) Custom Provider for [Keboola Connection (KBC)](https://www.keboola.com)
+A [Terraform](https://www.terraform.io) Custom Provider for [Keboola Connection (KBC)](https://www.keboola.com).
 
 [![Build Status](https://travis-ci.org/plmwong/terraform-provider-keboola.svg?branch=master)](https://travis-ci.org/plmwong/terraform-provider-keboola)
 
 ## Description
 
-This is a custom terraform provider for managing resources within the Keboola Connection (KBC) platform, such as Transformations, Orchestrations, Writers etc.
-
-## Disclaimer
-`terraform-provider-keboola` is early stage software and is provided *"as-is"* under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). Please use proper caution and discretion when using this provider in critical applications.
+This is a custom terraform provider for managing common resources within the Keboola Connection (KBC) platform, such as Transformations, Orchestrations, Writers etc.
 
 ## Supported Resources
 
-Currently, the following KBC resources are supported (or partially supported) for configuration via Terraform:
+Currently, the following KBC resources are supported (or partially supported) for configuration via `terraform`:
 
 * `keboola_access_token`
 * `keboola_csvimport_extractor`
@@ -61,3 +58,11 @@ provider "keboola" {
 ### Resource Configuration
 
 For documentation on each supported resource, refer to the [wiki](https://github.com/plmwong/terraform-provider-keboola/wiki).
+
+## Contributing
+
+Bug reports, suggestions, code additions/changes etc. are very welcome! When making code changes, please branch off of `master` and then
+raise a pull request so it can be reviewed and merged.
+
+## License
+`terraform-provider-keboola` is provided *"as-is"* under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
