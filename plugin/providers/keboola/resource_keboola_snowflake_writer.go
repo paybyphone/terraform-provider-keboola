@@ -164,11 +164,16 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 
 	client := meta.(*KBCClient)
 
+	d.Partial(true)
+
 	createdSnowflakeID, err := createSnowflakeWriterConfiguration(d.Get("name").(string), d.Get("description").(string), client)
 
 	if err != nil {
 		return err
 	}
+
+	d.SetPartial("name")
+	d.SetPartial("description")
 
 	err = createSnowflakeAccessToken(createdSnowflakeID, client)
 
@@ -202,7 +207,11 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	d.SetPartial("snowflake_db_parameters")
+
 	d.SetId(createdSnowflakeID)
+
+	d.Partial(false)
 
 	return resourceKeboolaSnowflakeWriterRead(d, meta)
 }
