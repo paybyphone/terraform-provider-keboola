@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"strconv"
 )
 
 //KBCBoolean represents a boolean value in the Keboola APIs, which can take a 0/1 or false/true value.
@@ -29,6 +30,26 @@ type KBCNumberString string
 func (kns *KBCNumberString) UnmarshalJSON(data []byte) error {
 	asString := string(data)
 	*kns = KBCNumberString(asString)
+	return nil
+}
+
+//KBCBooleanNumber represents a dual value in the Keboola APIs, which can take either a boolean, or a number/integer.
+type KBCBooleanNumber int
+
+//UnmarshalJSON handles unmarshaling a KBCNumberString in to JSON.
+func (kbn *KBCBooleanNumber) UnmarshalJSON(data []byte) error {
+	asString := string(data)
+
+	if asString == "true" {
+		*kbn = 1
+	} else if asString == "false" {
+		*kbn = 0
+	} else if val, err := strconv.Atoi(asString); err == nil {
+		*kbn = KBCBooleanNumber(val)
+	} else {
+		return fmt.Errorf("error unmarshaling to boolean/integer: invalid input %s", asString)
+	}
+
 	return nil
 }
 

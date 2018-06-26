@@ -29,7 +29,7 @@ type GoodDataTable struct {
 	Title           string                    `json:"title"`
 	Export          bool                      `json:"export"`
 	Identifier      string                    `json:"identifier"`
-	IncrementalDays int                       `json:"incrementalLoad"`
+	IncrementalDays KBCBooleanNumber          `json:"incrementalLoad"`
 	Columns         map[string]GoodDataColumn `json:"columns"`
 }
 
@@ -146,7 +146,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
-		IncrementalDays: d.Get("incremental_days").(int),
+		IncrementalDays: d.Get("incremental_days").(KBCBooleanNumber),
 	}
 
 	if d.Get("column") != nil {
@@ -256,7 +256,7 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
-		IncrementalDays: d.Get("incremental_days").(int),
+		IncrementalDays: d.Get("incremental_days").(KBCBooleanNumber),
 	}
 
 	if d.Get("column") != nil {
