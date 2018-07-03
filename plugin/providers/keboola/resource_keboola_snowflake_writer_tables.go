@@ -23,7 +23,7 @@ func resourceKeboolaSnowflakeWriterTables() *schema.Resource {
 				Required: true,
 			},
 			"table": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -97,7 +97,7 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 	log.Println("[INFO] Creating Snowflake Writer Tables in Keboola.")
 
 	writerID := d.Get("writer_id").(string)
-	tables := d.Get("table").([]interface{})
+	tables := d.Get("table").(*schema.Set).List()
 
 	mappedTables := make([]SnowflakeWriterTable, 0, len(tables))
 	storageTables := make([]SnowflakeWriterStorageTable, 0, len(tables))

@@ -33,9 +33,9 @@ func (c *KBCClient) PostToStorage(endpoint string, formdata *bytes.Buffer) (*htt
 }
 
 //PutToStorage puts an existing object to the Keboola Storage API for update.
-func (c *KBCClient) PutToStorage(endpoint string, formdata *bytes.Buffer) (*http.Response, error) {
+func (c *KBCClient) PutToStorage(endpoint string, formData *bytes.Buffer) (*http.Response, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("PUT", storageURL+endpoint, formdata)
+	req, err := http.NewRequest("PUT", storageURL+endpoint, formData)
 	if err != nil {
 		return nil, err
 	}

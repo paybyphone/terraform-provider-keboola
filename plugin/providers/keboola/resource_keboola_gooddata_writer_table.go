@@ -146,7 +146,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
-		IncrementalDays: d.Get("incremental_days").(KBCBooleanNumber),
+		IncrementalDays: KBCBooleanNumber(d.Get("incremental_days").(int)),
 	}
 
 	if d.Get("column") != nil {
@@ -256,7 +256,7 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
-		IncrementalDays: d.Get("incremental_days").(KBCBooleanNumber),
+		IncrementalDays: KBCBooleanNumber(d.Get("incremental_days").(int)),
 	}
 
 	if d.Get("column") != nil {

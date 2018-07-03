@@ -221,16 +221,14 @@ func except(first []string, second []string) []string {
 }
 
 func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) error {
-	log.Println("[INFO] Reading Storage Tables from Keboola.")
+	log.Println("[INFO] Reading Storage Table from Keboola.")
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	bucketID := d.Get("bucket_id").(string)
-
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s.%s", bucketID, d.Get("name")))
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
@@ -250,16 +248,13 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	if storageTable.ID == d.Id() {
-		d.Set("id", storageTable.ID)
-		d.Set("name", storageTable.Name)
-		d.Set("delimiter", storageTable.Delimiter)
-		d.Set("enclosure", storageTable.Enclosure)
-		d.Set("transactional", storageTable.Transactional)
-		d.Set("primary_key", storageTable.PrimaryKey)
-		d.Set("indexed_columns", storageTable.IndexedColumns)
-		d.Set("columns", storageTable.Columns)
-	}
+	d.Set("name", storageTable.Name)
+	d.Set("delimiter", storageTable.Delimiter)
+	d.Set("enclosure", storageTable.Enclosure)
+	d.Set("transactional", storageTable.Transactional)
+	d.Set("primary_key", storageTable.PrimaryKey)
+	d.Set("indexed_columns", storageTable.IndexedColumns)
+	d.Set("columns", storageTable.Columns)
 
 	return nil
 }
