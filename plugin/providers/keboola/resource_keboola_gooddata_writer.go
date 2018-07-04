@@ -13,54 +13,6 @@ import (
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
-//region Keboola API Contracts
-
-type CreateGoodDataProject struct {
-	WriterID    string `json:"writerId"`
-	Description string `json:"description"`
-	AuthToken   string `json:"authToken"`
-}
-
-type GoodDataWriter struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-//endregion
-
-func resourceKeboolaGoodDataWriter() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceKeboolaGoodDataWriterCreate,
-		Read:   resourceKeboolaGoodDataWriterRead,
-		Update: resourceKeboolaGoodDataWriterUpdate,
-		Delete: resourceKeboolaGoodDataWriterDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
-
-		Schema: map[string]*schema.Schema{
-			"writer_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"auth_token": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "keboola_demo",
-			},
-		},
-	}
-}
-
 func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating GoodData Writer in Keboola.")
 

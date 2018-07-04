@@ -13,77 +13,6 @@ import (
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
-//region Keboola API Contracts
-
-type AccessToken struct {
-	ID                    string                 `json:"id,omitempty"`
-	Description           string                 `json:"description"`
-	CreatedAt             KBCTime                `json:"created"`
-	CanManageBuckets      bool                   `json:"canManageBuckets"`
-	CanManageTokens       bool                   `json:"canManageTokens"`
-	CanReadAllFileUploads bool                   `json:"canReadAllFileUploads"`
-	ExpiresIn             KBCTime                `json:"expires"`
-	ComponentAccess       []string               `json:"componentAccess"`
-	BucketPermissions     map[string]interface{} `json:"bucketPermissions"`
-}
-
-//endregion
-
-func resourceKeboolaAccessToken() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceKeboolaAccessTokenCreate,
-		Read:   resourceKeboolaAccessTokenRead,
-		Update: resourceKeboolaAccessTokenUpdate,
-		Delete: resourceKeboolaAccessTokenDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
-
-		Schema: map[string]*schema.Schema{
-			"description": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"can_manage_buckets": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Default:  false,
-			},
-			"can_manage_tokens": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Default:  false,
-			},
-			"can_read_all_file_uploads": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Default:  false,
-			},
-			"expires_in": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-				Default:  nil,
-			},
-			"component_access": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"bucket_permissions": {
-				Type:         schema.TypeMap,
-				Optional:     true,
-				ValidateFunc: validateAccessTokenBucketPermissions,
-			},
-		},
-	}
-}
-
 func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Access Token in Keboola.")
 
@@ -122,7 +51,7 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(string(createAccessTokenResult.ID))
 
-	log.Println(fmt.Sprintf("[INFO] Access Token created in Keboola (ID: %s).", string(createAccessTokenResult.ID)) )
+	log.Println(fmt.Sprintf("[INFO] Access Token created in Keboola (ID: %s).", string(createAccessTokenResult.ID)))
 
 	return resourceKeboolaAccessTokenRead(d, meta)
 }

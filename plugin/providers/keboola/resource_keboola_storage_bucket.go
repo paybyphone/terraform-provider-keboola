@@ -11,56 +11,6 @@ import (
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
-//region Keboola API Contracts
-
-//StorageBucket is the data model for storage buckets within
-//the Keboola Storage API.
-type StorageBucket struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Stage       string `json:"stage"`
-	Description string `json:"description"`
-	Backend     string `json:"backend,omitempty"`
-}
-
-//endregion
-
-func resourceKeboolaStorageBucket() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceKeboolaStorageBucketCreate,
-		Read:   resourceKeboolaStorageBucketRead,
-		Delete: resourceKeboolaStorageBucketDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
-
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"stage": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateStorageBucketStage,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"backend": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validateStorageBucketBackend,
-			},
-		},
-	}
-}
-
 func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Storage Bucket in Keboola.")
 

@@ -10,41 +10,6 @@ import (
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
-//region Keboola API Contracts
-
-//TransformationBucket is the data model for data transformations within
-//the Keboola Storage API.
-type TransformationBucket struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description"`
-}
-
-//endregion
-
-func resourceKeboolaTransformationBucket() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceKeboolaTransformBucketCreate,
-		Read:   resourceKeboolaTransformBucketRead,
-		Update: resourceKeboolaTransformBucketUpdate,
-		Delete: resourceKeboolaTransformBucketDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
-
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-		},
-	}
-}
-
 func resourceKeboolaTransformBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Transformation Bucket in Keboola.")
 

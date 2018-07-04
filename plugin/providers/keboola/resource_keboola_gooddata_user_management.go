@@ -10,68 +10,6 @@ import (
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
-//region Keboola API Contracts
-
-type GoodDataUserManagementParameters struct {
-	Writer string `json:"gd_writer"`
-}
-
-type GoodDataUserManagementInput struct {
-	Tables []Input `json:"tables,omitempty"`
-}
-
-type GoodDataUserManagementOutput struct {
-	Tables []Output `json:"tables,omitempty"`
-}
-
-type GoodDataUserManagementStorage struct {
-	Input  GoodDataUserManagementInput  `json:"input"`
-	Output GoodDataUserManagementOutput `json:"output"`
-}
-
-type GoodDataUserManagementConfiguration struct {
-	Storage    GoodDataUserManagementStorage    `json:"storage"`
-	Parameters GoodDataUserManagementParameters `json:"parameters"`
-}
-
-type GoodDataUserManagement struct {
-	ID            string                              `json:"id,omitempty"`
-	Name          string                              `json:"name"`
-	Description   string                              `json:"description,omitempty"`
-	Configuration GoodDataUserManagementConfiguration `json:"configuration"`
-}
-
-//endregion
-
-func resourceKeboolaGoodDataUserManagement() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceKeboolaGoodDataUserManagementCreate,
-		Read:   resourceKeboolaGoodDataUserManagementRead,
-		Update: resourceKeboolaGoodDataUserManagementUpdate,
-		Delete: resourceKeboolaGoodDataUserManagementDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
-
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"writer": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"output": &outputSchema,
-			"input":  &inputSchema,
-		},
-	}
-}
-
 func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating GoodData User Management in Keboola.")
 
