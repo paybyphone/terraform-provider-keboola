@@ -43,7 +43,7 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 	writerID := d.Get("writer_id").(string)
 	tableID := d.Get("title").(string)
 
-	goodDataTableConfig := GoodDataTable{
+	table := GoodDataTable{
 		Title:           tableID,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
@@ -51,21 +51,21 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	if d.Get("column") != nil {
-		goodDataTableConfig.Columns = mapColumns(d)
+		table.Columns = mapColumns(d)
 	}
 
-	goodDataTableJSON, err := json.Marshal(goodDataTableConfig)
+	tableJSON, err := json.Marshal(table)
 
 	if err != nil {
 		return err
 	}
 
-	goodDataTableBuffer := bytes.NewBuffer(goodDataTableJSON)
+	tableData := bytes.NewBuffer(tableJSON)
 
-	createResponse, err := client.PostToSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, tableID), goodDataTableBuffer)
+	resp, err := client.PostToSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, tableID), tableData)
 
-	if hasErrors(err, createResponse) {
-		return extractError(err, createResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	resourceKeboolaGoodDataTableUpdate(d, meta)
@@ -84,30 +84,34 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 	writerID := d.Get("writer_id").(string)
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s?include=columns", writerID, d.Id()))
+	resp, err := client.GetFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s?include=columns", writerID, d.Id()))
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 400 || getResponse.StatusCode == 404 {
+	if hasErrors(err, resp) {
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == 400 || resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
-	var goodDataTable GoodDataTable
+	var table GoodDataTable
 
-	decoder := json.NewDecoder(getResponse.Body)
-	err = decoder.Decode(&goodDataTable)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&table)
 
 	if err != nil {
 		return err
 	}
 
-	columns := make([]interface{}, 0, len(goodDataTable.Columns))
+	columns := make([]interface{}, 0, len(table.Columns))
 
-	for _, column := range goodDataTable.Columns {
-		columnDetails := map[string]interface{}{
+	for _, column := range table.Columns {
+		column := map[string]interface{}{
 			"data_type":        column.DataType,
 			"data_type_size":   column.DataTypeSize,
 			"date_dimension":   column.DateDimension,
@@ -119,15 +123,15 @@ func resourceKeboolaGoodDataTableRead(d *schema.ResourceData, meta interface{}) 
 			"type":             column.Type,
 		}
 
-		columns = append(columns, columnDetails)
+		columns = append(columns, column)
 	}
 
-	if goodDataTable.ID == d.Id() {
-		d.Set("id", goodDataTable.ID)
-		d.Set("title", goodDataTable.Title)
-		d.Set("export", goodDataTable.Export)
-		d.Set("identifier", goodDataTable.Identifier)
-		d.Set("incremental_days", goodDataTable.IncrementalDays)
+	if table.ID == d.Id() {
+		d.Set("id", table.ID)
+		d.Set("title", table.Title)
+		d.Set("export", table.Export)
+		d.Set("identifier", table.Identifier)
+		d.Set("incremental_days", table.IncrementalDays)
 		d.Set("column", schema.NewSet(columnSetHash, columns))
 	}
 
@@ -151,31 +155,31 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 	client := meta.(*KBCClient)
 
 	writerID := d.Get("writer_id").(string)
-	tableID := d.Get("title").(string)
+	title := d.Get("title").(string)
 
-	goodDataTableConfig := GoodDataTable{
-		Title:           tableID,
+	table := GoodDataTable{
+		Title:           title,
 		Export:          d.Get("export").(bool),
 		Identifier:      d.Get("identifier").(string),
 		IncrementalDays: KBCBooleanNumber(d.Get("incremental_days").(int)),
 	}
 
 	if d.Get("column") != nil {
-		goodDataTableConfig.Columns = mapColumns(d)
+		table.Columns = mapColumns(d)
 	}
 
-	goodDataTableJSON, err := json.Marshal(goodDataTableConfig)
+	tableJSON, err := json.Marshal(table)
 
 	if err != nil {
 		return err
 	}
 
-	goodDataTableBuffer := bytes.NewBuffer(goodDataTableJSON)
+	tableData := bytes.NewBuffer(tableJSON)
 
-	updateResponse, err := client.PatchOnSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, tableID), goodDataTableBuffer)
+	resp, err := client.PatchOnSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, title), tableData)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return resourceKeboolaGoodDataTableRead(d, meta)
@@ -187,10 +191,10 @@ func resourceKeboolaGoodDataTableDelete(d *schema.ResourceData, meta interface{}
 	writerID := d.Get("writer_id").(string)
 
 	client := meta.(*KBCClient)
-	destroyResponse, err := client.DeleteFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, d.Id()))
+	resp, err := client.DeleteFromSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, d.Id()))
 
-	if hasErrors(err, destroyResponse) {
-		return extractError(err, destroyResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

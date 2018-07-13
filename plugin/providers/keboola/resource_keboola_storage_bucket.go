@@ -47,24 +47,28 @@ func resourceKeboolaStorageBucketRead(d *schema.ResourceData, meta interface{}) 
 	log.Println("[INFO] Reading Storage Buckets from Keboola.")
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/buckets/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 404 {
+	if hasErrors(err, resp) {
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
 	var storageBucket StorageBucket
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&storageBucket)
 
 	if err != nil {

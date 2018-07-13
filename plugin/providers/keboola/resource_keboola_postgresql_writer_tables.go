@@ -116,20 +116,24 @@ func resourceKeboolaPostgreSQLWriterTablesRead(d *schema.ResourceData, meta inte
 
 	client := meta.(*KBCClient)
 
-	getPostgreSQLWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
 
-	if hasErrors(err, getPostgreSQLWriterResponse) {
-		if getPostgreSQLWriterResponse.StatusCode == 404 {
+	if hasErrors(err, resp) {
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getPostgreSQLWriterResponse)
+		return extractError(err, resp)
 	}
 
 	var postgresqlWriter PostgreSQLWriter
 
-	decoder := json.NewDecoder(getPostgreSQLWriterResponse.Body)
+	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&postgresqlWriter)
 
 	if err != nil {

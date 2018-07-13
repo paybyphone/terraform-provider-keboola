@@ -13,11 +13,11 @@ import (
 func resourceKeboolaCSVImportExtractorCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating CSV Import Extractor in Keboola.")
 
-	createExtractorForm := url.Values{}
-	createExtractorForm.Add("name", d.Get("name").(string))
-	createExtractorForm.Add("description", d.Get("description").(string))
+	vals := url.Values{}
+	vals.Add("name", d.Get("name").(string))
+	vals.Add("description", d.Get("description").(string))
 
-	uploadSettings := CSVUploadSettings{
+	settings := CSVUploadSettings{
 		Destination: d.Get("destination").(string),
 		Incremental: d.Get("incremental").(bool),
 		Delimiter:   d.Get("delimiter").(string),
@@ -25,32 +25,32 @@ func resourceKeboolaCSVImportExtractorCreate(d *schema.ResourceData, meta interf
 		PrimaryKey:  AsStringArray(d.Get("primary_key").([]interface{})),
 	}
 
-	uploadSettingsJSON, err := json.Marshal(uploadSettings)
+	settingsJSON, err := json.Marshal(settings)
 
 	if err != nil {
 		return err
 	}
 
-	createExtractorForm.Add("configuration", string(uploadSettingsJSON))
-	createExtractorBuffer := buffer.FromForm(createExtractorForm)
+	vals.Add("configuration", string(settingsJSON))
+	body := buffer.FromForm(vals)
 
 	client := meta.(*KBCClient)
-	createResponse, err := client.PostToStorage("storage/components/keboola.csv-import/configs", createExtractorBuffer)
+	resp, err := client.PostToStorage("storage/components/keboola.csv-import/configs", body)
 
-	if hasErrors(err, createResponse) {
-		return extractError(err, createResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var createResult CreateResourceResult
+	var res CreateResourceResult
 
-	decoder := json.NewDecoder(createResponse.Body)
-	err = decoder.Decode(&createResult)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&res)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createResult.ID))
+	d.SetId(string(res.ID))
 
 	return resourceKeboolaCSVImportExtractorRead(d, meta)
 }
@@ -59,39 +59,43 @@ func resourceKeboolaCSVImportExtractorRead(d *schema.ResourceData, meta interfac
 	log.Println("[INFO] Reading CSV Import Extractor from Keboola.")
 
 	client := meta.(*KBCClient)
-	getCSVExtractorResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()))
 
 	if d.Id() == "" {
 		return nil
 	}
 
-	if hasErrors(err, getCSVExtractorResponse) {
-		if getCSVExtractorResponse.StatusCode == 404 {
+	if hasErrors(err, resp) {
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getCSVExtractorResponse)
+		return extractError(err, resp)
 	}
 
-	var csvImportExtractor CSVImportExtractor
+	var extractor CSVImportExtractor
 
-	decoder := json.NewDecoder(getCSVExtractorResponse.Body)
-	err = decoder.Decode(&csvImportExtractor)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&extractor)
 
 	if err != nil {
 		return err
 	}
 
-	d.Set("id", csvImportExtractor.ID)
-	d.Set("name", csvImportExtractor.Name)
-	d.Set("description", csvImportExtractor.Description)
+	d.Set("id", extractor.ID)
+	d.Set("name", extractor.Name)
+	d.Set("description", extractor.Description)
 
-	d.Set("destination", csvImportExtractor.Configuration.Destination)
-	d.Set("incremental", csvImportExtractor.Configuration.Incremental)
-	d.Set("primary_key", csvImportExtractor.Configuration.PrimaryKey)
-	d.Set("delimiter", csvImportExtractor.Configuration.Delimiter)
-	d.Set("enclosure", csvImportExtractor.Configuration.Enclosure)
+	d.Set("destination", extractor.Configuration.Destination)
+	d.Set("incremental", extractor.Configuration.Incremental)
+	d.Set("primary_key", extractor.Configuration.PrimaryKey)
+	d.Set("delimiter", extractor.Configuration.Delimiter)
+	d.Set("enclosure", extractor.Configuration.Enclosure)
 
 	return nil
 }
@@ -101,11 +105,11 @@ func resourceKeboolaCSVImportExtractorUpdate(d *schema.ResourceData, meta interf
 
 	client := meta.(*KBCClient)
 
-	updateExtractorForm := url.Values{}
-	updateExtractorForm.Add("name", d.Get("name").(string))
-	updateExtractorForm.Add("description", d.Get("description").(string))
+	form := url.Values{}
+	form.Add("name", d.Get("name").(string))
+	form.Add("description", d.Get("description").(string))
 
-	uploadSettings := CSVUploadSettings{
+	settings := CSVUploadSettings{
 		Destination: d.Get("destination").(string),
 		Incremental: d.Get("incremental").(bool),
 		Delimiter:   d.Get("delimiter").(string),
@@ -113,19 +117,19 @@ func resourceKeboolaCSVImportExtractorUpdate(d *schema.ResourceData, meta interf
 		PrimaryKey:  AsStringArray(d.Get("primary_key").([]interface{})),
 	}
 
-	uploadSettingsJSON, err := json.Marshal(uploadSettings)
+	settingsJSON, err := json.Marshal(settings)
 
 	if err != nil {
 		return err
 	}
 
-	updateExtractorForm.Add("configuration", string(uploadSettingsJSON))
-	updateExtractorBuffer := buffer.FromForm(updateExtractorForm)
+	form.Add("configuration", string(settingsJSON))
+	formData := buffer.FromForm(form)
 
-	updateExtractorResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()), updateExtractorBuffer)
+	resp, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()), formData)
 
-	if hasErrors(err, updateExtractorResponse) {
-		return extractError(err, updateExtractorResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return resourceKeboolaSnowflakeWriterRead(d, meta)
@@ -135,10 +139,10 @@ func resourceKeboolaCSVImportExtractorDelete(d *schema.ResourceData, meta interf
 	log.Printf("[INFO] Deleting CSV Import Extractor in Keboola: %s", d.Id())
 
 	client := meta.(*KBCClient)
-	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()))
+	resp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/keboola.csv-import/configs/%s", d.Id()))
 
-	if hasErrors(err, destroyResponse) {
-		return extractError(err, destroyResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

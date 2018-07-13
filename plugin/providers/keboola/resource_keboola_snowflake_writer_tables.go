@@ -119,6 +119,10 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 	getSnowflakeWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
 	if hasErrors(err, getSnowflakeWriterResponse) {
+		if err != nil {
+			return err
+		}
+
 		if getSnowflakeWriterResponse.StatusCode == 404 {
 			d.SetId("")
 			return nil

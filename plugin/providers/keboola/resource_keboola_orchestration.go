@@ -81,6 +81,10 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, getResponse) {
+		if err != nil {
+			return err
+		}
+
 		if getResponse.StatusCode == 404 {
 			d.SetId("")
 			return nil
@@ -160,6 +164,10 @@ func resourceKeboolaOrchestrationDelete(d *schema.ResourceData, meta interface{}
 	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
 	if hasErrors(err, getResponse) {
+		if err != nil {
+			return err
+		}
+
 		if getResponse.StatusCode == 404 {
 			d.SetId("")
 			return nil

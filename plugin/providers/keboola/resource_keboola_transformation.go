@@ -15,7 +15,7 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 
 	bucketID := d.Get("bucket_id").(string)
 
-	transformConfig := Configuration{
+	config := Configuration{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		BackEnd:     d.Get("backend").(string),
@@ -25,40 +25,40 @@ func resourceKeboolaTransformCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if q := d.Get("queries"); q != nil {
-		transformConfig.Queries = AsStringArray(q.([]interface{}))
+		config.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transformConfig.Input = mapInputSchemaToModel(d.Get("input").([]interface{}))
-	transformConfig.Output = mapOutputSchemaToModel(d.Get("output").([]interface{}))
+	config.Input = mapInputSchemaToModel(d.Get("input").([]interface{}))
+	config.Output = mapOutputSchemaToModel(d.Get("output").([]interface{}))
 
-	transformJSON, err := json.Marshal(transformConfig)
+	configJSON, err := json.Marshal(config)
 
 	if err != nil {
 		return err
 	}
 
-	createTransformForm := url.Values{}
-	createTransformForm.Add("configuration", string(transformJSON))
+	form := url.Values{}
+	form.Add("configuration", string(configJSON))
 
-	createTransformBuffer := buffer.FromForm(createTransformForm)
+	formData := buffer.FromForm(form)
 
 	client := meta.(*KBCClient)
-	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), createTransformBuffer)
+	resp, err := client.PostToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", bucketID), formData)
 
-	if hasErrors(err, createResponse) {
-		return extractError(err, createResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var createResult CreateResourceResult
+	var transform CreateResourceResult
 
-	decoder := json.NewDecoder(createResponse.Body)
-	err = decoder.Decode(&createResult)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&transform)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createResult.ID))
+	d.SetId(string(transform.ID))
 
 	return resourceKeboolaTransformRead(d, meta)
 }
@@ -67,27 +67,31 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 	log.Println("[INFO] Reading Transformations from Keboola.")
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 404 {
+	if hasErrors(err, resp) {
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
-	var transformation []Transformation
+	var transform []Transformation
 
-	decoder := json.NewDecoder(getResponse.Body)
-	err = decoder.Decode(&transformation)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&transform)
 
 	if err != nil {
 		return err
 	}
 
-	for _, row := range transformation {
+	for _, row := range transform {
 		if row.Configuration.ID == d.Id() {
 			inputs := mapInputModelToSchema(row.Configuration.Input)
 			outputs := mapOutputModelToSchema(row.Configuration.Output)
@@ -113,7 +117,7 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 
 	bucketID := d.Get("bucket_id").(string)
 
-	transformConfig := Configuration{
+	config := Configuration{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		BackEnd:     d.Get("backend").(string),
@@ -123,28 +127,28 @@ func resourceKeboolaTransformUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if q := d.Get("queries"); q != nil {
-		transformConfig.Queries = AsStringArray(q.([]interface{}))
+		config.Queries = AsStringArray(q.([]interface{}))
 	}
 
-	transformConfig.Input = mapInputSchemaToModel(d.Get("input").([]interface{}))
-	transformConfig.Output = mapOutputSchemaToModel(d.Get("output").([]interface{}))
+	config.Input = mapInputSchemaToModel(d.Get("input").([]interface{}))
+	config.Output = mapOutputSchemaToModel(d.Get("output").([]interface{}))
 
-	transformJSON, err := json.Marshal(transformConfig)
+	configJSON, err := json.Marshal(config)
 
 	if err != nil {
 		return err
 	}
 
-	updateTransformForm := url.Values{}
-	updateTransformForm.Add("configuration", string(transformJSON))
+	form := url.Values{}
+	form.Add("configuration", string(configJSON))
 
-	updateTransformBuffer := buffer.FromForm(updateTransformForm)
+	formData := buffer.FromForm(form)
 
 	client := meta.(*KBCClient)
-	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), updateTransformBuffer)
+	resp, err := client.PutToStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()), formData)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return resourceKeboolaTransformRead(d, meta)
@@ -156,10 +160,10 @@ func resourceKeboolaTransformDelete(d *schema.ResourceData, meta interface{}) er
 	bucketID := d.Get("bucket_id").(string)
 
 	client := meta.(*KBCClient)
-	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
+	resp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", bucketID, d.Id()))
 
-	if hasErrors(err, destroyResponse) {
-		return extractError(err, destroyResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

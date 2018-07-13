@@ -15,6 +15,7 @@ import (
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
+// TODO: Break this method up in to its component steps
 func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating Storage Table in Keboola.")
 
@@ -81,61 +82,61 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	tableLoadStatus := "waiting"
+	loadStatus := "waiting"
 
-	var tableLoadStatusResult StorageJobStatus
+	var table StorageJobStatus
 
-	for tableLoadStatus != "success" && tableLoadStatus != "error" {
-		jobStatusResponse, err := client.GetFromStorage(fmt.Sprintf("storage/jobs/%v", loadTableResult.ID))
+	for loadStatus != "success" && loadStatus != "error" {
+		loadStatusResp, err := client.GetFromStorage(fmt.Sprintf("storage/jobs/%v", loadTableResult.ID))
 
-		if hasErrors(err, jobStatusResponse) {
-			return extractError(err, jobStatusResponse)
+		if hasErrors(err, loadStatusResp) {
+			return extractError(err, loadStatusResp)
 		}
 
-		jobStatusDecoder := json.NewDecoder(jobStatusResponse.Body)
-		err = jobStatusDecoder.Decode(&tableLoadStatusResult)
+		jobStatusDecoder := json.NewDecoder(loadStatusResp.Body)
+		err = jobStatusDecoder.Decode(&table)
 
 		if err != nil {
 			return err
 		}
 
 		time.Sleep(250 * time.Millisecond)
-		tableLoadStatus = tableLoadStatusResult.Status
+		loadStatus = table.Status
 	}
 
 	indexedOnlyColumns := except(AsStringArray(d.Get("indexed_columns").([]interface{})), AsStringArray(d.Get("primary_key").([]interface{})))
 
 	for _, indexedColumn := range indexedOnlyColumns {
-		addIndexedColumnResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", tableLoadStatusResult.Results.ID, indexedColumn), buffer.Empty())
+		indexColResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", table.Results.ID, indexedColumn), buffer.Empty())
 
-		if hasErrors(err, addIndexedColumnResp) {
-			return extractError(err, addIndexedColumnResp)
+		if hasErrors(err, indexColResp) {
+			return extractError(err, indexColResp)
 		}
 	}
 
-	d.SetId(tableLoadStatusResult.Results.ID)
+	d.SetId(table.Results.ID)
 
 	return resourceKeboolaStorageTableRead(d, meta)
 }
 
 func except(first []string, second []string) []string {
-	var result []string
+	var res []string
 
-	for _, elementInFirst := range first {
-		elementFound := false
-		for _, elementInSecond := range second {
-			if elementInFirst == elementInSecond {
-				elementFound = true
+	for _, firstElem := range first {
+		found := false
+		for _, secondElem := range second {
+			if firstElem == secondElem {
+				found = true
 				break
 			}
 		}
 
-		if !elementFound {
-			result = append(result, elementInFirst)
+		if !found {
+			res = append(res, firstElem)
 		}
 	}
 
-	return result
+	return res
 }
 
 func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) error {
@@ -146,20 +147,24 @@ func resourceKeboolaStorageTableRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
 
-	if hasErrors(err, getResponse) {
-		if getResponse.StatusCode == 404 {
+	if hasErrors(err, resp) {
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
 	var storageTable StorageTable
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&storageTable)
 
 	if err != nil {
