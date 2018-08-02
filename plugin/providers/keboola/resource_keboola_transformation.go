@@ -168,7 +168,7 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 	log.Println("[INFO] Reading Transformations from Keboola.")
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
+	getResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", d.Get("bucket_id")))
 
 	if hasErrors(err, getResponse) {
 		if getResponse.StatusCode == 404 {
