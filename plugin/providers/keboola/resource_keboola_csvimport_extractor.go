@@ -41,16 +41,16 @@ func resourceKeboolaCSVImportExtractorCreate(d *schema.ResourceData, meta interf
 		return extractError(err, resp)
 	}
 
-	var res CreateResourceResult
+	var extractor CreateResourceResult
 
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&res)
+	err = decoder.Decode(&extractor)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(res.ID))
+	d.SetId(string(extractor.ID))
 
 	return resourceKeboolaCSVImportExtractorRead(d, meta)
 }
