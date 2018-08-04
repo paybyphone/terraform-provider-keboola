@@ -67,7 +67,7 @@ func resourceKeboolaTransformRead(d *schema.ResourceData, meta interface{}) erro
 	log.Println("[INFO] Reading Transformations from Keboola.")
 
 	client := meta.(*KBCClient)
-	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows/%s", d.Get("bucket_id"), d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/transformation/configs/%s/rows", d.Get("bucket_id")))
 
 	if hasErrors(err, resp) {
 		if err != nil {
