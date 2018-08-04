@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+    "strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
@@ -192,7 +193,7 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 
 		snowflakeDatabaseCredentials = map[string]interface{}{
 			"hostname":        provisionedSnowflake.Credentials.HostName,
-			"port":            provisionedSnowflake.Credentials.Port,
+			"port":            strconv.Itoa(provisionedSnowflake.Credentials.Port),
 			"database":        provisionedSnowflake.Credentials.Database,
 			"schema":          provisionedSnowflake.Credentials.Schema,
 			"warehouse":       provisionedSnowflake.Credentials.Warehouse,
