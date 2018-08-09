@@ -1,5 +1,6 @@
-terraform-provider-keboola
+terraform-provider-keboola*
 terraform-provider-keboola.exe
+terraform-provider-keboola*.exe
 terraform.tfstate
 
 *.backup

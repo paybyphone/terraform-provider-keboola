@@ -1,3 +1,5 @@
+version=0.1.1
+
 default: build deploy
 
 gets:
@@ -10,9 +12,9 @@ deps:
 
 build:
 ifeq ($(OS),Windows_NT)
-	go build -o terraform-provider-keboola.exe .
+	go build -o terraform-provider-keboola_v$(version).exe .
 else
-	go build -o terraform-provider-keboola .
+	go build -o terraform-provider-keboola_v$(version) .
 endif
 
 test:
@@ -20,9 +22,9 @@ test:
 
 deploy:
 ifeq ($(OS),Windows_NT)
-	cp terraform-provider-keboola.exe $(dir $(shell which terraform))
+	cp terraform-provider-keboola_v$(version).exe $(dir $(shell which terraform))
 else
-	cp terraform-provider-keboola $(dir $(shell which terraform))
+	cp terraform-provider-keboola_v$(version) $(dir $(shell which terraform))
 endif
 
 plan:
