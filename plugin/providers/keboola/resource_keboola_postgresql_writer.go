@@ -22,7 +22,14 @@ func resourceKeboolaPostgreSQLWriterCreate(d *schema.ResourceData, meta interfac
 	}
 
 	postgresqlDatabaseCredentials := d.Get("postgresql_db_parameters").(map[string]interface{})
-	err = createPostgreSQLCredentialsConfiguration(postgresqlDatabaseCredentials, createdPostgreSQLID, client)
+
+	if postgresqlDatabaseCredentials != nil {
+		err = createPostgreSQLCredentialsConfiguration(postgresqlDatabaseCredentials, createdPostgreSQLID, client)
+
+		if err != nil {
+			return err
+		}
+	}
 
 	d.SetId(createdPostgreSQLID)
 
@@ -131,7 +138,10 @@ func resourceKeboolaPostgreSQLWriterRead(d *schema.ResourceData, meta interface{
 	d.Set("description", writer.Description)
 
 	mapped := mapAPIDatabaseParameters(writer.Configuration.Parameters.Database)
-	d.Set("postgresql_db_parameters", mapped)
+
+	if len(mapped) > 0 {
+		d.Set("postgresql_db_parameters", mapped)
+	}
 
 	return nil
 }
@@ -139,12 +149,29 @@ func resourceKeboolaPostgreSQLWriterRead(d *schema.ResourceData, meta interface{
 func mapAPIDatabaseParameters(dbParams PostgreSQLWriterDatabaseParameters) map[string]interface{} {
 	mappedDBParams := make(map[string]interface{})
 
-	mappedDBParams["hostname"] = dbParams.HostName
-	mappedDBParams["port"] = dbParams.Port
-	mappedDBParams["database"] = dbParams.Database
-	mappedDBParams["schema"] = dbParams.Schema
-	mappedDBParams["username"] = dbParams.Username
-	mappedDBParams["hashed_password"] = dbParams.EncryptedPassword
+	if len(dbParams.HostName) > 0 {
+		mappedDBParams["hostname"] = dbParams.HostName
+	}
+	
+	if len(dbParams.HostName) > 0 {
+		mappedDBParams["port"] = dbParams.Port
+	}
+	
+	if len(dbParams.HostName) > 0 {
+		mappedDBParams["database"] = dbParams.Database
+	}
+
+	if len(dbParams.HostName) > 0 {
+		mappedDBParams["schema"] = dbParams.Schema
+	}
+	
+	if len(dbParams.HostName) > 0 {
+		mappedDBParams["username"] = dbParams.Username
+	}
+
+	if len(dbParams.HostName) > 0 {
+		mappedDBParams["hashed_password"] = dbParams.EncryptedPassword
+	}
 
 	return mappedDBParams
 }

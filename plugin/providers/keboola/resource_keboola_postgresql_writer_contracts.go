@@ -29,7 +29,7 @@ type PostgreSQLWriterTable struct {
 }
 
 type PostgreSQLWriterParameters struct {
-	Database PostgreSQLWriterDatabaseParameters `json:"db"`
+	Database PostgreSQLWriterDatabaseParameters `json:"db,omitempty"`
 	Tables   []PostgreSQLWriterTable            `json:"tables,omitempty"`
 }
 

@@ -57,6 +57,6 @@ const testStorageTableBasic = `
 
 	resource "keboola_storage_table" "test_table" {
 		bucket_id = "${keboola_storage_bucket.test_bucket.id}"
-  	name = "test_table"
-  	columns = [ "first", "second", "third" ]
+  		name = "test_table"
+  		columns = [ "first", "second", "third" ]
 	}`
