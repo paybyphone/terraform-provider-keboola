@@ -11,27 +11,27 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
+	"net/http"
 )
 
 func resourceKeboolaGoodDataWriterCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating GoodData Writer in Keboola.")
 
-	writerID := d.Get("writer_id").(string)
 	client := meta.(*KBCClient)
 
-	err := provisionGoodDataProject(writerID, d.Get("description").(string), d.Get("auth_token").(string), client)
+	err := provisionGoodDataProject(d.Get("writer_id").(string), d.Get("description").(string), d.Get("auth_token").(string), client)
 
 	if err != nil {
 		return err
 	}
 
-	resID, err := createGoodDataWriterConfiguration(writerID, d.Get("name").(string), d.Get("description").(string), client)
+	writerID, err := createGoodDataWriterConfiguration(d.Get("writer_id").(string), d.Get("name").(string), d.Get("description").(string), client)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(resID)
+	d.SetId(writerID)
 
 	return resourceKeboolaGoodDataWriterRead(d, meta)
 }
@@ -43,50 +43,55 @@ func provisionGoodDataProject(writerID string, description string, authToken str
 		AuthToken:   authToken,
 	}
 
-	createJSON, err := json.Marshal(createProject)
+	projectJSON, err := json.Marshal(createProject)
 	if err != nil {
 		return err
 	}
 
-	createBuffer := bytes.NewBuffer(createJSON)
-	createWriterResp, err := client.PostToSyrup("gooddata-writer/v2", createBuffer)
+	jsonData := bytes.NewBuffer(projectJSON)
+	resp, err := client.PostToSyrup("gooddata-writer/v2", jsonData)
 
-	if hasErrors(err, createWriterResp) {
-		return extractError(err, createWriterResp)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	createWriterStatus := "waiting"
-	var createWriterStatusRes StorageJobStatus
+	return waitForJobToFinish(resp, client)
+}
 
-	createWriterDecoder := json.NewDecoder(createWriterResp.Body)
-	err = createWriterDecoder.Decode(&createWriterStatusRes)
+func waitForJobToFinish(job *http.Response, client *KBCClient) error {
+	status := "waiting"
+
+	var jobStatus StorageJobStatus
+
+	decoder := json.NewDecoder(job.Body)
+	err := decoder.Decode(&jobStatus)
 
 	if err != nil {
 		return err
 	}
 
-	jobURL, err := url.Parse(createWriterStatusRes.URL)
+	jobURL, err := url.Parse(jobStatus.URL)
 
 	if err != nil {
 		return err
 	}
 
-	for createWriterStatus != "success" && createWriterStatus != "error" {
-		jobStatusResp, jobErr := client.GetFromSyrup(strings.TrimLeft(jobURL.Path, "/"))
+	for status != "success" && status != "error" {
+		resp, err := client.GetFromSyrup(strings.TrimLeft(jobURL.Path, "/"))
 
-		if hasErrors(jobErr, jobStatusResp) {
-			return extractError(jobErr, jobStatusResp)
+		if hasErrors(err, resp) {
+			return extractError(err, resp)
 		}
 
-		decoder := json.NewDecoder(jobStatusResp.Body)
-		err = decoder.Decode(&createWriterStatusRes)
+		decoder := json.NewDecoder(resp.Body)
+		err = decoder.Decode(&jobStatus)
 
 		if err != nil {
 			return err
 		}
 
 		time.Sleep(250 * time.Millisecond)
-		createWriterStatus = createWriterStatusRes.Status
+		status = jobStatus.Status
 	}
 
 	return nil
@@ -97,28 +102,28 @@ func createGoodDataWriterConfiguration(writerID string, name string, description
 	form.Add("name", name)
 	form.Add("description", description)
 
-	formdataBuffer := buffer.FromForm(form)
+	formData := buffer.FromForm(form)
 
-	createWriterConfigResp, err := client.PutToStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", writerID), formdataBuffer)
-
-	if err != nil {
-		return "", err
-	}
-
-	if hasErrors(err, createWriterConfigResp) {
-		return "", extractError(err, createWriterConfigResp)
-	}
-
-	var createRes CreateResourceResult
-
-	createDecoder := json.NewDecoder(createWriterConfigResp.Body)
-	err = createDecoder.Decode(&createRes)
+	resp, err := client.PutToStorage(fmt.Sprintf("storage/components/gooddata-writer/configs/%s", writerID), formData)
 
 	if err != nil {
 		return "", err
 	}
 
-	return string(createRes.ID), nil
+	if hasErrors(err, resp) {
+		return "", extractError(err, resp)
+	}
+
+	var writer CreateResourceResult
+
+	createDecoder := json.NewDecoder(resp.Body)
+	err = createDecoder.Decode(&writer)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(writer.ID), nil
 }
 
 func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{}) error {
@@ -144,18 +149,18 @@ func resourceKeboolaGoodDataWriterRead(d *schema.ResourceData, meta interface{})
 		return extractError(err, resp)
 	}
 
-	var goodDataWriter GoodDataWriter
+	var writer GoodDataWriter
 
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&goodDataWriter)
+	err = decoder.Decode(&writer)
 
 	if err != nil {
 		return err
 	}
 
-	d.Set("id", goodDataWriter.ID)
-	d.Set("name", goodDataWriter.Name)
-	d.Set("description", goodDataWriter.Description)
+	d.Set("id", writer.ID)
+	d.Set("name", writer.Name)
+	d.Set("description", writer.Description)
 
 	return nil
 }

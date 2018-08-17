@@ -22,61 +22,61 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 	client := meta.(*KBCClient)
 	columns := AsStringArray(d.Get("columns").(*schema.Set).List())
 
-	uploadFileBuffer := &bytes.Buffer{}
-	uploadFileRequestWriter := multipart.NewWriter(uploadFileBuffer)
-	uploadFileRequestWriter.SetBoundary("----terraform-provider-keboola----")
-	uploadFileRequestWriter.WriteField("name", "from-text-input.csv")
-	uploadFileRequestWriter.WriteField("data", strings.Join(columns, ","))
-	uploadFileRequestWriter.Close()
+	multipartData := &bytes.Buffer{}
+	multipartWriter := multipart.NewWriter(multipartData)
+	multipartWriter.SetBoundary("----terraform-provider-keboola----")
+	multipartWriter.WriteField("name", "from-text-input.csv")
+	multipartWriter.WriteField("data", strings.Join(columns, ","))
+	multipartWriter.Close()
 
-	uploadResponse, err := client.PostToFileImport("upload-file", uploadFileBuffer)
+	resp, err := client.PostToFileImport("upload-file", multipartData)
 
-	if hasErrors(err, uploadResponse) {
-		return extractError(err, uploadResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var uploadResult UploadFileResult
+	var file UploadFileResult
 
-	uploadResponseDecoder := json.NewDecoder(uploadResponse.Body)
-	err = uploadResponseDecoder.Decode(&uploadResult)
+	uploadResponseDecoder := json.NewDecoder(resp.Body)
+	err = uploadResponseDecoder.Decode(&file)
 
 	if err != nil {
 		return err
 	}
 
-	fileID := uploadResult.ID
+	fileID := file.ID
 
-	loadTableForm := url.Values{}
-	loadTableForm.Add("name", d.Get("name").(string))
-	loadTableForm.Add("primaryKey", strings.Join(AsStringArray(d.Get("primary_key").([]interface{})), ","))
-	loadTableForm.Add("dataFileId", strconv.Itoa(fileID))
+	form := url.Values{}
+	form.Add("name", d.Get("name").(string))
+	form.Add("primaryKey", strings.Join(AsStringArray(d.Get("primary_key").([]interface{})), ","))
+	form.Add("dataFileId", strconv.Itoa(fileID))
 
 	if d.Get("delimiter") != "" {
-		loadTableForm.Add("delimiter", d.Get("delimiter").(string))
+		form.Add("delimiter", d.Get("delimiter").(string))
 	} else {
-		loadTableForm.Add("delimiter", ",")
+		form.Add("delimiter", ",")
 	}
 
 	if d.Get("enclosure") != "" {
-		loadTableForm.Add("enclosure", d.Get("enclosure").(string))
+		form.Add("enclosure", d.Get("enclosure").(string))
 	} else {
-		loadTableForm.Add("enclosure", "\"")
+		form.Add("enclosure", "\"")
 	}
 
-	loadTableBuffer := buffer.FromForm(loadTableForm)
+	formData := buffer.FromForm(form)
 
 	bucketID := d.Get("bucket_id").(string)
 
-	loadTableResponse, err := client.PostToStorage(fmt.Sprintf("storage/buckets/%s/tables-async", bucketID), loadTableBuffer)
+	resp, err = client.PostToStorage(fmt.Sprintf("storage/buckets/%s/tables-async", bucketID), formData)
 
-	if hasErrors(err, loadTableResponse) {
-		return extractError(err, loadTableResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var loadTableResult UploadFileResult
+	var storageTable UploadFileResult
 
-	loadTableDecoder := json.NewDecoder(loadTableResponse.Body)
-	err = loadTableDecoder.Decode(&loadTableResult)
+	loadTableDecoder := json.NewDecoder(resp.Body)
+	err = loadTableDecoder.Decode(&storageTable)
 
 	if err != nil {
 		return err
@@ -87,7 +87,7 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 	var table StorageJobStatus
 
 	for loadStatus != "success" && loadStatus != "error" {
-		loadStatusResp, err := client.GetFromStorage(fmt.Sprintf("storage/jobs/%v", loadTableResult.ID))
+		loadStatusResp, err := client.GetFromStorage(fmt.Sprintf("storage/jobs/%v", storageTable.ID))
 
 		if hasErrors(err, loadStatusResp) {
 			return extractError(err, loadStatusResp)
@@ -186,10 +186,10 @@ func resourceKeboolaStorageTableDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[INFO] Deleting Storage Table in Keboola: %s", d.Id())
 
 	client := meta.(*KBCClient)
-	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
+	resp, err := client.DeleteFromStorage(fmt.Sprintf("storage/tables/%s", d.Id()))
 
-	if hasErrors(err, destroyResponse) {
-		return extractError(err, destroyResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

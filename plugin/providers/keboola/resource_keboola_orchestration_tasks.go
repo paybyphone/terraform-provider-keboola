@@ -13,15 +13,39 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 	log.Println("[INFO] Creating Orchestration Tasks in Keboola.")
 
 	orchestrationID := d.Get("orchestration_id").(string)
+	mappedTasks := mapOrchestrationTasks(d)
+
+	tasksJSON, err := json.Marshal(mappedTasks)
+
+	if err != nil {
+		return err
+	}
+
+	client := meta.(*KBCClient)
+
+	jsonData := bytes.NewBuffer(tasksJSON)
+	resp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), jsonData)
+
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
+	}
+
+	d.SetId(orchestrationID)
+
+	return resourceKeboolaOrchestrationTasksRead(d, meta)
+}
+
+func mapOrchestrationTasks(d *schema.ResourceData) []OrchestrationTask {
 	tasks := d.Get("task").([]interface{})
 	mappedTasks := make([]OrchestrationTask, 0, len(tasks))
 
 	for _, task := range tasks {
 		config := task.(map[string]interface{})
 
-		actionParametersJSON := config["action_parameters"].(string)
-		var mappedActionParameters interface{}
-		json.Unmarshal([]byte(actionParametersJSON), &mappedActionParameters)
+		actionParams := config["action_parameters"].(string)
+
+		var mappedActionParams interface{}
+		json.Unmarshal([]byte(actionParams), &mappedActionParams)
 
 		mappedTask := OrchestrationTask{
 			Component:         config["component"].(string),
@@ -32,31 +56,14 @@ func resourceKeboolaOrchestrationTasksCreate(d *schema.ResourceData, meta interf
 			Phase:             config["phase"].(string),
 		}
 
-		if mappedActionParameters != nil {
-			mappedTask.ActionParameters = mappedActionParameters.(map[string]interface{})
+		if mappedActionParams != nil {
+			mappedTask.ActionParameters = mappedActionParams.(map[string]interface{})
 		}
 
 		mappedTasks = append(mappedTasks, mappedTask)
 	}
 
-	tasksJSON, err := json.Marshal(mappedTasks)
-
-	if err != nil {
-		return err
-	}
-
-	client := meta.(*KBCClient)
-
-	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	createTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
-
-	if hasErrors(err, createTasksResponse) {
-		return extractError(err, createTasksResponse)
-	}
-
-	d.SetId(orchestrationID)
-
-	return resourceKeboolaOrchestrationTasksRead(d, meta)
+	return mappedTasks
 }
 
 func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interface{}) error {
@@ -70,24 +77,24 @@ func resourceKeboolaOrchestrationTasksRead(d *schema.ResourceData, meta interfac
 
 	client := meta.(*KBCClient)
 
-	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
+	resp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()))
 
-	if hasErrors(err, getResponse) {
+	if hasErrors(err, resp) {
 		if err != nil {
 			return err
 		}
 
-		if getResponse.StatusCode == 404 {
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
 	var orchestrationTasks []OrchestrationTask
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&orchestrationTasks)
 
 	if err != nil {
@@ -157,11 +164,11 @@ func resourceKeboolaOrchestrationTasksUpdate(d *schema.ResourceData, meta interf
 
 	client := meta.(*KBCClient)
 
-	tasksBuffer := bytes.NewBuffer(tasksJSON)
-	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), tasksBuffer)
+	jsonData := bytes.NewBuffer(tasksJSON)
+	resp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", orchestrationID), jsonData)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return resourceKeboolaOrchestrationTasksRead(d, meta)
@@ -171,11 +178,12 @@ func resourceKeboolaOrchestrationTasksDelete(d *schema.ResourceData, meta interf
 	log.Printf("[INFO] Clearing Orchestration Tasks in Keboola: %s", d.Id())
 
 	client := meta.(*KBCClient)
-	emptyTasksBuffer := bytes.NewBufferString("[]")
-	clearTasksResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), emptyTasksBuffer)
+	emptyData := bytes.NewBufferString("[]")
+	
+	resp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s/tasks", d.Id()), emptyData)
 
-	if hasErrors(err, clearTasksResponse) {
-		return extractError(err, clearTasksResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

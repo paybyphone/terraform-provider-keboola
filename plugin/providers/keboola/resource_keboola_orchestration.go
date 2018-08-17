@@ -49,23 +49,23 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 
 	client := meta.(*KBCClient)
 
-	orchestrationBuffer := bytes.NewBuffer(orchestrationJSON)
-	createResponse, err := client.PostToSyrup("orchestrator/orchestrations", orchestrationBuffer)
+	jsonData := bytes.NewBuffer(orchestrationJSON)
+	resp, err := client.PostToSyrup("orchestrator/orchestrations", jsonData)
 
-	if hasErrors(err, createResponse) {
-		return extractError(err, createResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var createResult CreateResourceResult
+	var orchestration CreateResourceResult
 
-	decoder := json.NewDecoder(createResponse.Body)
-	err = decoder.Decode(&createResult)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&orchestration)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(string(createResult.ID))
+	d.SetId(string(orchestration.ID))
 
 	return resourceKeboolaOrchestrationRead(d, meta)
 }
@@ -78,29 +78,25 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
+	resp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
-	if hasErrors(err, getResponse) {
+	if hasErrors(err, resp) {
 		if err != nil {
 			return err
 		}
 
-		if getResponse.StatusCode == 404 {
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
 	var orchestration Orchestration
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&orchestration)
-
-	if err != nil {
-		return err
-	}
 
 	if err != nil {
 		d.SetId("")
@@ -111,13 +107,13 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 
 	for _, notification := range orchestration.Notifications {
 
-		notificationDetails := map[string]interface{}{
+		mappedNotification := map[string]interface{}{
 			"email":      notification.Email,
 			"channel":    notification.Channel,
 			"parameters": notification.Parameters,
 		}
 
-		notifications = append(notifications, notificationDetails)
+		notifications = append(notifications, mappedNotification)
 	}
 
 	d.Set("id", orchestration.ID)
@@ -147,11 +143,11 @@ func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}
 
 	client := meta.(*KBCClient)
 
-	orchestrationBuffer := bytes.NewBuffer(orchestrationJSON)
-	updateResponse, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()), orchestrationBuffer)
+	jsonData := bytes.NewBuffer(orchestrationJSON)
+	resp, err := client.PutToSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()), jsonData)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return resourceKeboolaOrchestrationRead(d, meta)
@@ -161,24 +157,24 @@ func resourceKeboolaOrchestrationDelete(d *schema.ResourceData, meta interface{}
 	log.Printf("[INFO] Deleting Orchestration in Keboola: %s", d.Id())
 
 	client := meta.(*KBCClient)
-	getResponse, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
+	resp, err := client.GetFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
-	if hasErrors(err, getResponse) {
+	if hasErrors(err, resp) {
 		if err != nil {
 			return err
 		}
 
-		if getResponse.StatusCode == 404 {
+		if resp.StatusCode == 404 {
 			d.SetId("")
 			return nil
 		}
 
-		return extractError(err, getResponse)
+		return extractError(err, resp)
 	}
 
 	var orchestration Orchestration
 
-	decoder := json.NewDecoder(getResponse.Body)
+	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&orchestration)
 
 	if err != nil {
@@ -191,16 +187,16 @@ func resourceKeboolaOrchestrationDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	destroyOrchestrationResponse, err := client.DeleteFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
+	resp, err = client.DeleteFromSyrup(fmt.Sprintf("orchestrator/orchestrations/%s", d.Id()))
 
-	if hasErrors(err, destroyOrchestrationResponse) {
-		return extractError(err, destroyOrchestrationResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	destroyTokenResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", tokenID))
+	resp, err = client.DeleteFromStorage(fmt.Sprintf("storage/tokens/%s", tokenID))
 
-	if hasErrors(err, destroyTokenResponse) {
-		return extractError(err, destroyTokenResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

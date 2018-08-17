@@ -70,107 +70,107 @@ func resourceKeboolaSnowflakeWriterCreate(d *schema.ResourceData, meta interface
 }
 
 func createSnowflakeWriterConfiguration(name string, description string, client *KBCClient) (createdSnowflakeID string, err error) {
-	createWriterForm := url.Values{}
-	createWriterForm.Add("name", name)
-	createWriterForm.Add("description", description)
+	form := url.Values{}
+	form.Add("name", name)
+	form.Add("description", description)
 
-	createWriterBuffer := buffer.FromForm(createWriterForm)
+	formData := buffer.FromForm(form)
 
-	createResponse, err := client.PostToStorage("storage/components/keboola.wr-db-snowflake/configs", createWriterBuffer)
+	resp, err := client.PostToStorage("storage/components/keboola.wr-db-snowflake/configs", formData)
 
-	if hasErrors(err, createResponse) {
-		return "", extractError(err, createResponse)
+	if hasErrors(err, resp) {
+		return "", extractError(err, resp)
 	}
 
-	var createWriterResult CreateResourceResult
+	var writer CreateResourceResult
 
-	decoder := json.NewDecoder(createResponse.Body)
-	err = decoder.Decode(&createWriterResult)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&writer)
 
 	if err != nil {
 		return "", err
 	}
 
-	return string(createWriterResult.ID), nil
+	return string(writer.ID), nil
 }
 
 func createSnowflakeAccessToken(snowflakeID string, client *KBCClient) error {
-	createAccessTokenForm := url.Values{}
-	createAccessTokenForm.Add("description", fmt.Sprintf("wrdbsnowflake_%s", snowflakeID))
-	createAccessTokenForm.Add("canManageBuckets", "1")
+	form := url.Values{}
+	form.Add("description", fmt.Sprintf("wrdbsnowflake_%s", snowflakeID))
+	form.Add("canManageBuckets", "1")
 
-	createAccessTokenBuffer := buffer.FromForm(createAccessTokenForm)
+	formData := buffer.FromForm(form)
 
-	createAccessTokenResponse, err := client.PostToStorage("storage/tokens", createAccessTokenBuffer)
+	resp, err := client.PostToStorage("storage/tokens", formData)
 
-	if hasErrors(err, createAccessTokenResponse) {
-		return extractError(err, createAccessTokenResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return nil
 }
 
 func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse *ProvisionSnowflakeResponse, err error) {
-	provisionSnowflakeBuffer := bytes.NewBufferString("{ \"type\": \"writer\" }")
-	provisionSnowflakeResponse, err := client.PostToSyrup("provisioning/snowflake", provisionSnowflakeBuffer)
+	jsonData := bytes.NewBufferString("{ \"type\": \"writer\" }")
+	resp, err := client.PostToSyrup("provisioning/snowflake", jsonData)
 
-	if hasErrors(err, provisionSnowflakeResponse) {
-		return nil, extractError(err, provisionSnowflakeResponse)
+	if hasErrors(err, resp) {
+		return nil, extractError(err, resp)
 	}
 
-	var provisionedSnowflake ProvisionSnowflakeResponse
+	var snowflake ProvisionSnowflakeResponse
 
-	provisionedSnowflakeDecoder := json.NewDecoder(provisionSnowflakeResponse.Body)
-	err = provisionedSnowflakeDecoder.Decode(&provisionedSnowflake)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&snowflake)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if provisionSnowflakeResponse.StatusCode < 200 || provisionSnowflakeResponse.StatusCode > 299 {
-		return nil, fmt.Errorf("unable to provision Snowflake instance (status code: %v)", provisionSnowflakeResponse.StatusCode)
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return nil, fmt.Errorf("unable to provision Snowflake instance (status code: %v)", resp.StatusCode)
 	}
 
-	return &provisionedSnowflake, nil
+	return &snowflake, nil
 }
 
 func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}) SnowflakeWriterDatabaseParameters {
-	databaseParameters := SnowflakeWriterDatabaseParameters{}
+	dbParams := SnowflakeWriterDatabaseParameters{}
 
-	if val, ok := source["hostname"]; ok { databaseParameters.HostName = val.(string) }
-	if val, ok := source["port"]; ok { databaseParameters.Port = val.(string) }
-	if val, ok := source["database"]; ok { databaseParameters.Database = val.(string) }
-	if val, ok := source["schema"]; ok { databaseParameters.Schema = val.(string) }
-	if val, ok := source["warehouse"]; ok { databaseParameters.Warehouse = val.(string) }
-	if val, ok := source["username"]; ok { databaseParameters.Username = val.(string) }
-	if val, ok := source["hashed_password"]; ok { databaseParameters.EncryptedPassword = val.(string) }
+	if val, ok := source["hostname"]; ok { dbParams.HostName = val.(string) }
+	if val, ok := source["port"]; ok { dbParams.Port = val.(string) }
+	if val, ok := source["database"]; ok { dbParams.Database = val.(string) }
+	if val, ok := source["schema"]; ok { dbParams.Schema = val.(string) }
+	if val, ok := source["warehouse"]; ok { dbParams.Warehouse = val.(string) }
+	if val, ok := source["username"]; ok { dbParams.Username = val.(string) }
+	if val, ok := source["hashed_password"]; ok { dbParams.EncryptedPassword = val.(string) }
 
-	databaseParameters.Driver = "snowflake"
+	dbParams.Driver = "snowflake"
 
-	return databaseParameters
+	return dbParams
 }
 
 func createSnowflakeCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {
-	snowflakeWriterConfiguration := SnowflakeWriterConfiguration{}
+	snowflakeConfig := SnowflakeWriterConfiguration{}
 
-	snowflakeWriterConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
+	snowflakeConfig.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
 
-	snowflakeWriterConfigurationJSON, err := json.Marshal(snowflakeWriterConfiguration)
+	snowflakeJSON, err := json.Marshal(snowflakeConfig)
 
 	if err != nil {
 		return err
 	}
 
-	updateConfigurationRequestForm := url.Values{}
-	updateConfigurationRequestForm.Add("configuration", string(snowflakeWriterConfigurationJSON))
-	updateConfigurationRequestForm.Add("changeDescription", "Created database credentials")
+	form := url.Values{}
+	form.Add("configuration", string(snowflakeJSON))
+	form.Add("changeDescription", "Created database credentials")
 
-	updateConfigurationRequestBuffer := buffer.FromForm(updateConfigurationRequestForm)
+	formData := buffer.FromForm(form)
 
-	updateConfigurationResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), updateConfigurationRequestBuffer)
+	resp, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", createdSnowflakeID), formData)
 
-	if hasErrors(err, updateConfigurationResponse) {
-		return extractError(err, updateConfigurationResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return nil
@@ -284,10 +284,10 @@ func resourceKeboolaSnowflakeWriterDelete(d *schema.ResourceData, meta interface
 	log.Printf("[INFO] Deleting Snowflake Writer in Keboola: %s", d.Id())
 
 	client := meta.(*KBCClient)
-	destroyResponse, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
+	resp, err := client.DeleteFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-snowflake/configs/%s", d.Id()))
 
-	if hasErrors(err, destroyResponse) {
-		return extractError(err, destroyResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

@@ -66,40 +66,40 @@ func resourceKeboolaPostgreSQLWriterTablesCreate(d *schema.ResourceData, meta in
 
 	client := meta.(*KBCClient)
 
-	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", writerID))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", writerID))
 
-	if hasErrors(err, getWriterResponse) {
-		return extractError(err, getWriterResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var postgresqlWriter PostgreSQLWriter
+	var writer PostgreSQLWriter
 
-	decoder := json.NewDecoder(getWriterResponse.Body)
-	err = decoder.Decode(&postgresqlWriter)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&writer)
 
 	if err != nil {
 		return err
 	}
 
-	postgresqlWriter.Configuration.Parameters.Tables = mappedTables
-	postgresqlWriter.Configuration.Storage.Input.Tables = storageTables
+	writer.Configuration.Parameters.Tables = mappedTables
+	writer.Configuration.Storage.Input.Tables = storageTables
 
-	postgresqlConfigJSON, err := json.Marshal(postgresqlWriter.Configuration)
+	postgresqlConfigJSON, err := json.Marshal(writer.Configuration)
 
 	if err != nil {
 		return err
 	}
 
-	updatePostgreSQLForm := url.Values{}
-	updatePostgreSQLForm.Add("configuration", string(postgresqlConfigJSON))
-	updatePostgreSQLForm.Add("change_description", "Update PostgreSQL tables")
+	form := url.Values{}
+	form.Add("configuration", string(postgresqlConfigJSON))
+	form.Add("change_description", "Update PostgreSQL tables")
 
-	updatePostgreSQLBuffer := buffer.FromForm(updatePostgreSQLForm)
+	formData := buffer.FromForm(form)
 
-	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", writerID), updatePostgreSQLBuffer)
+	resp, err = client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", writerID), formData)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId(writerID)
@@ -131,10 +131,10 @@ func resourceKeboolaPostgreSQLWriterTablesRead(d *schema.ResourceData, meta inte
 		return extractError(err, resp)
 	}
 
-	var postgresqlWriter PostgreSQLWriter
+	var writer PostgreSQLWriter
 
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&postgresqlWriter)
+	err = decoder.Decode(&writer)
 
 	if err != nil {
 		return err
@@ -142,7 +142,7 @@ func resourceKeboolaPostgreSQLWriterTablesRead(d *schema.ResourceData, meta inte
 
 	var tables []map[string]interface{}
 
-	for _, tableConfig := range postgresqlWriter.Configuration.Parameters.Tables {
+	for _, tableConfig := range writer.Configuration.Parameters.Tables {
 		tableDetails := map[string]interface{}{
 			"db_name":     tableConfig.DatabaseName,
 			"export":      tableConfig.Export,
@@ -231,40 +231,40 @@ func resourceKeboolaPostgreSQLWriterTablesUpdate(d *schema.ResourceData, meta in
 
 	client := meta.(*KBCClient)
 
-	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
 
-	if hasErrors(err, getWriterResponse) {
-		return extractError(err, getWriterResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var postgresqlWriter PostgreSQLWriter
+	var writer PostgreSQLWriter
 
-	decoder := json.NewDecoder(getWriterResponse.Body)
-	err = decoder.Decode(&postgresqlWriter)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&writer)
 
 	if err != nil {
 		return err
 	}
 
-	postgresqlWriter.Configuration.Parameters.Tables = mappedTables
-	postgresqlWriter.Configuration.Storage.Input.Tables = storageTables
+	writer.Configuration.Parameters.Tables = mappedTables
+	writer.Configuration.Storage.Input.Tables = storageTables
 
-	postgresqlConfigJSON, err := json.Marshal(postgresqlWriter.Configuration)
+	postgresqlConfigJSON, err := json.Marshal(writer.Configuration)
 
 	if err != nil {
 		return err
 	}
 
-	updatePostgreSQLForm := url.Values{}
-	updatePostgreSQLForm.Add("configuration", string(postgresqlConfigJSON))
-	updatePostgreSQLForm.Add("changeDescription", "Update PostgreSQL tables")
+	form := url.Values{}
+	form.Add("configuration", string(postgresqlConfigJSON))
+	form.Add("changeDescription", "Update PostgreSQL tables")
 
-	updatePostgreSQLBuffer := buffer.FromForm(updatePostgreSQLForm)
+	formData := buffer.FromForm(form)
 
-	updateResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), updatePostgreSQLBuffer)
+	resp, err = client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), formData)
 
-	if hasErrors(err, updateResponse) {
-		return extractError(err, updateResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	return resourceKeboolaPostgreSQLWriterTablesRead(d, meta)
@@ -275,43 +275,43 @@ func resourceKeboolaPostgreSQLWriterTablesDelete(d *schema.ResourceData, meta in
 
 	client := meta.(*KBCClient)
 
-	getWriterResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
+	resp, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()))
 
-	if hasErrors(err, getWriterResponse) {
-		return extractError(err, getWriterResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
-	var postgresqlWriter PostgreSQLWriter
+	var writer PostgreSQLWriter
 
-	decoder := json.NewDecoder(getWriterResponse.Body)
-	err = decoder.Decode(&postgresqlWriter)
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&writer)
 
 	if err != nil {
 		return err
 	}
 
 	var emptyTables []PostgreSQLWriterTable
-	postgresqlWriter.Configuration.Parameters.Tables = emptyTables
+	writer.Configuration.Parameters.Tables = emptyTables
 
 	var emptyStorageTables []PostgreSQLWriterStorageTable
-	postgresqlWriter.Configuration.Storage.Input.Tables = emptyStorageTables
+	writer.Configuration.Storage.Input.Tables = emptyStorageTables
 
-	postgresqlConfigJSON, err := json.Marshal(postgresqlWriter.Configuration)
+	postgresqlConfigJSON, err := json.Marshal(writer.Configuration)
 
 	if err != nil {
 		return err
 	}
 
-	clearPostgreSQLTablesForm := url.Values{}
-	clearPostgreSQLTablesForm.Add("configuration", string(postgresqlConfigJSON))
-	clearPostgreSQLTablesForm.Add("changeDescription", "Update PostgreSQL tables")
+	form := url.Values{}
+	form.Add("configuration", string(postgresqlConfigJSON))
+	form.Add("changeDescription", "Update PostgreSQL tables")
 
-	clearPostgreSQLTablesBuffer := buffer.FromForm(clearPostgreSQLTablesForm)
+	formData := buffer.FromForm(form)
 
-	clearResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), clearPostgreSQLTablesBuffer)
+	resp, err = client.PutToStorage(fmt.Sprintf("storage/components/keboola.wr-db-pgsql/configs/%s", d.Id()), formData)
 
-	if hasErrors(err, clearResponse) {
-		return extractError(err, clearResponse)
+	if hasErrors(err, resp) {
+		return extractError(err, resp)
 	}
 
 	d.SetId("")

@@ -37,10 +37,10 @@ func resourceKeboolaGoodDataUserManagementCreate(d *schema.ResourceData, meta in
 	form.Add("description", d.Get("description").(string))
 	form.Add("configuration", string(jsonData))
 
-	formBuffer := buffer.FromForm(form)
+	formData := buffer.FromForm(form)
 
 	client := meta.(*KBCClient)
-	resp, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), formBuffer)
+	resp, err := client.PostToStorage(fmt.Sprintf("storage/components/gd-user-mgmt/configs"), formData)
 
 	if hasErrors(err, resp) {
 		return extractError(err, resp)

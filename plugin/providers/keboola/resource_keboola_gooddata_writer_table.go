@@ -60,9 +60,9 @@ func resourceKeboolaGoodDataTableCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	tableData := bytes.NewBuffer(tableJSON)
+	jsonData := bytes.NewBuffer(tableJSON)
 
-	resp, err := client.PostToSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, tableID), tableData)
+	resp, err := client.PostToSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, tableID), jsonData)
 
 	if hasErrors(err, resp) {
 		return extractError(err, resp)
@@ -174,9 +174,9 @@ func resourceKeboolaGoodDataTableUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	tableData := bytes.NewBuffer(tableJSON)
+	jsonData := bytes.NewBuffer(tableJSON)
 
-	resp, err := client.PatchOnSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, title), tableData)
+	resp, err := client.PatchOnSyrup(fmt.Sprintf("gooddata-writer/v2/%s/tables/%s", writerID, title), jsonData)
 
 	if hasErrors(err, resp) {
 		return extractError(err, resp)
