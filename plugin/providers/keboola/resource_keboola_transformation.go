@@ -23,7 +23,7 @@ type Input struct {
 	Indexes       [][]string             `json:"indexes,omitempty"`
 	Columns       []string               `json:"columns,omitempty"`
 	DataTypes     map[string]interface{} `json:"datatypes,omitempty"`
-	Days          int                    `json:"days,omitempty"`
+	ChangedSince  string                 `json:"changedSince,omitempty"`
 }
 
 //Output is a mapping from the internal tables used by transformation queries
