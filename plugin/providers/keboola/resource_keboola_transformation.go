@@ -23,6 +23,7 @@ type Input struct {
 	Indexes       [][]string             `json:"indexes,omitempty"`
 	Columns       []string               `json:"columns,omitempty"`
 	DataTypes     map[string]interface{} `json:"datatypes,omitempty"`
+	Days          int                    `json:"days,omitempty"`
 	ChangedSince  string                 `json:"changedSince,omitempty"`
 }
 
