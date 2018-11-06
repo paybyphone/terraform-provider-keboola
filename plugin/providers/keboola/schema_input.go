@@ -54,7 +54,7 @@ var inputSchema = schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"changedSince": {
+			"changed_since": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -74,7 +74,7 @@ func mapInputSchemaToModel(inputs []interface{}) []Input {
 			WhereOperator: config["where_operator"].(string),
 			WhereColumn:   config["where_column"].(string),
 			DataTypes:     config["datatypes"].(map[string]interface{}),
-			ChangedSince:  config["changedSince"].(string),
+			ChangedSince:  config["changed_since"].(string),
 		}
 
 		if q := config["where_values"]; q != nil {
@@ -114,7 +114,7 @@ func mapInputModelToSchema(inputs []Input) []map[string]interface{} {
 			"where_values":   input.WhereValues,
 			"where_column":   input.WhereColumn,
 			"datatypes":      input.DataTypes,
-			"changedSince":   input.ChangedSince,
+			"changed_since":   input.ChangedSince,
 		}
 
 		if input.Indexes != nil {
