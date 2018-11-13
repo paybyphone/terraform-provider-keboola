@@ -6,14 +6,14 @@ branches:
 
 matrix:
   include:
-    - go: 1.8
+    - go: "1.10"
 
 install:
 - go get -d github.com/hashicorp/terraform
 - go get github.com/stretchr/testify
 - ls $GOPATH
 - cd $GOPATH/src/github.com/hashicorp/terraform
-- git checkout tags/v0.8.8
+- git checkout tags/v0.11.10
 - go install github.com/hashicorp/terraform
 - go install github.com/stretchr/testify
 - cd $GOPATH/src/github.com/plmwong/terraform-provider-keboola

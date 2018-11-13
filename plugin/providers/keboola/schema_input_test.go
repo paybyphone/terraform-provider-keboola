@@ -18,6 +18,7 @@ func TestMappingFromInputToSchema(t *testing.T) {
 			"foo": "bar",
 		},
 		"days": 2,
+		"changed_since": "-2 days",
 	}
 
 	inputs = append(inputs, testInput)
@@ -29,4 +30,5 @@ func TestMappingFromInputToSchema(t *testing.T) {
 	assert.Equal(t, testInput["where_column"].(string), result[0].WhereColumn, "Original whereColumn and mapped whereColumn should match")
 	assert.Equal(t, testInput["datatypes"].(map[string]interface{}), result[0].DataTypes, "Original datatypes and mapped datatypes should match")
 	assert.Equal(t, testInput["days"].(int), result[0].Days, "Original days and mapped days should match")
+	assert.Equal(t, testInput["changed_since"].(string), result[0].ChangedSince, "Original changedSince and mapped changedSince should match")
 }
