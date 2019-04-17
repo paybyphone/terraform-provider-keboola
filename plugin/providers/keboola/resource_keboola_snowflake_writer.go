@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-    "strconv"
+	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
@@ -50,9 +50,13 @@ type SnowflakeWriterParameters struct {
 }
 
 type SnowflakeWriterStorageTable struct {
-	Source      string   `json:"source"`
-	Destination string   `json:"destination"`
-	Columns     []string `json:"columns"`
+	Source          string   `json:"source"`
+	Destination     string   `json:"destination"`
+	Columns         []string `json:"columns"`
+	ChangedSince    string   `json:"changed_since,omitempty"`
+	WhereColumn     string   `json:"where_column,omitempty"`
+	WhereOperator   string   `json:"where_operator,omitempty"`
+	WhereValues     []string `json:"where_values,omitempty"`
 }
 
 type SnowflakeWriterStorage struct {
