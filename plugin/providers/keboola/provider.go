@@ -2,6 +2,7 @@ package keboola
 
 import (
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
@@ -43,7 +44,7 @@ func Provider() terraform.ResourceProvider {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	log.Println("[INFO] Initializing Keboola REST client")
 	client := &KBCClient{
-		APIKey: d.Get("api_key").(string),
+		APIKey: strings.TrimSpace(d.Get("api_key").(string)),
 	}
 	return client, nil
 }
