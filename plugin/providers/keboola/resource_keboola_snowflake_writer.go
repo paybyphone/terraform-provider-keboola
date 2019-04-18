@@ -50,13 +50,13 @@ type SnowflakeWriterParameters struct {
 }
 
 type SnowflakeWriterStorageTable struct {
-	Source          string   `json:"source"`
-	Destination     string   `json:"destination"`
-	Columns         []string `json:"columns"`
-	ChangedSince    string   `json:"changed_since,omitempty"`
-	WhereColumn     string   `json:"where_column,omitempty"`
-	WhereOperator   string   `json:"where_operator,omitempty"`
-	WhereValues     []string `json:"where_values,omitempty"`
+	Source        string   `json:"source"`
+	Destination   string   `json:"destination"`
+	Columns       []string `json:"columns"`
+	ChangedSince  string   `json:"changed_since,omitempty"`
+	WhereColumn   string   `json:"where_column,omitempty"`
+	WhereOperator string   `json:"where_operator,omitempty"`
+	WhereValues   []string `json:"where_values,omitempty"`
 }
 
 type SnowflakeWriterStorage struct {
@@ -73,7 +73,7 @@ type SnowflakeWriterConfiguration struct {
 type ProvisionSnowflakeResponse struct {
 	Status      string `json:"status"`
 	Credentials struct {
-		ID          int    `json:"id"`
+		ID          string `json:"id"`
 		HostName    string `json:"hostname"`
 		Port        int    `json:"port"`
 		Database    string `json:"db"`
@@ -81,7 +81,7 @@ type ProvisionSnowflakeResponse struct {
 		Warehouse   string `json:"warehouse"`
 		Username    string `json:"user"`
 		Password    string `json:"password"`
-		WorkspaceID int    `json:"workspaceId"`
+		WorkspaceID string `json:"workspaceId"`
 	} `json:"credentials"`
 }
 
@@ -289,13 +289,27 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}) SnowflakeWriterDatabaseParameters {
 	databaseParameters := SnowflakeWriterDatabaseParameters{}
 
-	if val, ok := source["hostname"]; ok { databaseParameters.HostName = val.(string) }
-	if val, ok := source["port"]; ok { databaseParameters.Port = val.(string) }
-	if val, ok := source["database"]; ok { databaseParameters.Database = val.(string) }
-	if val, ok := source["schema"]; ok { databaseParameters.Schema = val.(string) }
-	if val, ok := source["warehouse"]; ok { databaseParameters.Warehouse = val.(string) }
-	if val, ok := source["username"]; ok { databaseParameters.Username = val.(string) }
-	if val, ok := source["hashed_password"]; ok { databaseParameters.EncryptedPassword = val.(string) }
+	if val, ok := source["hostname"]; ok {
+		databaseParameters.HostName = val.(string)
+	}
+	if val, ok := source["port"]; ok {
+		databaseParameters.Port = val.(string)
+	}
+	if val, ok := source["database"]; ok {
+		databaseParameters.Database = val.(string)
+	}
+	if val, ok := source["schema"]; ok {
+		databaseParameters.Schema = val.(string)
+	}
+	if val, ok := source["warehouse"]; ok {
+		databaseParameters.Warehouse = val.(string)
+	}
+	if val, ok := source["username"]; ok {
+		databaseParameters.Username = val.(string)
+	}
+	if val, ok := source["hashed_password"]; ok {
+		databaseParameters.EncryptedPassword = val.(string)
+	}
 
 	databaseParameters.Driver = "snowflake"
 
