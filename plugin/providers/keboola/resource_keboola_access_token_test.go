@@ -58,6 +58,6 @@ const testAccessTokenBasic = `
 		can_read_all_file_uploads = false
 		expires_in = 10800
     lifecycle {
-        ignore_changes = [ "expires_in" ]
+		ignore_changes = [ "expires_in", "bucket_permissions" ]
     }
 	}`
