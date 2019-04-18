@@ -143,9 +143,15 @@ func resourceKeboolaSnowflakeWriterTablesCreate(d *schema.ResourceData, meta int
 			Destination: fmt.Sprintf("%s.csv", mappedTable.TableID),
 		}
 
-		if val, ok:= config["changed_since"]; ok { storageTable.ChangedSince = val.(string)}
-		if val, ok:= config["where_column"]; ok { storageTable.WhereColumn = val.(string)}
-		if val, ok:= config["where_operator"]; ok { storageTable.WhereOperator = val.(string)}
+		if val, ok := config["changed_since"]; ok {
+			storageTable.ChangedSince = val.(string)
+		}
+		if val, ok := config["where_column"]; ok {
+			storageTable.WhereColumn = val.(string)
+		}
+		if val, ok := config["where_operator"]; ok {
+			storageTable.WhereOperator = val.(string)
+		}
 
 		if q := config["where_values"]; q != nil {
 			storageTable.WhereValues = AsStringArray(q.([]interface{}))
@@ -254,21 +260,21 @@ func resourceKeboolaSnowflakeWriterTablesRead(d *schema.ResourceData, meta inter
 	storageInputTableMap := make(map[string]SnowflakeWriterStorageTable)
 
 	for _, storageInputTable := range snowflakeWriter.Configuration.Storage.Input.Tables {
-			storageInputTableMap[storageInputTable.Source] = storageInputTable
+		storageInputTableMap[storageInputTable.Source] = storageInputTable
 	}
 
 	for _, tableConfig := range snowflakeWriter.Configuration.Parameters.Tables {
 		storageInputTable := storageInputTableMap[tableConfig.TableID]
 		tableDetails := map[string]interface{}{
-			"db_name":       	tableConfig.DatabaseName,
-			"export":        	tableConfig.Export,
-			"table_id":      	tableConfig.TableID,
-			"incremental": 	 	tableConfig.Incremental,
-			"primary_key": 		tableConfig.PrimaryKey,
-			"changed_since": 	storageInputTable.ChangedSince,
-			"where_column":		storageInputTable.WhereColumn,
-			"where_operator": 	storageInputTable.WhereOperator,
-			"where_values": 	storageInputTable.WhereValues,
+			"db_name":        tableConfig.DatabaseName,
+			"export":         tableConfig.Export,
+			"table_id":       tableConfig.TableID,
+			"incremental":    tableConfig.Incremental,
+			"primary_key":    tableConfig.PrimaryKey,
+			"changed_since":  storageInputTable.ChangedSince,
+			"where_column":   storageInputTable.WhereColumn,
+			"where_operator": storageInputTable.WhereOperator,
+			"where_values":   storageInputTable.WhereValues,
 		}
 
 		var columns []map[string]interface{}
@@ -323,9 +329,15 @@ func resourceKeboolaSnowflakeWriterTablesUpdate(d *schema.ResourceData, meta int
 			Destination: fmt.Sprintf("%s.csv", mappedTable.TableID),
 		}
 
-		if val, ok:= config["changed_since"]; ok { storageTable.ChangedSince = val.(string)}
-		if val, ok:= config["where_column"]; ok { storageTable.WhereColumn = val.(string)}
-		if val, ok:= config["where_operator"]; ok { storageTable.WhereOperator = val.(string)}
+		if val, ok := config["changed_since"]; ok {
+			storageTable.ChangedSince = val.(string)
+		}
+		if val, ok := config["where_column"]; ok {
+			storageTable.WhereColumn = val.(string)
+		}
+		if val, ok := config["where_operator"]; ok {
+			storageTable.WhereOperator = val.(string)
+		}
 
 		if q := config["where_values"]; q != nil {
 			storageTable.WhereValues = AsStringArray(q.([]interface{}))
