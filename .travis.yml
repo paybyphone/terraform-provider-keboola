@@ -25,12 +25,9 @@ deploy:
   provider: releases
   api_key:
     secure: ap0E4Mb+/aybjZwkcGPJ1QeBHlqzWGM/qmuUX9fXyCZ1abx1zzv+MZOH6pAonOl80qbkTS8aKsCOkf4bwB+oAb+OBIWdRaB1gtush1Jhc9T829aAnx9LqVTHqiGseJjmgy+wD/wmDFIC0ErbJBV/4sBUZ05UdpcgTRdFPjxpxMd1jyURMmf0pggaakCNj2HOOexapB84+X2lYzp78MUgS9AHeWcfmyKD3B4gZbc72QPjDL/XB1ZeNemf+Y5DwHMzT7ba8Vs6l7VTOuQocTrl0q0tmp9pJq/baEat90ob3MhxCzokcfPc7/Vs9WrAN0zocR3T4gL8XwvuTYvVdZW8a0hCKYKQPdqqcV26XP2892T4i83DC++DYlrnVUeC4UMAevIDXKVm1rE8q2meZ6nKVEVUqXWLCdHhQTpxXOUadv3XxpnXseTf34Wr5kshuOFLEPVCKU1jO/3WC1pr5KPxrP3OZ6dVOph9S8suEd3wSc3vLZ05PrlqBsl7NmMO+oNcFEH4jnQdNj1sf/fPzLZRI8hB65xIlGUpO96Xyug5s5XHBMJ33DPDWwUe0bKQKo9nFvOAsOau/anC5LGgFIqbFWFF/Ytv3dYidHet/KEto2E6z+rzGBrmCC8fw/crJWFtPia4orhbwj7bSGMA/TmmNw2kCrds57jNrBs4nQxDOtg=
-  file:
-  - bin/terraform-provider-keboola_windows_amd64.exe
-  - bin/terraform-provider-keboola_linux_amd64
-  - bin/terraform-provider-keboola_darwin_amd64
+  file_glob: true
+  file: bin/**/*
   skip_cleanup: true
   on:
     tags: true
-    all_branches: true
     repo: plmwong/terraform-provider-keboola
