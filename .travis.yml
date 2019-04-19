@@ -15,7 +15,7 @@ install:
 - cd $GOPATH/src/github.com/plmwong/terraform-provider-keboola
 
 script:
-- go test -v ./plugin/providers/keboola/
+- make release
 
 before_deploy:
   - ls -Rla bin/
