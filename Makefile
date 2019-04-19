@@ -38,3 +38,8 @@ release: test
 	GOARCH=amd64 GOOS=windows go build -o bin/windows_amd64/terraform-provider-keboola_v${version}.exe
 	GOARCH=amd64 GOOS=linux go build -o bin/linux_amd64/terraform-provider-keboola_v${version}
 	GOARCH=amd64 GOOS=darwin go build -o bin/darwin_amd64/terraform-provider-keboola_v${version}
+
+	mkdir -p releases/
+	zip releases/terraform-provider-keboola_windows_amd64_v${version}.zip bin/windows_amd64/terraform-provider-keboola_v${version}.exe
+	zip releases/terraform-provider-keboola_linux_amd64_v${version}.zip bin/linux_amd64/terraform-provider-keboola_v${version}
+	zip releases/terraform-provider-keboola_darwin_amd64_v${version}.zip bin/darwin_amd64/terraform-provider-keboola_v${version}

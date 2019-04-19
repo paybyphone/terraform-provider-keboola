@@ -3,6 +3,9 @@ terraform-provider-keboola.exe
 terraform-provider-keboola*.exe
 terraform.tfstate
 
+bin/
+releases/
+
 *.backup
 *.log
 *.sensitive
