@@ -1,10 +1,5 @@
 language: go
 
-branches:
-  only:
-    - master
-    - /\d+\.\d+\.\d+/
-
 matrix:
   include:
     - go: "1.10"
