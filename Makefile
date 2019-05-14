@@ -1,4 +1,4 @@
-version=0.1.3
+version=0.1.4
 
 default: build deploy
 
@@ -34,7 +34,7 @@ release: test
 	mkdir -p bin/windows_amd64
 	mkdir -p bin/linux_amd64
 	mkdir -p bin/darwin_amd64
-	
+
 	GOARCH=amd64 GOOS=windows go build -o bin/windows_amd64/terraform-provider-keboola_v${version}.exe
 	GOARCH=amd64 GOOS=linux go build -o bin/linux_amd64/terraform-provider-keboola_v${version}
 	GOARCH=amd64 GOOS=darwin go build -o bin/darwin_amd64/terraform-provider-keboola_v${version}

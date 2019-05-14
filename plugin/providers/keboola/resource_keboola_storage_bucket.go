@@ -57,6 +57,21 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateStorageBucketBackend,
 			},
+			"is_linked": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     true,
+			},
+			"source_project_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+			},
+			"source_bucket_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+			},
 		},
 	}
 }
@@ -69,6 +84,11 @@ func resourceKeboolaStorageBucketCreate(d *schema.ResourceData, meta interface{}
 	createBucketForm.Add("stage", d.Get("stage").(string))
 	createBucketForm.Add("description", d.Get("description").(string))
 	createBucketForm.Add("backend", d.Get("backend").(string))
+
+	if d.Get("is_linked").(bool) == true {
+		createBucketForm.Add("sourceProjectId", d.Get("source_project_id").(string))
+		createBucketForm.Add("sourceBucketId", d.Get("source_bucket_id").(string))
+	}
 
 	createBucketBuffer := buffer.FromForm(createBucketForm)
 
