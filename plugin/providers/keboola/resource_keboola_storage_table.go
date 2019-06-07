@@ -185,16 +185,6 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 		tableLoadStatus = tableLoadStatusResult.Status
 	}
 
-	indexedOnlyColumns := except(AsStringArray(d.Get("indexed_columns").([]interface{})), AsStringArray(d.Get("primary_key").([]interface{})))
-
-	for _, indexedColumn := range indexedOnlyColumns {
-		addIndexedColumnResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", tableLoadStatusResult.Results.ID, indexedColumn), buffer.Empty())
-
-		if hasErrors(err, addIndexedColumnResp) {
-			return extractError(err, addIndexedColumnResp)
-		}
-	}
-
 	d.SetId(tableLoadStatusResult.Results.ID)
 
 	return resourceKeboolaStorageTableRead(d, meta)
