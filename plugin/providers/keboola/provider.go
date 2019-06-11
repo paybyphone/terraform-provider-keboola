@@ -35,6 +35,7 @@ func Provider() terraform.ResourceProvider {
 			"keboola_orchestration":            resourceKeboolaOrchestration(),
 			"keboola_orchestration_tasks":      resourceKeboolaOrchestrationTasks(),
 			"keboola_csvimport_extractor":      resourceKeboolaCSVImportExtractor(),
+			"keboola_snowflake_extractor":      resourceKeboolaSnowflakeExtractor(),
 		},
 
 		ConfigureFunc: providerConfigure,
