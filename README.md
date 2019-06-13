@@ -15,7 +15,9 @@ Currently, the following KBC resources are supported (or partially supported) fo
 * `keboola_access_token`
 * `keboola_csvimport_extractor`
 * `keboola_gooddata_user_management`
+* `keboola_gooddata_user_management_v2`
 * `keboola_gooddata_writer`
+* `keboola_gooddata_writer_v3`
 * `keboola_orchestration`
 * `keboola_orchestration_tasks`
 * `keboola_postgresql_writer`
