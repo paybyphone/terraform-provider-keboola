@@ -117,7 +117,7 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 				Default:  true,
 				ForceNew: true,
 			},
-			"snowflake_db_parameters": &snowflakeConfigurationSchema,
+			"snowflake_db_parameters": &snowflakeDBParametersSchema,
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,

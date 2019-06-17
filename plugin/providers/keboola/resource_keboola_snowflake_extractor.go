@@ -28,12 +28,12 @@ type SnowflakeExtractorParameters struct {
 }
 
 type SnowflakeExtractorTable struct {
-	ID            	string                       	`json:"id,omitempty"`
+	ID            	int		                       	`json:"id"`
 	Name 			string							`json:"name"`
-	Enabled			bool							`json:"enabled"`
+	Enabled			bool							`json:"enabled,omitempty"`
 	Incremental		bool							`json:"incremental"`
 	OutputTable		string							`json:"outputTable"`
-	InputTable		SnowflakeExtractorInputTable	`json:"table,omitempty"`
+	InputTable		*SnowflakeExtractorInputTable	`json:"table,omitempty"`
 	PrimaryKey 		[]string						`json:"primaryKey,omitempty"`
 	Query			string							`json:"query,omitempty"`
 	Columns			[]string						`json:"columns,omitempty"`
@@ -78,11 +78,11 @@ func resourceKeboolaSnowflakeExtractorCreate(d *schema.ResourceData, meta interf
 
 	createExtractorForm := url.Values{}
 	createExtractorForm.Add("name", d.Get("name").(string))
-	createExtractorForm.Add("name", d.Get("description").(string))
+	createExtractorForm.Add("description", d.Get("description").(string))
 
 	createExtractorBuffer := buffer.FromForm(createExtractorForm)
 
-	createResponse, err := client.PostToStorage("storage/components/keboola.wr-db-snowflake/configs", createExtractorBuffer)
+	createResponse, err := client.PostToStorage("storage/components/keboola.ex-db-snowflake/configs", createExtractorBuffer)
 
 	if hasErrors(err, createResponse) {
 		return extractError(err, createResponse)
@@ -104,7 +104,7 @@ func resourceKeboolaSnowflakeExtractorCreate(d *schema.ResourceData, meta interf
 
 	snowflakeDatabaseCredentials := d.Get("snowflake_db_parameters").(map[string]interface{})
 
-	err = createSnowflakeCredentialsConfiguration(snowflakeDatabaseCredentials, createdSnowflakeID, client)
+	err = createSnowflakeExtractorCredentialsConfiguration(snowflakeDatabaseCredentials, createdSnowflakeID, client)
 
 	if err != nil {
 		return err
@@ -117,6 +117,32 @@ func resourceKeboolaSnowflakeExtractorCreate(d *schema.ResourceData, meta interf
 	d.Partial(false)
 
 	return resourceKeboolaSnowflakeExtractorRead(d, meta)
+}
+
+func createSnowflakeExtractorCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {
+	snowflakeExtractorConfiguration := SnowflakeExtractorConfiguration{}
+
+	snowflakeExtractorConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
+
+	snowflakeWriterConfigurationJSON, err := json.Marshal(snowflakeExtractorConfiguration)
+
+	if err != nil {
+		return err
+	}
+
+	updateConfigurationRequestForm := url.Values{}
+	updateConfigurationRequestForm.Add("configuration", string(snowflakeWriterConfigurationJSON))
+	updateConfigurationRequestForm.Add("changeDescription", "Created database credentials")
+
+	updateConfigurationRequestBuffer := buffer.FromForm(updateConfigurationRequestForm)
+
+	updateConfigurationResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.ex-db-snowflake/configs/%s", createdSnowflakeID), updateConfigurationRequestBuffer)
+
+	if hasErrors(err, updateConfigurationResponse) {
+		return extractError(err, updateConfigurationResponse)
+	}
+
+	return nil
 }
 
 func resourceKeboolaSnowflakeExtractorRead(d *schema.ResourceData, meta interface{}) error {
