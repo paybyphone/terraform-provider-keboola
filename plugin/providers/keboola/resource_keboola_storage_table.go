@@ -92,7 +92,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Deprecated: "indexed_columns are no longer necessary and have been deprecated by Keboola, this attribute no longer have any effect (http://status.keboola.com/week-in-review-february-12-2018)"
+				Deprecated: "indexed_columns are no longer necessary and have been deprecated by Keboola, this attribute no longer have any effect (http://status.keboola.com/week-in-review-february-12-2018)",
 			},
 		},
 	}
