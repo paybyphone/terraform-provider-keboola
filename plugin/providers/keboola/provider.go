@@ -35,8 +35,8 @@ func Provider() terraform.ResourceProvider {
 			"keboola_orchestration":            resourceKeboolaOrchestration(),
 			"keboola_orchestration_tasks":      resourceKeboolaOrchestrationTasks(),
 			"keboola_csvimport_extractor":      resourceKeboolaCSVImportExtractor(),
-			"keboola_ftp_extractor":      		resourceKeboolaFTPExtractor(),
-			//"keboola_ftp_extractor_tables": 	resourceKeboolaFTPExtractorTables(),
+			"keboola_ftp_extractor":            resourceKeboolaFTPExtractor(),
+			"keboola_ftp_extractor_files":      resourceKeboolaFTPExtractorFiles(),
 		},
 
 		ConfigureFunc: providerConfigure,

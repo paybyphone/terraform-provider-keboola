@@ -13,19 +13,20 @@ import (
 //region Keboola API Contracts
 
 type FTPExtractor struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Description   string            `json:"description"`
-	Configuration FTPSettings 		`json:"configuration"`
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	Description   string      `json:"description"`
+	Configuration FTPSettings `json:"configuration"`
+	Files         []FTPFile   `json:"rows"`
 }
 
 type FTPSettings struct {
-	Host string   `json:"host"`
-	Port int     `json:"port"`
-	ConnectionType  string `json:"connectionType"`
-	Username   string   `json:"username"`
-	EncryptedPassword   string   `json:"#password"`
-	EncryptedPrivateKey string   `json:"#privateKey"`
+	Host                string `json:"host"`
+	Port                int    `json:"port"`
+	ConnectionType      string `json:"connectionType"`
+	Username            string `json:"username"`
+	EncryptedPassword   string `json:"#password"`
+	EncryptedPrivateKey string `json:"#privateKey"`
 }
 
 //endregion
@@ -55,8 +56,8 @@ func resourceKeboolaFTPExtractor() *schema.Resource {
 				Required: true,
 			},
 			"connection_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
 				ValidateFunc: validateFTPConnectionType,
 			},
 			"username": {
@@ -64,14 +65,14 @@ func resourceKeboolaFTPExtractor() *schema.Resource {
 				Required: true,
 			},
 			"hashed_password": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
 				Sensitive:    true,
 				ValidateFunc: validateKBCEncryptedValue,
 			},
 			"hashed_private_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				Sensitive:    true,
 				ValidateFunc: validateKBCEncryptedValue,
 			},
@@ -87,12 +88,12 @@ func resourceKeboolaFTPExtractorCreate(d *schema.ResourceData, meta interface{})
 	createExtractorForm.Add("description", d.Get("description").(string))
 
 	uploadSettings := FTPSettings{
-		Host: d.Get("host").(string),
-		Port: d.Get("port").(int),
-		ConnectionType:  d.Get("connection_type").(string),
-		Username:  d.Get("username").(string),
-		EncryptedPassword:  d.Get("hashed_password").(string),
-		EncryptedPrivateKey:  d.Get("hashed_private_key").(string),
+		Host:                d.Get("host").(string),
+		Port:                d.Get("port").(int),
+		ConnectionType:      d.Get("connection_type").(string),
+		Username:            d.Get("username").(string),
+		EncryptedPassword:   d.Get("hashed_password").(string),
+		EncryptedPrivateKey: d.Get("hashed_private_key").(string),
 	}
 
 	uploadSettingsJSON, err := json.Marshal(uploadSettings)
@@ -177,12 +178,12 @@ func resourceKeboolaFTPExtractorUpdate(d *schema.ResourceData, meta interface{})
 	updateExtractorForm.Add("description", d.Get("description").(string))
 
 	uploadSettings := FTPSettings{
-		Host: d.Get("host").(string),
-		Port: d.Get("port").(int),
-		ConnectionType:   d.Get("connection_type").(string),
-		Username:   d.Get("username").(string),
-		EncryptedPassword:  d.Get("hashed_password").(string),
-		EncryptedPrivateKey:  d.Get("hashed_private_key").(string),
+		Host:                d.Get("host").(string),
+		Port:                d.Get("port").(int),
+		ConnectionType:      d.Get("connection_type").(string),
+		Username:            d.Get("username").(string),
+		EncryptedPassword:   d.Get("hashed_password").(string),
+		EncryptedPrivateKey: d.Get("hashed_private_key").(string),
 	}
 
 	uploadSettingsJSON, err := json.Marshal(uploadSettings)
