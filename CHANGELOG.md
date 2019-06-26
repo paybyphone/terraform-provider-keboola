@@ -1,16 +1,16 @@
-## 0.1.5
+## 0.1.5 (Unreleased)
 
 DEPRECATIONS:
 
 * `keboola_storage_table`: `indexed_columns` has been deprecated and no longer has any effect: http://status.keboola.com/week-in-review-february-12-2018
 
-## 0.1.4
+## 0.1.4 (13 May 2019)
 
 IMPROVEMENTS:
 
 * `keboola_storage_bucket`: Supports linking of shared buckets between Keboola projects. Using the new `is_linked`, `source_project_id`, and `source_bucket_id` properties.
 
-## 0.1.3
+## 0.1.3 (18 April 2019)
 
 IMPROVEMENTS:
 
