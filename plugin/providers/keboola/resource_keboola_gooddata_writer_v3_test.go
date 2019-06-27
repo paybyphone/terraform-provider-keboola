@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoodDataWriter_v3_Basic(t *testing.T) {
+func TestAccGoodDataWriter_V3_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -23,7 +23,7 @@ func TestAccGoodDataWriter_v3_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "description", "test description"),
 					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "project_id", "123"),
 					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "login", "some-login"),
-					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "hashed_password", "pass"),
+					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "hashed_password", "KBC::ProjectSecure::pass"),
 					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "load_only", "true"),
 					resource.TestCheckResourceAttr("keboola_gooddata_writer_v3.test_config", "multi_load", "false"),
 				),
@@ -57,6 +57,6 @@ const testGoodDataWriterV3Basic = `
 		description = "test description"
 		project_id = "123"
 		login = "some-login"
-		hashed_password = "pass"
+		hashed_password = "KBC::ProjectSecure::pass"
 		load_only =  true
 	}`

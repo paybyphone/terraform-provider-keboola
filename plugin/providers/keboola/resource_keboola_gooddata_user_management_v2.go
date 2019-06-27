@@ -47,7 +47,7 @@ type GoodDataUserManagementInputTableV2 struct {
 	WhereValues   []string `json:"where_values"`
 }
 
-func resourceKeboolaGoodDataUserManagementAppV2() *schema.Resource {
+func resourceKeboolaGoodDataUserManagementV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoodDataUserManagementCreateV2,
 		Read:   resourceGoodDataUserManagementReadV2,
@@ -75,9 +75,10 @@ func resourceKeboolaGoodDataUserManagementAppV2() *schema.Resource {
 				Type:     schema.TypeString,
 			},
 			"hashed_password": {
-				Required:  true,
-				Sensitive: true,
-				Type:      schema.TypeString,
+				Required:     true,
+				Sensitive:    true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateKBCEncryptedValue,
 			},
 			"custom_domain": {
 				Type:     schema.TypeString,

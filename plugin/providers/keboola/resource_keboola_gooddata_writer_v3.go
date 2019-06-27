@@ -100,9 +100,10 @@ func resourceKeboolaGoodDataWriterV3() *schema.Resource {
 				Type:     schema.TypeString,
 			},
 			"hashed_password": {
-				Required:  true,
-				Sensitive: true,
-				Type:      schema.TypeString,
+				Required:     true,
+				Sensitive:    true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateKBCEncryptedValue,
 			},
 			"tables": {
 				Type:     schema.TypeSet,

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccGoodDataUserManagement_v2_Basic(t *testing.T) {
+func TestAccGoodDataUserManagement_V2_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -23,7 +23,7 @@ func TestAccGoodDataUserManagement_v2_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr("keboola_gooddata_user_management_v2.test_config", "description", "test description"),
 					resource.TestCheckResourceAttr("keboola_gooddata_user_management_v2.test_config", "project_id", "123"),
 					resource.TestCheckResourceAttr("keboola_gooddata_user_management_v2.test_config", "login", "some-login"),
-					resource.TestCheckResourceAttr("keboola_gooddata_user_management_v2.test_config", "hashed_password", "pass"),
+					resource.TestCheckResourceAttr("keboola_gooddata_user_management_v2.test_config", "hashed_password", "KBC::ProjectSecure::pass"),
 					resource.TestCheckResourceAttr("keboola_gooddata_user_management_v2.test_config", "custom_domain", "domain"),
 				),
 			},
@@ -57,5 +57,5 @@ const testUserManagementV2Basic = `
 		custom_domain = "domain"
 		project_id = "123"
 		login = "some-login"
-		hashed_password = "pass"
+		hashed_password = "KBC::ProjectSecure::pass"
 	}`
