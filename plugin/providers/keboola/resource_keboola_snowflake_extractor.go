@@ -148,12 +148,13 @@ func createSnowflakeExtractorCredentialsConfiguration(snowflakeCredentials map[s
 func resourceKeboolaSnowflakeExtractorRead(d *schema.ResourceData, meta interface{}) error {
     log.Println("[INFO] Reading Snowflake Extractor from Keboola.")
 
-    client := meta.(*KBCClient)
-    getSnowflakeExtractorResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.ex-db-snowflake/configs/%s", d.Id()))
-
     if d.Id() == "" {
         return nil
     }
+
+    client := meta.(*KBCClient)
+    getSnowflakeExtractorResponse, err := client.GetFromStorage(fmt.Sprintf("storage/components/keboola.ex-db-snowflake/configs/%s", d.Id()))
+
 
     if hasErrors(err, getSnowflakeExtractorResponse) {
         if getSnowflakeExtractorResponse.StatusCode == 404 {
