@@ -20,6 +20,8 @@ Currently, the following KBC resources are supported (or partially supported) fo
 * `keboola_orchestration_tasks`
 * `keboola_postgresql_writer`
 * `keboola_postgresql_writer_tables`
+* `keboola_snowflake_extractor`
+* `keboola_snowflake_extractor_tables`
 * `keboola_snowflake_writer`
 * `keboola_snowflake_writer_tables`
 * `keboola_storage_bucket`
@@ -27,10 +29,9 @@ Currently, the following KBC resources are supported (or partially supported) fo
 * `keboola_transformation_bucket`
 * `keboola_transformation`
 
-## Requirement
+## Requirements
 
 * [hashicorp/terraform](https://github.com/hashicorp/terraform)
-
 
 ## Singular vs. Plural
 

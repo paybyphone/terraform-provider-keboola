@@ -1,8 +1,12 @@
-## 0.1.5 (Unreleased)
+## 0.2.5 (Unreleased)
 
 DEPRECATIONS:
 
 * `keboola_storage_table`: `indexed_columns` has been deprecated and no longer has any effect: http://status.keboola.com/week-in-review-february-12-2018
+
+IMPROVEMENTS:
+
+* `keboola_snowflake_extractor`: Added support for the Snowflake Extractor resource/component in Keboola Connection.
 
 ## 0.1.4 (13 May 2019)
 
