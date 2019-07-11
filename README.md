@@ -62,8 +62,17 @@ For documentation on each supported resource, refer to the [wiki](https://github
 
 ## Contributing
 
-Bug reports, suggestions, code additions/changes etc. are very welcome! When making code changes, please branch off of `master` and then
-raise a pull request so it can be reviewed and merged.
+Bug reports, suggestions, code additions/changes etc. are very welcome! When making code changes, please branch off of `master` and then raise a pull request so it can be reviewed and merged.
+
+### Running Acceptance Tests
+
+The `terraform-provider-keboola` resources will have Terraform acceptance tests, which are run against a real Keboola project to test resource creation, update and deletion. At a minimum, all of these tests must pass on the `master` branch for any release candidate.
+
+To run the Acceptance tests locally, you will need to have access to your own (preferably empty) Keboola project, and also have created an access token for accessing that project. This token should be for a user who has full access to create/update/delete anything on the project.
+
+To enable acceptance tests, set the `TF_ACC` environment variable to `1`, and set the `STORAGE_API_KEY` environment variable to the access token for the project.
+
+Then run the tests by running `make test`.
 
 ## License
 `terraform-provider-keboola` is provided *"as-is"* under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
