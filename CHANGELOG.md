@@ -1,4 +1,4 @@
-## 0.2.0 (Unreleased)
+## 0.2.0 (10 July 2019)
 
 DEPRECATIONS:
 
