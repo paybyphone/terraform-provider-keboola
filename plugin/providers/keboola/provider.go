@@ -25,6 +25,7 @@ func Provider() terraform.ResourceProvider {
 			"keboola_transformation":              resourceKeboolaTransformation(),
 			"keboola_transformation_bucket":       resourceKeboolaTransformationBucket(),
 			"keboola_gooddata_writer":             resourceKeboolaGoodDataWriter(),
+			"keboola_gooddata_writer_v3":          resourceKeboolaGoodDataWriterV3(),
 			"keboola_gooddata_writer_table":       resourceKeboolaGoodDataTable(),
 			"keboola_gooddata_user_management":    resourceKeboolaGoodDataUserManagement(),
 			"keboola_gooddata_user_management_v2": resourceKeboolaGoodDataUserManagementV2(),
