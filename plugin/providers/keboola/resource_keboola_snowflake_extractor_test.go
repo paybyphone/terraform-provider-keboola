@@ -28,8 +28,6 @@ func TestAccSnowflakeExtractor_Basic(t *testing.T) {
 }
 
 func TestAccSnowflakeExtractor_Update(t *testing.T) {
-	// var extractor SnowflakeExtractor
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

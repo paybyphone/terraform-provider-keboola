@@ -18,7 +18,7 @@ type SnowflakeExtractor struct {
 }
 
 type SnowflakeExtractorConfiguration struct {
-	Parameters SnowflakeExtractorParameters `json:"parameters"`
+	Parameters SnowflakeExtractorParameters `json:"parameters,omitempty"`
 }
 
 type SnowflakeExtractorParameters struct {
@@ -162,32 +162,54 @@ func resourceKeboolaSnowflakeExtractorRead(d *schema.ResourceData, meta interfac
 		return extractError(err, getSnowflakeExtractorResponse)
 	}
 
-	var SnowflakeExtractor SnowflakeExtractor
+	var snowflakeExtractor SnowflakeExtractor
 
 	decoder := json.NewDecoder(getSnowflakeExtractorResponse.Body)
-	err = decoder.Decode(&SnowflakeExtractor)
+	err = decoder.Decode(&snowflakeExtractor)
 
 	if err != nil {
 		return err
 	}
 
-	d.Set("id", SnowflakeExtractor.ID)
-	d.Set("name", SnowflakeExtractor.Name)
-	d.Set("description", SnowflakeExtractor.Description)
+	d.Set("id", snowflakeExtractor.ID)
+	d.Set("name", snowflakeExtractor.Name)
+	d.Set("description", snowflakeExtractor.Description)
 
 	dbParameters := make(map[string]interface{})
 
-	databaseCredentials := SnowflakeExtractor.Configuration.Parameters.Database
+	databaseCredentials := snowflakeExtractor.Configuration.Parameters.Database
 
-	dbParameters["hostname"] = databaseCredentials.HostName
-	dbParameters["port"] = databaseCredentials.Port
-	dbParameters["database"] = databaseCredentials.Database
-	dbParameters["schema"] = databaseCredentials.Schema
-	dbParameters["warehouse"] = databaseCredentials.Warehouse
-	dbParameters["username"] = databaseCredentials.Username
-	dbParameters["hashed_password"] = databaseCredentials.EncryptedPassword
+	if databaseCredentials.HostName != "" {
+		dbParameters["hostname"] = databaseCredentials.HostName
+	}
 
-	d.Set("snowflake_db_parameters", dbParameters)
+	if databaseCredentials.Port != "" {
+		dbParameters["port"] = databaseCredentials.Port
+	}
+
+	if databaseCredentials.Database != "" {
+		dbParameters["database"] = databaseCredentials.Database
+	}
+
+	if databaseCredentials.Schema != "" {
+		dbParameters["schema"] = databaseCredentials.Schema
+	}
+
+	if databaseCredentials.Warehouse != "" {
+		dbParameters["warehouse"] = databaseCredentials.Warehouse
+	}
+
+	if databaseCredentials.Username != "" {
+		dbParameters["username"] = databaseCredentials.Username
+	}
+
+	if databaseCredentials.EncryptedPassword != "" {
+		dbParameters["hashed_password"] = databaseCredentials.EncryptedPassword
+	}
+
+	if len(dbParameters) > 0 {
+		d.Set("snowflake_db_parameters", dbParameters)
+	}
 
 	return nil
 }
