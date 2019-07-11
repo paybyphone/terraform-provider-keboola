@@ -162,10 +162,6 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 	err = decoder.Decode(&orchestration)
 
 	if err != nil {
-		return err
-	}
-
-	if err != nil {
 		d.SetId("")
 		return err
 	}

@@ -92,6 +92,7 @@ func resourceKeboolaStorageTable() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Deprecated: "indexed_columns are no longer necessary and have been deprecated by Keboola, this attribute no longer have any effect (http://status.keboola.com/week-in-review-february-12-2018)",
 			},
 		},
 	}
@@ -183,16 +184,6 @@ func resourceKeboolaStorageTableCreate(d *schema.ResourceData, meta interface{})
 
 		time.Sleep(250 * time.Millisecond)
 		tableLoadStatus = tableLoadStatusResult.Status
-	}
-
-	indexedOnlyColumns := except(AsStringArray(d.Get("indexed_columns").([]interface{})), AsStringArray(d.Get("primary_key").([]interface{})))
-
-	for _, indexedColumn := range indexedOnlyColumns {
-		addIndexedColumnResp, err := client.PostToStorage(fmt.Sprintf("storage/tables/%s/indexed-columns?name=%s", tableLoadStatusResult.Results.ID, indexedColumn), buffer.Empty())
-
-		if hasErrors(err, addIndexedColumnResp) {
-			return extractError(err, addIndexedColumnResp)
-		}
 	}
 
 	d.SetId(tableLoadStatusResult.Results.ID)
