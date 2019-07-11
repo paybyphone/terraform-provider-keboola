@@ -45,8 +45,8 @@ type SnowflakeWriterTable struct {
 }
 
 type SnowflakeWriterParameters struct {
-	Database SnowflakeWriterDatabaseParameters `json:"db"`
-	Tables   []SnowflakeWriterTable            `json:"tables,omitempty"`
+	Database SnowflakeDatabaseParameters `json:"db"`
+	Tables   []SnowflakeWriterTable      `json:"tables,omitempty"`
 }
 
 type SnowflakeWriterStorageTable struct {
@@ -117,45 +117,7 @@ func resourceKeboolaSnowflakeWriter() *schema.Resource {
 				Default:  true,
 				ForceNew: true,
 			},
-			"snowflake_db_parameters": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"hostname": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"port": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  443,
-						},
-						"database": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"schema": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"warehouse": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"username": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"hashed_password": {
-							Type:         schema.TypeString,
-							Required:     true,
-							Sensitive:    true,
-							ValidateFunc: validateKBCEncryptedValue,
-						},
-					},
-				},
-			},
+			"snowflake_db_parameters": &snowflakeDBParametersSchema,
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -284,36 +246,6 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 	}
 
 	return &provisionedSnowflake, nil
-}
-
-func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}) SnowflakeWriterDatabaseParameters {
-	databaseParameters := SnowflakeWriterDatabaseParameters{}
-
-	if val, ok := source["hostname"]; ok {
-		databaseParameters.HostName = val.(string)
-	}
-	if val, ok := source["port"]; ok {
-		databaseParameters.Port = val.(string)
-	}
-	if val, ok := source["database"]; ok {
-		databaseParameters.Database = val.(string)
-	}
-	if val, ok := source["schema"]; ok {
-		databaseParameters.Schema = val.(string)
-	}
-	if val, ok := source["warehouse"]; ok {
-		databaseParameters.Warehouse = val.(string)
-	}
-	if val, ok := source["username"]; ok {
-		databaseParameters.Username = val.(string)
-	}
-	if val, ok := source["hashed_password"]; ok {
-		databaseParameters.EncryptedPassword = val.(string)
-	}
-
-	databaseParameters.Driver = "snowflake"
-
-	return databaseParameters
 }
 
 func createSnowflakeCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {

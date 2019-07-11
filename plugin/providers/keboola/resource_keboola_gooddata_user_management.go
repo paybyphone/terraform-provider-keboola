@@ -53,6 +53,8 @@ func resourceKeboolaGoodDataUserManagement() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
+		DeprecationMessage: "keboola_gooddata_user_management has been deprecated and should be replaced with keboola_gooddata_user_management_v2",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

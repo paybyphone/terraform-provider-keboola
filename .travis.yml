@@ -2,7 +2,7 @@ language: go
 
 matrix:
   include:
-    - go: "1.10"
+    - go: "1.12"
 
 install:
 - go get -d github.com/hashicorp/terraform

@@ -39,6 +39,8 @@ func resourceKeboolaGoodDataWriter() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
+		DeprecationMessage: "keboola_gooddata_writer has been deprecated and should be replaced with keboola_gooddata_writer_v3",
+
 		Schema: map[string]*schema.Schema{
 			"writer_id": {
 				Type:     schema.TypeString,

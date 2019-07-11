@@ -1,16 +1,22 @@
-## 0.1.5
+## 0.2.0 (10 July 2019)
 
 DEPRECATIONS:
 
 * `keboola_storage_table`: `indexed_columns` has been deprecated and no longer has any effect: http://status.keboola.com/week-in-review-february-12-2018
+* `keboola_gooddata_writer` and `keboola_gooddata_user_management` have been deprecated and should no longer be used: http://status.keboola.com/weeks-in-review-april-20-2019. They have been replaced with `keboola_gooddata_writer_v3` and `keboola_gooddata_user_management_v2` respectively.
 
-## 0.1.4
+IMPROVEMENTS:
+
+* Added `keboola_gooddata_writer_v3` and `keboola_gooddata_user_management_v2` resources.
+* `keboola_snowflake_extractor`: Added support for the Snowflake Extractor resource/component in Keboola Connection.
+
+## 0.1.4 (13 May 2019)
 
 IMPROVEMENTS:
 
 * `keboola_storage_bucket`: Supports linking of shared buckets between Keboola projects. Using the new `is_linked`, `source_project_id`, and `source_bucket_id` properties.
 
-## 0.1.3
+## 0.1.3 (18 April 2019)
 
 IMPROVEMENTS:
 
