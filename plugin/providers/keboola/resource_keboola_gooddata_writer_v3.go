@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/url"
+
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
-	"log"
-	"net/url"
 )
 
 const goodDataWriterComponentTemplate = "storage/components/keboola.gooddata-writer/configs/%s"
