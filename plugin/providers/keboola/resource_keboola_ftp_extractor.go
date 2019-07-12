@@ -201,7 +201,7 @@ func resourceKeboolaFTPExtractorUpdate(d *schema.ResourceData, meta interface{})
 		return extractError(err, updateExtractorResponse)
 	}
 
-	return resourceKeboolaSnowflakeWriterRead(d, meta)
+	return resourceKeboolaFTPExtractorRead(d, meta)
 }
 
 func resourceKeboolaFTPExtractorDelete(d *schema.ResourceData, meta interface{}) error {

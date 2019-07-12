@@ -40,7 +40,7 @@ func Provider() terraform.ResourceProvider {
 			"keboola_snowflake_extractor":         resourceKeboolaSnowflakeExtractor(),
 			"keboola_snowflake_extractor_tables":  resourceKeboolaSnowflakeExtractorTables(),
 			"keboola_ftp_extractor":               resourceKeboolaFTPExtractor(),
-			"keboola_ftp_extractor_files":         resourceKeboolaFTPExtractorFiles(),
+			"keboola_ftp_extractor_file":          resourceKeboolaFTPExtractorFile(),
 		},
 
 		ConfigureFunc: providerConfigure,
