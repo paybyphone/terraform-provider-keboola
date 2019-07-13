@@ -12,10 +12,7 @@ func TestAccFTPExtractor_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(
-			testAccCheckFTPExtractorDestroy,
-			testAccCheckStorageBucketDestroy,
-		),
+		CheckDestroy: testAccCheckFTPExtractorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testFTPExtractorBasic,
@@ -32,6 +29,36 @@ func TestAccFTPExtractor_Basic(t *testing.T) {
 		},
 	})
 }
+
+func TestAccFTPExtractor_Update(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFTPExtractorDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testFTPExtractorBasic,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "name", "test_extractor"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "description", "test description"),
+				),
+			},
+			{
+				Config: testFTPExtractorUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "name", "test_extractor updated"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "description", "test description updated"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "host", "some.other.ftp.site"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "port", "23"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "connection_type", "sftp"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "username", "test_username_updated"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor.test_extractor", "hashed_password", "KBC::ProjectSecure::gibberish_goes_in_here_updated"),
+				),
+			},
+		},
+	})
+}
+
 
 func testAccCheckFTPExtractorDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*KBCClient)
@@ -62,4 +89,15 @@ const testFTPExtractorBasic = `
 		connection_type = "sftp"
 		username = "test_username"
 		hashed_password = "KBC::ProjectSecure::gibberish_goes_in_here"
+	}`
+
+const testFTPExtractorUpdate = `
+	resource "keboola_ftp_extractor" "test_extractor" {
+		name = "test_extractor updated"
+		description = "test description updated"
+		host = "some.other.ftp.site"
+		port = "23"
+		connection_type = "sftp"
+		username = "test_username_updated"
+		hashed_password = "KBC::ProjectSecure::gibberish_goes_in_here_updated"
 	}`

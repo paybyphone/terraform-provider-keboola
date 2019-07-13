@@ -39,8 +39,9 @@ func resourceKeboolaFTPExtractorFile() *schema.Resource {
 				Optional: true,
 			},
 			"configuration": {
-				Type:     schema.TypeMap,
-				Required: true,
+				Type:     schema.TypeString,
+				Optional: true,
+				Default: defaultFileConfig,
 			},
 		},
 	}
@@ -49,23 +50,15 @@ func resourceKeboolaFTPExtractorFile() *schema.Resource {
 func resourceKeboolaFTPExtractorFileCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Creating FTP Extractor File in Keboola.")
 
-	extractorID := d.Get("extractor_id").(string)
-
-	createFileJSON, err := json.Marshal(d.Get("configuration").(map[string]interface{}))
-
-	if err != nil {
-		return err
-	}
-
 	createExtractorForm := url.Values{}
 	createExtractorForm.Add("name", d.Get("name").(string))
 	createExtractorForm.Add("description", d.Get("description").(string))
-
-	createExtractorForm.Add("configuration", string(createFileJSON))
+	createExtractorForm.Add("configuration", d.Get("configuration").(string))
 	createExtractorBuffer := buffer.FromForm(createExtractorForm)
 
 	client := meta.(*KBCClient)
 
+	extractorID := d.Get("extractor_id").(string)
 	createResponse, err := client.PostToStorage(fmt.Sprintf("storage/components/keboola.ex-ftp/configs/%s/rows", extractorID), createExtractorBuffer)
 
 	if hasErrors(err, createResponse) {
@@ -129,21 +122,14 @@ func resourceKeboolaFTPExtractorFileRead(d *schema.ResourceData, meta interface{
 func resourceKeboolaFTPExtractorFileUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[INFO] Updating FTP Extractor File in Keboola.")
 
-	extractorID := d.Get("extractor_id").(string)
-
 	client := meta.(*KBCClient)
 
-	updateFileJSON, err := json.Marshal(d.Get("configuration").(map[string]interface{}))
-
-	if err != nil {
-		return err
-	}
+	extractorID := d.Get("extractor_id").(string)
 
 	updateExtractorForm := url.Values{}
 	updateExtractorForm.Add("name", d.Get("name").(string))
 	updateExtractorForm.Add("description", d.Get("description").(string))
-	updateExtractorForm.Add("configuration", string(updateFileJSON))
-
+	updateExtractorForm.Add("configuration", d.Get("configuration").(string))
 	updateExtractorBuffer := buffer.FromForm(updateExtractorForm)
 
 	updateExtractorResponse, err := client.PutToStorage(fmt.Sprintf("storage/components/keboola.ex-ftp/configs/%s/rows/%s", extractorID, d.Id()), updateExtractorBuffer)
@@ -171,3 +157,44 @@ func resourceKeboolaFTPExtractorFileDelete(d *schema.ResourceData, meta interfac
 
 	return nil
 }
+
+const defaultFileConfig = `{
+	"parameters": {
+	  "onlyNewFiles": false,
+	  "path": ""
+	},
+	"processors": {
+	  "after": [
+		{
+		  "definition": {
+			"component": "keboola.processor-move-files"
+		  },
+		  "parameters": {
+			"direction": "tables",
+			"addCsvSuffix": true,
+			"folder": "default"
+		  }
+		},
+		{
+		  "definition": {
+			"component": "keboola.processor-create-manifest"
+		  },
+		  "parameters": {
+			"delimiter": ",",
+			"enclosure": "\"",
+			"incremental": false,
+			"primary_key": [],
+			"columns_from": "header"
+		  }
+		},
+		{
+		  "definition": {
+			"component": "keboola.processor-skip-lines"
+		  },
+		  "parameters": {
+			"lines": 1
+		  }
+		}
+	  ]
+	}
+  }`
