@@ -14,6 +14,8 @@ Currently, the following KBC resources are supported (or partially supported) fo
 
 * `keboola_access_token`
 * `keboola_csvimport_extractor`
+* `keboola_ftp_extractor`
+* `keboola_ftp_extractor_file`
 * `keboola_gooddata_user_management`
 * `keboola_gooddata_user_management_v2`
 * `keboola_gooddata_writer`
