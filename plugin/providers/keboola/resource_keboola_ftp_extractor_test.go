@@ -10,8 +10,8 @@ import (
 
 func TestAccFTPExtractor_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFTPExtractorDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -58,7 +58,6 @@ func TestAccFTPExtractor_Update(t *testing.T) {
 		},
 	})
 }
-
 
 func testAccCheckFTPExtractorDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*KBCClient)

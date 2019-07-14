@@ -10,8 +10,8 @@ import (
 
 func TestAccFTPExtractorFile_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFTPExtractorFileDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -19,6 +19,7 @@ func TestAccFTPExtractorFile_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_ftp_extractor_file.test_extractor_file", "name", "test_extractor_file"),
 					resource.TestCheckResourceAttr("keboola_ftp_extractor_file.test_extractor_file", "description", "test file description"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor_file.test_extractor_file", "configuration", "{ \"stuff\": { } }"),
 				),
 			},
 		},
@@ -43,12 +44,12 @@ func TestAccFTPExtractorFile_Update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_ftp_extractor_file.test_extractor_file", "name", "test_extractor_file_updated"),
 					resource.TestCheckResourceAttr("keboola_ftp_extractor_file.test_extractor_file", "description", "test file description updated"),
+					resource.TestCheckResourceAttr("keboola_ftp_extractor_file.test_extractor_file", "configuration", "{ \"stuff\": { } }"),
 				),
 			},
 		},
 	})
 }
-
 
 func testAccCheckFTPExtractorFileDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*KBCClient)
@@ -87,6 +88,7 @@ const testFTPExtractorFileBasic = `
 		extractor_id = "${keboola_ftp_extractor.test_extractor.id}"
 		name = "test_extractor_file"
 		description = "test file description"
+		configuration = "{ \"stuff\": { } }"
 	}
 	`
 
@@ -105,4 +107,5 @@ const testFTPExtractorFileUpdate = `
 		extractor_id = "${keboola_ftp_extractor.test_extractor.id}"
 		name = "test_extractor_file_updated"
 		description = "test file description updated"
+		configuration = "{ \"stuff\": { } }"
 	}`

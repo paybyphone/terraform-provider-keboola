@@ -41,7 +41,7 @@ func resourceKeboolaFTPExtractorFile() *schema.Resource {
 			"configuration": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default: defaultFileConfig,
+				Default:  defaultFileConfig,
 			},
 		},
 	}
