@@ -61,3 +61,14 @@ func validateKBCEncryptedValue(v interface{}, k string) (ws []string, errors []e
 
 	return
 }
+
+func validateFTPConnectionType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "ftp" && value != "ftps" && value != "sftp" {
+		errors = append(errors, fmt.Errorf(
+			"%q must be set to one of %s, %s or %s, got %q",
+			k, "ftp", "ftps", "sftp", value))
+	}
+
+	return
+}

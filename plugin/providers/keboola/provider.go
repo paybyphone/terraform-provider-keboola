@@ -19,7 +19,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 
-		ResourcesMap: map[string]*schema.Resource {
+		ResourcesMap: map[string]*schema.Resource{
 			"keboola_storage_table":               resourceKeboolaStorageTable(),
 			"keboola_storage_bucket":              resourceKeboolaStorageBucket(),
 			"keboola_transformation":              resourceKeboolaTransformation(),
@@ -39,6 +39,8 @@ func Provider() terraform.ResourceProvider {
 			"keboola_csvimport_extractor":         resourceKeboolaCSVImportExtractor(),
 			"keboola_snowflake_extractor":         resourceKeboolaSnowflakeExtractor(),
 			"keboola_snowflake_extractor_tables":  resourceKeboolaSnowflakeExtractorTables(),
+			"keboola_ftp_extractor":               resourceKeboolaFTPExtractor(),
+			"keboola_ftp_extractor_file":          resourceKeboolaFTPExtractorFile(),
 		},
 
 		ConfigureFunc: providerConfigure,

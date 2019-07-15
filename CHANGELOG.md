@@ -1,3 +1,9 @@
+## 0.3.0 (Unreleased)
+
+IMPROVEMENTS:
+
+* Added `keboola_ftp_extractor` and `keboola_ftp_extractor_file` for managing FTP Extractor for FTP, FTPS and SFTP server integrations.
+
 ## 0.2.0 (10 July 2019)
 
 DEPRECATIONS:
