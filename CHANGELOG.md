@@ -1,4 +1,10 @@
-## 0.3.0 (Unreleased)
+## 0.3.1 (16 July 2019)
+
+FIXES:
+
+* Fixed a bug in `keboola_gooddata_writer_v3` which caused extra storage tables to be created in the GoodData Writer configuration.
+
+## 0.3.0 (15 July 2019)
 
 IMPROVEMENTS:
 
