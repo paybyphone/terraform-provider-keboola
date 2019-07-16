@@ -436,7 +436,7 @@ func getStorageTables(d *schema.ResourceData) []GoodDataStorageTable {
 
 	tables := d.Get("tables").(*schema.Set).List()
 
-	storageTables := make([]GoodDataStorageTable, len(tables))
+	storageTables := make([]GoodDataStorageTable, 0, len(tables))
 
 	for _, table := range tables {
 		var columnNames []string
