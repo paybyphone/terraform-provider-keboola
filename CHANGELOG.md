@@ -1,3 +1,9 @@
+## 0.3.2 (18 July 2019)
+
+FIXES:
+
+* Fixed a bug in `keboola_gooddata_writer_v3` where the `name` property in column definitions was not being populated correctly.
+
 ## 0.3.1 (16 July 2019)
 
 FIXES:
