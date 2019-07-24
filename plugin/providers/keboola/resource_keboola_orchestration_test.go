@@ -20,6 +20,26 @@ func TestAccOrchestration_Basic(t *testing.T) {
 				Config: testOrchestrationBasic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("keboola_orchestration.test_orchestration", "name", "test name"),
+					resource.TestCheckResourceAttr("keboola_orchestration.test_orchestration", "enabled", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccOrchestration_Disabled(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckOrchestrationDestroy,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testOrchestrationDisabled,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("keboola_orchestration.test_orchestration", "name", "test name"),
+					resource.TestCheckResourceAttr("keboola_orchestration.test_orchestration", "enabled", "false"),
 				),
 			},
 		},
@@ -49,6 +69,17 @@ func testAccCheckOrchestrationDestroy(s *terraform.State) error {
 const testOrchestrationBasic = `
 resource "keboola_orchestration" "test_orchestration" {
 	name = "test name"
+
+	notification {
+		email   = "hopefullydoesnot.exist@anywhere.cheese"
+		channel = "error"
+	}
+}`
+
+const testOrchestrationDisabled = `
+resource "keboola_orchestration" "test_orchestration" {
+	name    = "test name"
+	enabled = false
 
 	notification {
 		email   = "hopefullydoesnot.exist@anywhere.cheese"
