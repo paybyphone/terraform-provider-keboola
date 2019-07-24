@@ -25,6 +25,7 @@ type OrchestrationToken struct {
 type Orchestration struct {
 	ID            json.Number                 `json:"id,omitempty"`
 	Name          string                      `json:"name"`
+	Active        bool                        `json:"active"`
 	ScheduleCRON  string                      `json:"crontabRecord"`
 	Token         OrchestrationToken          `json:"token,omitempty"`
 	Notifications []OrchestrationNotification `json:"notifications"`
@@ -46,6 +47,11 @@ func resourceKeboolaOrchestration() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 			"schedule_cron": {
 				Type:     schema.TypeString,
@@ -102,6 +108,7 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 
 	orchestrationConfig := Orchestration{
 		Name:         d.Get("name").(string),
+		Active:       d.Get("enabled").(bool),
 		ScheduleCRON: d.Get("schedule_cron").(string),
 	}
 
@@ -133,6 +140,14 @@ func resourceKeboolaOrchestrationCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetId(string(createResult.ID))
+
+	if d.Get("enabled").(bool) == false {
+		log.Println(fmt.Sprintf("[DEBUG] Orchestration '%s' is being created as inactive, need to make an additional call to resourceKeboolaOrchestrationUpdate to set this `active` flag", d.Id()))
+		err = resourceKeboolaOrchestrationUpdate(d, meta)
+		if err != nil {
+			return err
+		}
+	}
 
 	return resourceKeboolaOrchestrationRead(d, meta)
 }
@@ -181,6 +196,7 @@ func resourceKeboolaOrchestrationRead(d *schema.ResourceData, meta interface{}) 
 
 	d.Set("id", orchestration.ID)
 	d.Set("name", orchestration.Name)
+	d.Set("enabled", orchestration.Active)
 	d.Set("schedule_cron", orchestration.ScheduleCRON)
 	d.Set("notification", notifications)
 
@@ -192,6 +208,7 @@ func resourceKeboolaOrchestrationUpdate(d *schema.ResourceData, meta interface{}
 
 	orchestrationConfig := Orchestration{
 		Name:         d.Get("name").(string),
+		Active:       d.Get("enabled").(bool),
 		ScheduleCRON: d.Get("schedule_cron").(string),
 	}
 
