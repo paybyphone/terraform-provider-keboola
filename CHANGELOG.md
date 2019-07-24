@@ -1,3 +1,9 @@
+## 0.3.3 (unreleased)
+
+IMPROVEMENTS:
+
+* Added support for `enabled` on `keboola_orchestration`, which allows control over whether an Orchestration will automatically run on its configured schedule.
+
 ## 0.3.2 (18 July 2019)
 
 FIXES:
