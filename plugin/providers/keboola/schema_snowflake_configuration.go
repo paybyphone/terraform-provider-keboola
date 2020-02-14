@@ -12,7 +12,7 @@ type SnowflakeDatabaseParameters struct {
 	Username          string `json:"user"`
 	Schema            string `json:"schema"`
 	Port              string `json:"port"`
-	Driver            string `json:"driver"`
+	Driver            string `json:"driver,omitempty"`
 	Warehouse         string `json:"warehouse"`
 }
 
@@ -56,7 +56,7 @@ var snowflakeDBParametersSchema = schema.Schema{
 	},
 }
 
-func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, has_driver bool) SnowflakeDatabaseParameters {
+func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, hasDriver bool) SnowflakeDatabaseParameters {
 	databaseParameters := SnowflakeDatabaseParameters{}
 
 	if val, ok := source["hostname"]; ok {
@@ -81,7 +81,7 @@ func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, has_d
 		databaseParameters.EncryptedPassword = val.(string)
 	}
 
-	if has_driver == true {
+	if hasDriver == true {
 		databaseParameters.Driver = "snowflake"
 	}
 
