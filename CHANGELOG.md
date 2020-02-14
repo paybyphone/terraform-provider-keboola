@@ -1,3 +1,27 @@
+## 0.3.3 (unreleased)
+
+IMPROVEMENTS:
+
+* Added support for `enabled` on `keboola_orchestration`, which allows control over whether an Orchestration will automatically run on its configured schedule.
+
+## 0.3.2 (18 July 2019)
+
+FIXES:
+
+* Fixed a bug in `keboola_gooddata_writer_v3` where the `name` property in column definitions was not being populated correctly.
+
+## 0.3.1 (16 July 2019)
+
+FIXES:
+
+* Fixed a bug in `keboola_gooddata_writer_v3` which caused extra storage tables to be created in the GoodData Writer configuration.
+
+## 0.3.0 (15 July 2019)
+
+IMPROVEMENTS:
+
+* Added `keboola_ftp_extractor` and `keboola_ftp_extractor_file` for managing FTP Extractor for FTP, FTPS and SFTP server integrations.
+
 ## 0.2.0 (10 July 2019)
 
 DEPRECATIONS:

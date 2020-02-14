@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
@@ -26,6 +25,14 @@ type GoodDataStorageTable struct {
 	Source       string   `json:"source"`
 }
 
+type GoodDataTableV3 struct {
+	ID              string                    `json:"tableId,omitempty"`
+	Title           string                    `json:"title"`
+	Identifier      string                    `json:"identifier"`
+	IncrementalDays KBCBooleanNumber          `json:"incrementalLoad,omitempty"`
+	Columns         map[string]GoodDataColumn `json:"columns"`
+}
+
 type GoodDataProject struct {
 	ProjectId string `json:"pid"`
 }
@@ -36,12 +43,12 @@ type GoodDataUser struct {
 }
 
 type GoodDataWriterParameters struct {
-	DateDimensions map[string]DateDimension `json:"dimensions,omitempty"`
-	Tables         map[string]GoodDataTable `json:"tables,omitempty"`
-	LoadOnly       bool                     `json:"loadOnly"`
-	MultiLoad      bool                     `json:"multiLoad"`
-	Project        GoodDataProject          `json:"project"`
-	User           GoodDataUser             `json:"user"`
+	DateDimensions map[string]DateDimension   `json:"dimensions,omitempty"`
+	Tables         map[string]GoodDataTableV3 `json:"tables,omitempty"`
+	LoadOnly       bool                       `json:"loadOnly"`
+	MultiLoad      bool                       `json:"multiLoad"`
+	Project        GoodDataProject            `json:"project"`
+	User           GoodDataUser               `json:"user"`
 }
 
 type GoodDataStorageInput struct {
@@ -152,9 +159,9 @@ func resourceKeboolaGoodDataWriterV3() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"name": {
+									"column_name": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"title": {
 										Type:     schema.TypeString,
@@ -252,7 +259,7 @@ func resourceKeboolaGoodDataWriterV3Read(d *schema.ResourceData, meta interface{
 				"reference":        column.Reference,
 				"schema_reference": column.SchemaReference,
 				"format":           column.Format,
-				"name":             column.Name,
+				"column_name":      column.Name,
 				"title":            column.Title,
 				"type":             column.Type,
 			}
@@ -324,7 +331,6 @@ func resourceKeboolaGoodDataWriterV3Delete(d *schema.ResourceData, meta interfac
 }
 
 func serializeGoodDataWriterComponent(d *schema.ResourceData) (*bytes.Buffer, error) {
-
 	goodDataStorage := GoodDataStorage{
 		Input: GoodDataStorageInput{Tables: getStorageTables(d)},
 	}
@@ -388,8 +394,8 @@ func getDateDimensions(d *schema.ResourceData) map[string]DateDimension {
 	return dateDimensions
 }
 
-func getTables(d *schema.ResourceData) map[string]GoodDataTable {
-	gdTables := make(map[string]GoodDataTable)
+func getTables(d *schema.ResourceData) map[string]GoodDataTableV3 {
+	gdTables := make(map[string]GoodDataTableV3)
 
 	if d.Get("tables") == nil {
 		return gdTables
@@ -407,7 +413,7 @@ func getTables(d *schema.ResourceData) map[string]GoodDataTable {
 			config := columnConfig.(map[string]interface{})
 
 			mappedColumn := GoodDataColumn{
-				Name:            config["name"].(string),
+				Name:            config["column_name"].(string),
 				DataType:        config["data_type"].(string),
 				DataTypeSize:    config["data_type_size"].(string),
 				DateDimension:   config["date_dimension"].(string),
@@ -418,12 +424,12 @@ func getTables(d *schema.ResourceData) map[string]GoodDataTable {
 				Type:            config["type"].(string),
 			}
 
-			mappedColumns[mappedColumn.Title] = mappedColumn
+			mappedColumns[mappedColumn.Name] = mappedColumn
 		}
 
-		key := input["title"].(string)
-		gdTables[key] = GoodDataTable{
-			Title:      key,
+		title := input["title"].(string)
+		gdTables[title] = GoodDataTableV3{
+			Title:      title,
 			Identifier: input["identifier"].(string),
 			Columns:    mappedColumns,
 		}
@@ -433,10 +439,9 @@ func getTables(d *schema.ResourceData) map[string]GoodDataTable {
 }
 
 func getStorageTables(d *schema.ResourceData) []GoodDataStorageTable {
-
 	tables := d.Get("tables").(*schema.Set).List()
 
-	storageTables := make([]GoodDataStorageTable, len(tables))
+	storageTables := make([]GoodDataStorageTable, 0, len(tables))
 
 	for _, table := range tables {
 		var columnNames []string
@@ -446,10 +451,9 @@ func getStorageTables(d *schema.ResourceData) []GoodDataStorageTable {
 
 		for _, columnConfig := range columns {
 			columnInput := columnConfig.(map[string]interface{})
-			columnNames = append(columnNames, columnInput["title"].(string))
+			columnNames = append(columnNames, columnInput["column_name"].(string))
 		}
 
-		log.Printf("%v", tableInput)
 		storageTables = append(storageTables, GoodDataStorageTable{
 			Columns:      columnNames,
 			ChangedSince: tableInput["changed_since"].(string),

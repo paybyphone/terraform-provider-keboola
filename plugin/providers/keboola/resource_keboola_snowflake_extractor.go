@@ -120,7 +120,7 @@ func resourceKeboolaSnowflakeExtractorCreate(d *schema.ResourceData, meta interf
 func createSnowflakeExtractorCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {
 	snowflakeExtractorConfiguration := SnowflakeExtractorConfiguration{}
 
-	snowflakeExtractorConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
+	snowflakeExtractorConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, false)
 
 	snowflakeWriterConfigurationJSON, err := json.Marshal(snowflakeExtractorConfiguration)
 
@@ -236,7 +236,7 @@ func resourceKeboolaSnowflakeExtractorUpdate(d *schema.ResourceData, meta interf
 
 	snowflakeCredentials := d.Get("snowflake_db_parameters").(map[string]interface{})
 
-	snowflakeExtractor.Configuration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
+	snowflakeExtractor.Configuration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, false)
 
 	snowflakeConfigJSON, err := json.Marshal(snowflakeExtractor.Configuration)
 
