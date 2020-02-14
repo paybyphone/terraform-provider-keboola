@@ -62,6 +62,10 @@ var inputSchema = schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"load_type": {
+				Type: schema.TypeString,
+				Optional: true,
+			},
 		},
 	},
 }
@@ -80,6 +84,7 @@ func mapInputSchemaToModel(inputs []interface{}) []Input {
 			DataTypes:     config["datatypes"].(map[string]interface{}),
 			Days:          config["days"].(int),
 			ChangedSince:  config["changed_since"].(string),
+			LoadType: 	   config["load_type"].(string),
 		}
 
 		if q := config["where_values"]; q != nil {
@@ -121,6 +126,7 @@ func mapInputModelToSchema(inputs []Input) []map[string]interface{} {
 			"datatypes":      input.DataTypes,
 			"days":           input.Days,
 			"changed_since":   input.ChangedSince,
+			"load_type":	  input.LoadType,
 		}
 
 		if input.Indexes != nil {

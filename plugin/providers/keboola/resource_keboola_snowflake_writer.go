@@ -251,7 +251,7 @@ func provisionSnowflakeInstance(client *KBCClient) (provisionedSnowflakeResponse
 func createSnowflakeCredentialsConfiguration(snowflakeCredentials map[string]interface{}, createdSnowflakeID string, client *KBCClient) error {
 	snowflakeWriterConfiguration := SnowflakeWriterConfiguration{}
 
-	snowflakeWriterConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
+	snowflakeWriterConfiguration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, true)
 
 	snowflakeWriterConfigurationJSON, err := json.Marshal(snowflakeWriterConfiguration)
 
@@ -347,7 +347,7 @@ func resourceKeboolaSnowflakeWriterUpdate(d *schema.ResourceData, meta interface
 	snowflakeCredentials := d.Get("snowflake_db_parameters").(map[string]interface{})
 
 	if d.Get("provision_new_instance").(bool) == false {
-		snowflakeWriter.Configuration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials)
+		snowflakeWriter.Configuration.Parameters.Database = mapSnowflakeCredentialsToConfiguration(snowflakeCredentials, true)
 	}
 
 	snowflakeConfigJSON, err := json.Marshal(snowflakeWriter.Configuration)
