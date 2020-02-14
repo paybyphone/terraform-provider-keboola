@@ -56,7 +56,7 @@ var snowflakeDBParametersSchema = schema.Schema{
 	},
 }
 
-func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, hasDriver bool) SnowflakeDatabaseParameters {
+func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, configRequiresDriver bool) SnowflakeDatabaseParameters {
 	databaseParameters := SnowflakeDatabaseParameters{}
 
 	if val, ok := source["hostname"]; ok {
@@ -81,7 +81,7 @@ func mapSnowflakeCredentialsToConfiguration(source map[string]interface{}, hasDr
 		databaseParameters.EncryptedPassword = val.(string)
 	}
 
-	if hasDriver == true {
+	if configRequiresDriver == true {
 		databaseParameters.Driver = "snowflake"
 	}
 
