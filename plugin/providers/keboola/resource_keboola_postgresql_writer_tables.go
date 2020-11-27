@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
+	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 //TODO: This, and resource_keboola_snowflake_writer_tables are practically identical, can probably define everything only once and reuse for both.

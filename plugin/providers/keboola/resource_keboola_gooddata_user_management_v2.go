@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/plmwong/terraform-provider-keboola/plugin/providers/keboola/buffer"
+	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
 const userManagementComponentTemplate = "storage/components/kds-team.app-gd-user-management/configs/%s"
