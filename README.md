@@ -2,8 +2,6 @@
 
 A [Terraform](https://www.terraform.io) Custom Provider for [Keboola Connection (KBC)](https://www.keboola.com).
 
-[![Build Status](https://travis-ci.org/plmwong/terraform-provider-keboola.svg?branch=master)](https://travis-ci.org/plmwong/terraform-provider-keboola)
-
 ## Description
 
 This is a custom terraform provider for managing common resources within the Keboola Connection (KBC) platform, such as Transformations, Orchestrations, Writers etc.
@@ -62,7 +60,7 @@ provider "keboola" {
 
 ### Resource Configuration
 
-For documentation on each supported resource, refer to the [wiki](https://github.com/plmwong/terraform-provider-keboola/wiki).
+For documentation on each supported resource, refer to the [wiki](https://github.com/paybyphone/terraform-provider-keboola/wiki).
 
 ## Contributing
 
