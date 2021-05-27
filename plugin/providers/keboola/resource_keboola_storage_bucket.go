@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
@@ -58,19 +58,19 @@ func resourceKeboolaStorageBucket() *schema.Resource {
 				ValidateFunc: validateStorageBucketBackend,
 			},
 			"is_linked": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				ForceNew:     true,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 			"source_project_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"source_bucket_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}

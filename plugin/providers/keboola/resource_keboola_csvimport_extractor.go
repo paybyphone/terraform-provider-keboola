@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func stripWhitespace(str string) string {

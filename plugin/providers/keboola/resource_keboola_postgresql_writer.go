@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
@@ -93,7 +93,7 @@ func resourceKeboolaPostgreSQLWriter() *schema.Resource {
 			"db_parameters": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				Removed: 		  "'db_parameters' has been deprecated, please use 'postgresql_db_parameters' instead",
+				Removed:          "'db_parameters' has been deprecated, please use 'postgresql_db_parameters' instead",
 				DiffSuppressFunc: suppressEquivalentJSON,
 			},
 			"postgresql_db_parameters": {
@@ -182,12 +182,24 @@ func createPostgreSQLWriterConfiguration(name string, description string, client
 func mapPostgreSQLCredentialsToConfiguration(source map[string]interface{}) PostgreSQLWriterDatabaseParameters {
 	databaseParameters := PostgreSQLWriterDatabaseParameters{}
 
-	if val, ok := source["hostname"]; ok { databaseParameters.HostName = val.(string) }
-	if val, ok := source["port"]; ok { databaseParameters.Port = val.(string) }
-	if val, ok := source["database"]; ok { databaseParameters.Database = val.(string) }
-	if val, ok := source["schema"]; ok { databaseParameters.Schema = val.(string) }
-	if val, ok := source["username"]; ok { databaseParameters.Username = val.(string) }
-	if val, ok := source["hashed_password"]; ok { databaseParameters.EncryptedPassword = val.(string) }
+	if val, ok := source["hostname"]; ok {
+		databaseParameters.HostName = val.(string)
+	}
+	if val, ok := source["port"]; ok {
+		databaseParameters.Port = val.(string)
+	}
+	if val, ok := source["database"]; ok {
+		databaseParameters.Database = val.(string)
+	}
+	if val, ok := source["schema"]; ok {
+		databaseParameters.Schema = val.(string)
+	}
+	if val, ok := source["username"]; ok {
+		databaseParameters.Username = val.(string)
+	}
+	if val, ok := source["hashed_password"]; ok {
+		databaseParameters.EncryptedPassword = val.(string)
+	}
 
 	databaseParameters.Driver = "pgsql"
 

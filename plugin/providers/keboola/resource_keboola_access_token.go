@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
@@ -122,7 +122,7 @@ func resourceKeboolaAccessTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(string(createAccessTokenResult.ID))
 
-	log.Println(fmt.Sprintf("[INFO] Access Token created in Keboola (ID: %s).", string(createAccessTokenResult.ID)) )
+	log.Println(fmt.Sprintf("[INFO] Access Token created in Keboola (ID: %s).", string(createAccessTokenResult.ID)))
 
 	return resourceKeboolaAccessTokenRead(d, meta)
 }
