@@ -1,6 +1,6 @@
 package keboola
 
-import "github.com/hashicorp/terraform/helper/schema"
+import "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 var outputSchema = schema.Schema{
 	Type:     schema.TypeList,

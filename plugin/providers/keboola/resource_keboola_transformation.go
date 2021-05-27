@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paybyphone/terraform-provider-keboola/plugin/providers/keboola/buffer"
 )
 
@@ -25,7 +25,7 @@ type Input struct {
 	DataTypes     map[string]interface{} `json:"datatypes,omitempty"`
 	Days          int                    `json:"days,omitempty"`
 	ChangedSince  string                 `json:"changedSince,omitempty"`
-	LoadType	  string				 `json:"loadType,omitempty"`
+	LoadType      string                 `json:"loadType,omitempty"`
 }
 
 //Output is a mapping from the internal tables used by transformation queries
